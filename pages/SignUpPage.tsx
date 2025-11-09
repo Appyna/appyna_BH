@@ -1,20 +1,42 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/icons/Logo';
 import { BackButton } from '../components/BackButton';
+import { useAuth } from '../contexts/AuthContext';
 
 export const SignUpPage: React.FC = () => {
+    const navigate = useNavigate();
+    const { register } = useAuth();
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!acceptedTerms) {
-            alert('Veuillez accepter les conditions d\'utilisation pour continuer.');
+            setError('Veuillez accepter les conditions d\'utilisation pour continuer.');
             return;
         }
-        // Mock signup logic
-        alert('Inscription réussie ! (Simulation)');
+        
+        setError('');
+        setLoading(true);
+
+        const formData = new FormData(e.target as HTMLFormElement);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+
+        const success = await register({ name, email, password });
+        
+        if (success) {
+            alert('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
+            navigate('/login');
+        } else {
+            setError('Erreur lors de l\'inscription. Cet email est peut-être déjà utilisé.');
+        }
+        
+        setLoading(false);
     };
 
     return (
@@ -39,6 +61,11 @@ export const SignUpPage: React.FC = () => {
 
             <div className="mt-8 sm:mt-10 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white/80 backdrop-blur-sm py-8 sm:py-10 px-6 shadow-2xl sm:rounded-3xl sm:px-12 border border-white/20">
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                            {error}
+                        </div>
+                    )}
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -115,9 +142,10 @@ export const SignUpPage: React.FC = () => {
                         <div className="pt-2">
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-6 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
+                                disabled={loading}
+                                className="w-full flex justify-center py-3 px-6 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Créer mon compte
+                                {loading ? 'Inscription...' : 'Créer mon compte'}
                             </button>
                         </div>
                     </form>

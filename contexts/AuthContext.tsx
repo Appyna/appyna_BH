@@ -1,15 +1,15 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { mockUsers } from '../data/mock';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  register: (userData: { name: string; email: string; password: string; bio?: string }) => boolean;
-  logout: () => void;
-  updateProfile: (updates: { name?: string; bio?: string; avatarUrl?: string }) => void;
-  toggleFavorite: (listingId: string) => void;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (userData: { name: string; email: string; password: string; bio?: string }) => Promise<boolean>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: { name?: string; bio?: string; avatarUrl?: string }) => Promise<void>;
+  toggleFavorite: (listingId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,68 +27,183 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // TEMPORAIRE : Simuler un utilisateur connecté pour la démo
-  const [user, setUser] = useState<User | null>(mockUsers[0]);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (email: string, password: string): boolean => {
-    // Simulation de connexion - en réalité, on ferait un appel API
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser && password) {
-      setUser(foundUser);
-      return true;
+  // Charger l'utilisateur au démarrage
+  useEffect(() => {
+    // Récupérer la session actuelle
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        loadUserProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Écouter les changements d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUserProfile(session.user.id);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*, favorites(listing_id)')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setUser({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          avatarUrl: data.avatar_url || '',
+          phone: data.phone || '',
+          city: data.city || '',
+          bio: data.bio || '',
+          favorites: data.favorites?.map((f: any) => f.listing_id) || []
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    } finally {
+      setLoading(false);
     }
-    return false;
   };
 
-  const register = (userData: { name: string; email: string; password: string; bio?: string }): boolean => {
-    // Simulation d'inscription - en réalité, on ferait un appel API
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: userData.name,
-      email: userData.email,
-      bio: '', // Bio vide par défaut
-      avatarUrl: '', // Pas de photo par défaut
-      favorites: []
-    };
-    setUser(newUser);
-    return true;
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      if (data.user) {
+        await loadUserProfile(data.user.id);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
   };
 
-  const logout = (): void => {
-    setUser(null);
+  const register = async (userData: { name: string; email: string; password: string; bio?: string }): Promise<boolean> => {
+    try {
+      // 1. Créer le compte auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) return false;
+
+      // 2. Créer le profil utilisateur
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert([{
+          id: authData.user.id,
+          email: userData.email,
+          name: userData.name,
+          bio: userData.bio || '',
+        }]);
+
+      if (profileError) throw profileError;
+
+      await loadUserProfile(authData.user.id);
+      return true;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false;
+    }
   };
 
-  const updateProfile = (updates: { name?: string; bio?: string; avatarUrl?: string }): void => {
+  const logout = async (): Promise<void> => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const updateProfile = async (updates: { name?: string; bio?: string; avatarUrl?: string }): Promise<void> => {
     if (!user) return;
     
-    // Mise à jour de l'utilisateur avec les nouvelles données
-    const updatedUser: User = {
-      ...user,
-      ...(updates.name !== undefined && { name: updates.name }),
-      ...(updates.bio !== undefined && { bio: updates.bio }),
-      ...(updates.avatarUrl !== undefined && { avatarUrl: updates.avatarUrl }),
-    };
-    
-    setUser(updatedUser);
-    
-    // En production, on ferait un appel API ici :
-    // await fetch(`/api/users/${user.id}`, { method: 'PATCH', body: JSON.stringify(updates) })
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({
+          ...(updates.name !== undefined && { name: updates.name }),
+          ...(updates.bio !== undefined && { bio: updates.bio }),
+          ...(updates.avatarUrl !== undefined && { avatar_url: updates.avatarUrl }),
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Mettre à jour l'état local
+      setUser({
+        ...user,
+        ...(updates.name !== undefined && { name: updates.name }),
+        ...(updates.bio !== undefined && { bio: updates.bio }),
+        ...(updates.avatarUrl !== undefined && { avatarUrl: updates.avatarUrl }),
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+    }
   };
 
-  const toggleFavorite = (listingId: string): void => {
+  const toggleFavorite = async (listingId: string): Promise<void> => {
     if (!user) return;
 
     const isFavorite = user.favorites.includes(listingId);
-    const updatedFavorites = isFavorite
-      ? user.favorites.filter(id => id !== listingId)
-      : [...user.favorites, listingId];
 
-    setUser({
-      ...user,
-      favorites: updatedFavorites
-    });
+    try {
+      if (isFavorite) {
+        // Retirer des favoris
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('listing_id', listingId);
 
-    // En production, on ferait un appel API ici
+        if (error) throw error;
+
+        setUser({
+          ...user,
+          favorites: user.favorites.filter(id => id !== listingId)
+        });
+      } else {
+        // Ajouter aux favoris
+        const { error } = await supabase
+          .from('favorites')
+          .insert([{ user_id: user.id, listing_id: listingId }]);
+
+        if (error) throw error;
+
+        setUser({
+          ...user,
+          favorites: [...user.favorites, listingId]
+        });
+      }
+    } catch (error) {
+      console.error('Toggle favorite error:', error);
+    }
   };
 
   const value: AuthContextType = {
@@ -100,6 +215,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     toggleFavorite,
   };
+
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
 
   return (
     <AuthContext.Provider value={value}>
