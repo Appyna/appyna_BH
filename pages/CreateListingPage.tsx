@@ -1,0 +1,236 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Category, CITIES_ISRAEL, ListingType } from '../types';
+import { BackButton } from '../components/BackButton';
+import { ProtectedAction } from '../components/ProtectedAction';
+
+// Icons
+const PhotoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+
+// Form input components for consistency
+const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => <input {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300 transition" />;
+const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => <textarea {...props} rows={5} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300 transition" />;
+const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => <select {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300 transition bg-white" />;
+const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }> = ({ required, children, ...props }) => (
+    <label {...props} className="block text-sm font-semibold text-gray-700 mb-2">
+        {children}{required && <span className="text-red-500 text-xs">*</span>}
+    </label>
+);
+
+const BoostCard: React.FC<{
+    duration: string;
+    price: string;
+    popular?: boolean;
+    selected: boolean;
+    onClick: () => void;
+}> = ({ duration, price, popular = false, selected, onClick }) => (
+    <div onClick={onClick} className={`relative cursor-pointer p-4 rounded-xl border-2 transition-all ${selected ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200' : 'border-gray-300 hover:border-primary-400'}`}>
+        {popular && <span className="text-xs font-bold bg-secondary text-white px-2 py-0.5 rounded-full absolute -top-2.5 right-2">Populaire</span>}
+         <div className="flex items-start mb-2">
+            <input type="radio" name="boost" checked={selected} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+            <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">{duration}</span>
+        </div>
+        <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">{price} <span className="text-base font-medium text-gray-500">₪</span></p>
+    </div>
+);
+
+
+export const CreateListingPage: React.FC = () => {
+    const navigate = useNavigate();
+    const [listingType, setListingType] = useState<ListingType>(ListingType.OFFER);
+    const [price, setPrice] = useState('');
+    const [images, setImages] = useState<string[]>([]);
+    const [boostOption, setBoostOption] = useState<string>('');
+
+    const handleBoostClick = (option: string) => {
+        // Si on clique sur l'option déjà sélectionnée, on la désélectionne
+        if (boostOption === option) {
+            setBoostOption('');
+        } else {
+            setBoostOption(option);
+        }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files) {
+            const newImages = Array.from(files).map((file: File) => URL.createObjectURL(file));
+            setImages([...images, ...newImages]);
+        }
+    };
+
+    const handleRemoveImage = (index: number) => {
+        const newImages = images.filter((_, i) => i !== index);
+        setImages(newImages);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Mock submission
+        console.log('Form submitted');
+        alert('Annonce publiée avec succès ! (Simulation)');
+        navigate('/');
+    };
+
+    const isDemand = listingType === ListingType.DEMAND;
+
+    return (
+        <div className="bg-gray-50">
+            <BackButton />
+            <div className="container mx-auto px-4 py-12">
+                <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-2xl shadow-lg">
+                    <h1 className="text-3xl font-extrabold text-gray-900 font-poppins mb-2 text-center">Poster une annonce</h1>
+                    <p className="text-gray-600 mb-8 text-center">Remplissez les détails ci-dessous pour mettre votre annonce en ligne.</p>
+
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Type d'annonce */}
+                        <div>
+                            <Label>Type d'annonce</Label>
+                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                                {(Object.values(ListingType)).map((type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => setListingType(type)}
+                                        className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold border-2 transition ${listingType === type ? 'bg-primary-50 border-primary-500 text-primary-600' : 'bg-white border-gray-300 hover:border-primary-400'}`}
+                                    >
+                                        {type === ListingType.OFFER ? 'Je vends (Offre)' : 'Je cherche (Demande)'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Titre */}
+                        <div>
+                            <Label htmlFor="title" required>Titre de l'annonce</Label>
+                            <ProtectedAction>
+                                <Input id="title" type="text" placeholder="Ex: Canapé d'angle design" maxLength={120} required />
+                            </ProtectedAction>
+                        </div>
+
+                        {/* Catégorie */}
+                        <div>
+                            <Label htmlFor="category" required>Catégorie</Label>
+                            <ProtectedAction>
+                                <Select id="category" required defaultValue="">
+                                    <option value="" disabled>Choisissez une catégorie</option>
+                                    {Object.values(Category).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                </Select>
+                            </ProtectedAction>
+                        </div>
+                        
+                        {/* Description */}
+                        <div>
+                            <Label htmlFor="description" required>Description</Label>
+                            <ProtectedAction>
+                                <Textarea id="description" placeholder="Décrivez votre article ou service en détail..." required />
+                            </ProtectedAction>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Prix */}
+                            <div>
+                                <Label htmlFor="price" required={!isDemand}>Prix</Label>
+                                <div className="relative">
+                                    <ProtectedAction>
+                                        <Input 
+                                            id="price" 
+                                            type="number" 
+                                            placeholder={isDemand ? "Optionnel" : "0"}
+                                            value={price}
+                                            onChange={(e) => setPrice(e.target.value)}
+                                            className="pr-8"
+                                            required={!isDemand}
+                                            min="0"
+                                        />
+                                    </ProtectedAction>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">₪</span>
+                                </div>
+                                {isDemand && <p className="text-xs text-gray-500 mt-1">Le prix est facultatif pour les demandes.</p>}
+                            </div>
+                            
+                            {/* Ville */}
+                            <div>
+                                <Label htmlFor="city" required>Ville</Label>
+                                <ProtectedAction>
+                                    <Select id="city" required defaultValue="">
+                                         <option value="" disabled>Choisissez une ville</option>
+                                         {CITIES_ISRAEL.map(city => <option key={city} value={city}>{city}</option>)}
+                                    </Select>
+                                </ProtectedAction>
+                            </div>
+                        </div>
+
+                        {/* Image */}
+                        <div>
+                            <Label>Photos (optionnel)</Label>
+                            
+                            {/* Grille de miniatures des photos */}
+                            {images.length > 0 && (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+                                    {images.map((img, index) => (
+                                        <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                            <img 
+                                                src={img} 
+                                                alt={`Photo ${index + 1}`} 
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveImage(index)}
+                                                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-lg"
+                                                title="Supprimer la photo"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {/* Zone d'upload */}
+                            <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
+                                <div className="flex flex-col items-center justify-center text-center">
+                                    <PhotoIcon />
+                                    <div className="flex text-sm text-gray-600 justify-center mt-2">
+                                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                            <span>{images.length === 0 ? 'Ajouter une photo' : 'Ajouter une photo'}</span>
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF jusqu'à 10MB</p>
+                                    <input id="file-upload" name="file-upload" type="file" multiple className="sr-only" onChange={handleImageChange} accept="image/*"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Boost Section */}
+                        <div className="border-t pt-8">
+                             <div className="flex items-center justify-center mb-4">
+                                <span className="text-lg mr-2">⚡</span>
+                                <h2 className="text-xl font-bold text-gray-800 font-poppins">Boostez votre annonce</h2>
+                            </div>
+                            <p className="text-gray-600 mb-6 text-center">Les annonces boostées sont affichées en haut des pages pour multiplier les chances de réponse.</p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                 <BoostCard duration="Annonce boostée pendant 24h" price="9,90" selected={boostOption === '24h'} onClick={() => handleBoostClick('24h')} />
+                                 <BoostCard duration="Annonce boostée pendant 3 jours" price="19,90" popular onClick={() => handleBoostClick('3d')} selected={boostOption === '3d'} />
+                                 <BoostCard duration="Annonce boostée pendant 7 jours" price="39,90" selected={boostOption === '7d'} onClick={() => handleBoostClick('7d')} />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-center pt-4">
+                            <ProtectedAction>
+                                <button type="submit" className="bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-bold py-3 px-8 rounded-2xl text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                                    Publier mon annonce
+                                </button>
+                            </ProtectedAction>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
