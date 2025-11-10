@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Category, CITIES_ISRAEL, ListingType } from '../types';
 import { BackButton } from '../components/BackButton';
 import { ProtectedAction } from '../components/ProtectedAction';
+import { useAuth } from '../contexts/AuthContext';
+import { listingsService } from '../lib/listingsService';
 
 // Icons
 const PhotoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
@@ -37,19 +39,16 @@ const BoostCard: React.FC<{
 
 export const CreateListingPage: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [listingType, setListingType] = useState<ListingType>(ListingType.OFFER);
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [category, setCategory] = useState<Category | ''>('');
+    const [city, setCity] = useState('');
     const [images, setImages] = useState<string[]>([]);
-    const [boostOption, setBoostOption] = useState<string>('');
-
-    const handleBoostClick = (option: string) => {
-        // Si on clique sur l'option déjà sélectionnée, on la désélectionne
-        if (boostOption === option) {
-            setBoostOption('');
-        } else {
-            setBoostOption(option);
-        }
-    };
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -64,15 +63,42 @@ export const CreateListingPage: React.FC = () => {
         setImages(newImages);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock submission
-        console.log('Form submitted');
-        alert('Annonce publiée avec succès ! (Simulation)');
-        navigate('/');
-    };
+        
+        if (!user) {
+            setError('Vous devez être connecté pour créer une annonce');
+            return;
+        }
 
-    const isDemand = listingType === ListingType.DEMAND;
+        if (!category) {
+            setError('Veuillez sélectionner une catégorie');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        const listing = await listingsService.createListing({
+            title,
+            description,
+            price: parseFloat(price) || 0,
+            category,
+            city,
+            images,
+            type: listingType,
+            userId: user.id,
+        });
+
+        if (listing) {
+            alert('Annonce publiée avec succès !');
+            navigate(`/listing/${listing.id}`);
+        } else {
+            setError('Erreur lors de la création de l\'annonce');
+        }
+
+        setLoading(false);
+    };
 
     return (
         <div className="bg-gray-50">
@@ -81,6 +107,12 @@ export const CreateListingPage: React.FC = () => {
                 <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-2xl shadow-lg">
                     <h1 className="text-3xl font-extrabold text-gray-900 font-poppins mb-2 text-center">Poster une annonce</h1>
                     <p className="text-gray-600 mb-8 text-center">Remplissez les détails ci-dessous pour mettre votre annonce en ligne.</p>
+
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Type d'annonce */}
@@ -104,7 +136,15 @@ export const CreateListingPage: React.FC = () => {
                         <div>
                             <Label htmlFor="title" required>Titre de l'annonce</Label>
                             <ProtectedAction>
-                                <Input id="title" type="text" placeholder="Ex: Canapé d'angle design" maxLength={120} required />
+                                <Input 
+                                    id="title" 
+                                    type="text" 
+                                    placeholder="Ex: Canapé d'angle design" 
+                                    maxLength={120} 
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    required 
+                                />
                             </ProtectedAction>
                         </div>
 
@@ -112,8 +152,13 @@ export const CreateListingPage: React.FC = () => {
                         <div>
                             <Label htmlFor="category" required>Catégorie</Label>
                             <ProtectedAction>
-                                <Select id="category" required defaultValue="">
-                                    <option value="" disabled>Choisissez une catégorie</option>
+                                <Select 
+                                    id="category" 
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value as Category)}
+                                    required
+                                >
+                                    <option value="">Choisissez une catégorie</option>
                                     {Object.values(Category).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 </Select>
                             </ProtectedAction>
@@ -123,39 +168,49 @@ export const CreateListingPage: React.FC = () => {
                         <div>
                             <Label htmlFor="description" required>Description</Label>
                             <ProtectedAction>
-                                <Textarea id="description" placeholder="Décrivez votre article ou service en détail..." required />
+                                <Textarea 
+                                    id="description" 
+                                    placeholder="Décrivez votre article ou service en détail..." 
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required 
+                                />
                             </ProtectedAction>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Prix */}
                             <div>
-                                <Label htmlFor="price" required={!isDemand}>Prix</Label>
+                                <Label htmlFor="price" required>Prix</Label>
                                 <div className="relative">
                                     <ProtectedAction>
                                         <Input 
                                             id="price" 
                                             type="number" 
-                                            placeholder={isDemand ? "Optionnel" : "0"}
+                                            placeholder="0"
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             className="pr-8"
-                                            required={!isDemand}
+                                            required
                                             min="0"
                                         />
                                     </ProtectedAction>
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">₪</span>
                                 </div>
-                                {isDemand && <p className="text-xs text-gray-500 mt-1">Le prix est facultatif pour les demandes.</p>}
                             </div>
                             
                             {/* Ville */}
                             <div>
                                 <Label htmlFor="city" required>Ville</Label>
                                 <ProtectedAction>
-                                    <Select id="city" required defaultValue="">
-                                         <option value="" disabled>Choisissez une ville</option>
-                                         {CITIES_ISRAEL.map(city => <option key={city} value={city}>{city}</option>)}
+                                    <Select 
+                                        id="city" 
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                        required
+                                    >
+                                         <option value="">Choisissez une ville</option>
+                                         {CITIES_ISRAEL.map(cityName => <option key={cityName} value={cityName}>{cityName}</option>)}
                                     </Select>
                                 </ProtectedAction>
                             </div>
@@ -205,26 +260,15 @@ export const CreateListingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Boost Section */}
-                        <div className="border-t pt-8">
-                             <div className="flex items-center justify-center mb-4">
-                                <span className="text-lg mr-2">⚡</span>
-                                <h2 className="text-xl font-bold text-gray-800 font-poppins">Boostez votre annonce</h2>
-                            </div>
-                            <p className="text-gray-600 mb-6 text-center">Les annonces boostées sont affichées en haut des pages pour multiplier les chances de réponse.</p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                 <BoostCard duration="Annonce boostée pendant 24h" price="9,90" selected={boostOption === '24h'} onClick={() => handleBoostClick('24h')} />
-                                 <BoostCard duration="Annonce boostée pendant 3 jours" price="19,90" popular onClick={() => handleBoostClick('3d')} selected={boostOption === '3d'} />
-                                 <BoostCard duration="Annonce boostée pendant 7 jours" price="39,90" selected={boostOption === '7d'} onClick={() => handleBoostClick('7d')} />
-                            </div>
-                        </div>
-
                         {/* Submit Button */}
                         <div className="flex justify-center pt-4">
                             <ProtectedAction>
-                                <button type="submit" className="bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-bold py-3 px-8 rounded-2xl text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                                    Publier mon annonce
+                                <button 
+                                    type="submit" 
+                                    disabled={loading}
+                                    className="bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-bold py-3 px-8 rounded-2xl text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Publication...' : 'Publier mon annonce'}
                                 </button>
                             </ProtectedAction>
                         </div>

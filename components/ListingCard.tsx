@@ -39,12 +39,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     <Link to={`/listing/${listing.id}`} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
       <div className="relative w-full overflow-hidden rounded-2xl aspect-[4/3] md:aspect-square bg-gray-200 shadow-lg group-hover:shadow-2xl transition-all duration-300">
         <ImageWithFallback
-          src={listing.imageUrl}
+          src={listing.images?.[0]}
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start">
-           {listing.isBoosted && (
+           {listing.boostedAt && (
              <div className="flex items-center gap-1 bg-gradient-to-r from-primary-600/90 to-secondary-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-md shadow-lg">
                <ZapIcon />
                BOOSTÉ
@@ -80,7 +80,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
           )}
         </div>
         <p className="text-xs text-gray-400 font-montserrat mt-1">
-          {getRelativeTime ? getRelativeTime(listing.createdAt) : ''}
+          {getRelativeTime ? getRelativeTime(new Date(listing.createdAt)) : ''}
         </p>
       </div>
     </Link>

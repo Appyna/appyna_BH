@@ -96,24 +96,12 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
           
-          {/* Type d'annonce */}
+          {/* Type d'annonce (non modifiable) */}
           <div>
             <Label>Type d'annonce</Label>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              {Object.values(ListingType).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type })}
-                  className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold border-2 transition ${
-                    formData.type === type 
-                      ? 'bg-primary-50 border-primary-500 text-primary-600' 
-                      : 'bg-white border-gray-300 hover:border-primary-400'
-                  }`}
-                >
-                  {type === ListingType.OFFER ? 'Je vends (Offre)' : 'Je cherche (Demande)'}
-                </button>
-              ))}
+            <div className="px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded-lg text-sm font-bold text-gray-600">
+              {formData.type === ListingType.OFFER ? '🏷️ Je vends (Offre)' : '🔍 Je cherche (Demande)'}
+              <span className="text-xs font-normal text-gray-500 ml-2">(non modifiable)</span>
             </div>
           </div>
 

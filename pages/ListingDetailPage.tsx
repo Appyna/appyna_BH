@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { mockListings, mockUsers } from '../data/mock';
 import { BackButton } from '../components/BackButton';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 import { ProtectedAction } from '../components/ProtectedAction';
@@ -9,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { EditListingModal } from '../components/EditListingModal';
 import { ReportModal } from '../components/ReportModal';
 import { Listing } from '../types';
+import { listingsService } from '../lib/listingsService';
 
 const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const LocationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
@@ -32,8 +32,8 @@ export const ListingDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser, toggleFavorite } = useAuth();
   const navigate = useNavigate();
-  const listing = mockListings.find(l => l.id === id);
-  const user = listing ? mockUsers.find(u => u.id === listing.userId) : null;
+  const [listing, setListing] = useState<Listing | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // États pour la galerie
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -48,6 +48,18 @@ export const ListingDetailPage: React.FC = () => {
   
   // État pour la bannière de notification
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+
+  // Charger l'annonce depuis Supabase
+  useEffect(() => {
+    const loadListing = async () => {
+      if (!id) return;
+      setLoading(true);
+      const data = await listingsService.getListingById(id);
+      setListing(data);
+      setLoading(false);
+    };
+    loadListing();
+  }, [id]);
 
   // Vérifier si c'est l'annonce de l'utilisateur connecté
   const isOwnListing = currentUser?.id === listing?.userId;
@@ -72,21 +84,9 @@ export const ListingDetailPage: React.FC = () => {
     }, 3000);
   };
 
-  // Simuler plusieurs photos seulement si l'image principale existe et est valide
-  const hasValidImage = listing?.imageUrl && listing.imageUrl.trim() !== '';
-  const images = listing ? (
-    hasValidImage ? [
-      listing.imageUrl,
-      listing.imageUrl.replace('150', '151'), // Variation 1
-      listing.imageUrl.replace('150', '152'), // Variation 2
-      listing.imageUrl.replace('150', '153'), // Variation 3
-    ] : [
-      listing.imageUrl || undefined // Une seule "image" qui sera remplacée par le placeholder
-    ]
-  ) : [];
-
-  // Ne permettre la navigation que s'il y a vraiment plusieurs images valides
-  const hasMultipleImages = hasValidImage && images.length > 1;
+  // Utiliser les images de l'annonce
+  const images = listing?.images && listing.images.length > 0 ? listing.images : [undefined];
+  const hasMultipleImages = images.length > 1 && images[0] !== undefined;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -147,9 +147,15 @@ export const ListingDetailPage: React.FC = () => {
     // Pour l'instant, on ferme juste le modal
   };
 
-  if (!listing || !user) {
+  if (loading) {
+    return <div className="text-center py-20">Chargement...</div>;
+  }
+
+  if (!listing) {
     return <div className="text-center py-20">Annonce non trouvée.</div>;
   }
+
+  const user = listing.user;
 
   return (
     <div className="bg-white">
@@ -178,7 +184,13 @@ export const ListingDetailPage: React.FC = () => {
         </div>
       )}
       
-      <BackButton />
+      {/* Bouton retour vers l'accueil */}
+      <Link to="/" className="fixed top-20 left-6 z-40 p-2 rounded-full bg-gray-500/20 hover:bg-gray-600/30 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 text-white/60 hover:text-white/80 hover:scale-105">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </Link>
+      
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
@@ -293,7 +305,7 @@ export const ListingDetailPage: React.FC = () => {
                   )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-600">
-                    <div className="flex items-center"><CalendarIcon />Publié le {listing.createdAt.toLocaleDateString('fr-FR')}</div>
+                    <div className="flex items-center"><CalendarIcon />Publié le {new Date(listing.createdAt).toLocaleDateString('fr-FR')}</div>
                     <div className="flex items-center"><LocationIcon />{listing.city}</div>
                     <div className="flex items-center"><TagIcon />{listing.category}</div>
                 </div>
@@ -356,12 +368,12 @@ export const ListingDetailPage: React.FC = () => {
                      <TrashIcon /> Supprimer l'annonce
                    </button>
                  </div>
-               ) : (
+               ) : user ? (
                  /* Contact pour les annonces des autres */
                  <>
                    <div className="flex items-center mb-6">
                      <Link to={`/profile/${user.id}`}>
-                        <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
+                        <img src={user.avatarUrl || '/placeholder-avatar.png'} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
                      </Link>
                      <div>
                         <Link to={`/profile/${user.id}`} className="font-bold text-lg text-gray-800 hover:text-primary-600">{user.name}</Link>
@@ -381,7 +393,7 @@ export const ListingDetailPage: React.FC = () => {
                      </Link>
                    </div>
                  </>
-               )}
+               ) : null}
             </div>
           </div>
           

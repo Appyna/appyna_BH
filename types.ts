@@ -81,15 +81,21 @@ export interface Listing {
   userId: string;
   title: string;
   description: string;
-  price?: number;
+  price: number;
   category: Category;
   city: string;
-  imageUrl?: string | null;
+  images: string[];
   type: ListingType;
-  isBoosted: boolean;
-  boostedAt?: Date;
-  boostExpiresAt?: Date;
-  createdAt: Date;
+  user?: {
+    id: string;
+    name: string;
+    email?: string;
+    avatarUrl: string;
+    phone?: string;
+    city: string;
+  };
+  boostedAt?: string | null;
+  createdAt: string;
 }
 
 export interface User {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { mockListings } from '../data/mock';
 import { ListingCard } from '../components/ListingCard';
-import { CITIES_ISRAEL, Category, ListingType } from '../types';
+import { CITIES_ISRAEL, Category, Listing, ListingType } from '../types';
+import { listingsService } from '../lib/listingsService';
 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const LocationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
@@ -27,28 +27,41 @@ const getRelativeTime = (date: Date): string => {
 };
 
 export const HomePage: React.FC = () => {
-  const [displayedListings, setDisplayedListings] = useState(12); // Commencer avec 12 annonces
+  const [displayedListings, setDisplayedListings] = useState(12);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedType, setSelectedType] = useState<'ALL' | 'OFFER' | 'DEMAND'>('ALL');
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Combine all listings with boosted ones first (sorted by most recent boost)
-  const boostedListings = mockListings.filter(l => l.isBoosted).sort((a, b) => {
-    const dateA = a.boostedAt?.getTime() || 0;
-    const dateB = b.boostedAt?.getTime() || 0;
-    return dateB - dateA; // Plus récemment boosté en premier
+  // Charger les annonces depuis Supabase
+  useEffect(() => {
+    const loadListings = async () => {
+      setLoading(true);
+      const listings = await listingsService.getListings();
+      setAllListings(listings);
+      setLoading(false);
+    };
+    loadListings();
+  }, []);
+
+  // Séparer les annonces boostées et non boostées
+  const boostedListings = allListings.filter(l => l.boostedAt).sort((a, b) => {
+    const dateA = a.boostedAt ? new Date(a.boostedAt).getTime() : 0;
+    const dateB = b.boostedAt ? new Date(b.boostedAt).getTime() : 0;
+    return dateB - dateA;
   });
   
-  const nonBoostedListings = mockListings.filter(l => !l.isBoosted).sort((a, b) => 
-    b.createdAt.getTime() - a.createdAt.getTime()
+  const nonBoostedListings = allListings.filter(l => !l.boostedAt).sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
   
-  const allListings = [...boostedListings, ...nonBoostedListings];
+  const sortedListings = [...boostedListings, ...nonBoostedListings];
   
   // Filtrer les annonces selon les critères de recherche
-  const filteredListings = allListings.filter(listing => {
+  const filteredListings = sortedListings.filter(listing => {
     const matchesSearch = searchTerm === '' || 
       listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       listing.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -165,8 +178,6 @@ export const HomePage: React.FC = () => {
         </form>
       </div>
       
-      {/* Categories might be a good addition here */}
-
       {/* Type Filter Buttons */}
       <div className="container mx-auto px-4 pb-4">
         <div className="flex justify-center gap-2 sm:gap-3">
