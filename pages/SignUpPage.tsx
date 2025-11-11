@@ -30,8 +30,8 @@ export const SignUpPage: React.FC = () => {
         const success = await register({ name, email, password });
         
         if (success) {
-            alert('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
-            navigate('/login');
+            // Rediriger directement vers l'accueil en étant connecté
+            navigate('/');
         } else {
             setError('Erreur lors de l\'inscription. Cet email est peut-être déjà utilisé.');
         }
