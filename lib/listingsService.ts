@@ -240,4 +240,28 @@ export const listingsService = {
       createdAt: listing.created_at,
     }));
   },
+
+  // Récupérer les infos d'un utilisateur
+  async getUser(userId: string) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user:', error);
+      return null;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatar_url,
+      bio: data.bio,
+      city: data.city,
+      createdAt: data.created_at,
+    };
+  },
 };

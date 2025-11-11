@@ -54,11 +54,9 @@ export const ProfilePage: React.FC = () => {
             if (isOwnProfile && currentUser) {
                 setUser(currentUser);
             } else {
-                // Sinon, charger les données de l'autre utilisateur depuis une annonce
-                const listings = await listingsService.getUserListings(userId);
-                if (listings.length > 0 && listings[0].user) {
-                    setUser(listings[0].user);
-                }
+                // Sinon, charger les données de l'autre utilisateur depuis Supabase
+                const userData = await listingsService.getUser(userId);
+                setUser(userData);
             }
             
             // Charger les annonces
