@@ -52,9 +52,20 @@ export const CreateListingPage: React.FC = () => {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files) {
-            const newImages = Array.from(files).map((file: File) => URL.createObjectURL(file));
-            setImages([...images, ...newImages]);
+        if (files && files.length > 0) {
+            const newImages = Array.from(files).map((file: File) => {
+                const url = URL.createObjectURL(file);
+                console.log('Nouvelle image ajoutée:', file.name, url);
+                return url;
+            });
+            console.log('Images avant:', images.length, 'Nouvelles:', newImages.length);
+            setImages(prevImages => {
+                const updated = [...prevImages, ...newImages];
+                console.log('Images après:', updated);
+                return updated;
+            });
+            // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
+            e.target.value = '';
         }
     };
 
