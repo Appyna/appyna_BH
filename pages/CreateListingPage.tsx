@@ -74,6 +74,20 @@ export const CreateListingPage: React.FC = () => {
         setImages(newImages);
     };
 
+    const moveImageUp = (index: number) => {
+        if (index === 0) return;
+        const newImages = [...images];
+        [newImages[index], newImages[index - 1]] = [newImages[index - 1], newImages[index]];
+        setImages(newImages);
+    };
+
+    const moveImageDown = (index: number) => {
+        if (index === images.length - 1) return;
+        const newImages = [...images];
+        [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+        setImages(newImages);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -235,26 +249,67 @@ export const CreateListingPage: React.FC = () => {
                             
                             {/* Grille de miniatures des photos */}
                             {images.length > 0 && (
-                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-                                    {images.map((img, index) => (
-                                        <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
-                                            <img 
-                                                src={img} 
-                                                alt={`Photo ${index + 1}`} 
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveImage(index)}
-                                                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-lg"
-                                                title="Supprimer la photo"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    ))}
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-2">La première photo sera la photo principale</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                                        {images.map((img, index) => (
+                                            <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                {/* Badge de position */}
+                                                <div className="absolute top-1 left-1 bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
+                                                    {index + 1}
+                                                </div>
+                                                
+                                                <img 
+                                                    src={img} 
+                                                    alt={`Photo ${index + 1}`} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                
+                                                {/* Boutons de contrôle */}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                                    {/* Déplacer vers la gauche */}
+                                                    {index > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => moveImageUp(index)}
+                                                            className="bg-white hover:bg-gray-200 text-gray-800 rounded-full p-2 shadow-lg"
+                                                            title="Déplacer à gauche"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {/* Supprimer */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveImage(index)}
+                                                        className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg"
+                                                        title="Supprimer"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                    
+                                                    {/* Déplacer vers la droite */}
+                                                    {index < images.length - 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => moveImageDown(index)}
+                                                            className="bg-white hover:bg-gray-200 text-gray-800 rounded-full p-2 shadow-lg"
+                                                            title="Déplacer à droite"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                             
