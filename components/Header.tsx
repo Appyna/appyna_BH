@@ -90,7 +90,15 @@ export const Header: React.FC = () => {
             {user ? (
               <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center space-x-2 hover:bg-purple-50 p-2 rounded-xl transition-colors">
-                   <img src={user.avatarUrl} alt={user.name} className="h-10 w-10 rounded-full object-cover ring-2 ring-purple-200" />
+                   {user.avatarUrl ? (
+                     <img src={user.avatarUrl} alt={user.name} className="h-10 w-10 rounded-full object-cover ring-2 ring-purple-200" />
+                   ) : (
+                     <div className="h-10 w-10 rounded-full bg-gray-200 ring-2 ring-purple-200 flex items-center justify-center">
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                       </svg>
+                     </div>
+                   )}
                 </button>
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 ring-1 ring-black ring-opacity-5 border border-purple-100">

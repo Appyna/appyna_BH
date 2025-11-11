@@ -373,7 +373,15 @@ export const ListingDetailPage: React.FC = () => {
                  <>
                    <div className="flex items-center mb-6">
                      <Link to={`/profile/${user.id}`}>
-                        <img src={user.avatarUrl || '/placeholder-avatar.png'} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
+                        ) : (
+                          <div className="h-16 w-16 rounded-full bg-gray-200 mr-4 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        )}
                      </Link>
                      <div>
                         <Link to={`/profile/${user.id}`} className="font-bold text-lg text-gray-800 hover:text-primary-600">{user.name}</Link>

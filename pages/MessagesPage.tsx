@@ -91,7 +91,15 @@ const ConversationItem: React.FC<{ conv: Conversation, isActive: boolean }> = ({
         <div className="absolute top-2 right-2 w-3 h-3 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full"></div>
       )}
       
-      <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-12 w-12 rounded-full object-cover mr-3" />
+      {otherUser.avatarUrl ? (
+        <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-12 w-12 rounded-full object-cover mr-3" />
+      ) : (
+        <div className="h-12 w-12 rounded-full bg-gray-200 mr-3 flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+      )}
       <div className="flex-grow overflow-hidden">
         <div className="flex justify-between items-center">
           <p className={`font-bold text-gray-800 truncate ${hasUnreadMessages ? 'text-primary-600' : ''}`}>
@@ -166,7 +174,15 @@ const ChatWindow: React.FC<{
             {/* Chat Header */}
             <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
                 <div className="flex items-center">
-                    <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-10 w-10 rounded-full object-cover mr-3" />
+                    {otherUser.avatarUrl ? (
+                      <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-10 w-10 rounded-full object-cover mr-3" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    )}
                     <div>
                         <Link 
                             to={`/profile/${otherUser.id}`} 
