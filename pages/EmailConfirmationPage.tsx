@@ -84,10 +84,6 @@ export const EmailConfirmationPage: React.FC = () => {
                             Retour à la connexion
                         </Link>
                     </div>
-                    
-                    <p className="mt-6 text-center text-sm text-gray-500 font-montserrat">
-                        Un problème ? <a href="mailto:support@appyna.com" className="text-primary-600 hover:text-primary-500 font-semibold">Contactez-nous</a>
-                    </p>
                 </div>
             </div>
         </div>
