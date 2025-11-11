@@ -90,6 +90,8 @@ export const CreateListingPage: React.FC = () => {
         setLoading(true);
         setError('');
 
+        console.log('Images envoyées à Supabase:', images);
+
         const listing = await listingsService.createListing({
             title,
             description,

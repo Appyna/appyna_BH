@@ -120,6 +120,8 @@ export const listingsService = {
     type: string;
     userId: string;
   }): Promise<Listing | null> {
+    console.log('Images reçues dans createListing:', listing.images);
+    
     const { data, error } = await supabase
       .from('listings')
       .insert([{
@@ -134,6 +136,10 @@ export const listingsService = {
       }])
       .select()
       .single();
+    
+    if (data) {
+      console.log('Images sauvegardées dans Supabase:', data.images);
+    }
 
     if (error) {
       console.error('Error creating listing:', error);

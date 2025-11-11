@@ -55,6 +55,8 @@ export const ListingDetailPage: React.FC = () => {
       if (!id) return;
       setLoading(true);
       const data = await listingsService.getListingById(id);
+      console.log('Annonce chargée depuis Supabase:', data);
+      console.log('Images de l\'annonce:', data?.images);
       setListing(data);
       setLoading(false);
     };
