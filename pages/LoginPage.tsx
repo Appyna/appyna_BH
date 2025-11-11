@@ -22,12 +22,19 @@ export const LoginPage: React.FC = () => {
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
 
-        const success = await login(email, password);
+        const result = await login(email, password);
         
-        if (success) {
+        if (result.success) {
             navigate('/');
         } else {
-            setError('Email ou mot de passe incorrect');
+            // Messages d'erreur spécifiques
+            if (result.error === 'email_not_confirmed') {
+                setError('Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.');
+            } else if (result.error === 'invalid_credentials') {
+                setError('Email ou mot de passe incorrect');
+            } else {
+                setError('Une erreur est survenue. Veuillez réessayer.');
+            }
         }
         
         setLoading(false);

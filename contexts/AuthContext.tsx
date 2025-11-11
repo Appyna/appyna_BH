@@ -5,7 +5,7 @@ import { User } from '../types';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (userData: { name: string; email: string; password: string; bio?: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<boolean>;
@@ -83,22 +83,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Vérifier si c'est un problème de confirmation d'email
+        if (error.message.includes('Email not confirmed')) {
+          return { success: false, error: 'email_not_confirmed' };
+        }
+        // Autres erreurs (mauvais identifiants, etc.)
+        return { success: false, error: 'invalid_credentials' };
+      }
+
       if (data.user) {
         await loadUserProfile(data.user.id);
-        return true;
+        return { success: true };
       }
-      return false;
-    } catch (error) {
+      return { success: false, error: 'unknown' };
+    } catch (error: any) {
       console.error('Login error:', error);
-      return false;
+      
+      // Vérifier le type d'erreur spécifique
+      if (error.message?.includes('Email not confirmed')) {
+        return { success: false, error: 'email_not_confirmed' };
+      }
+      return { success: false, error: 'invalid_credentials' };
     }
   };
 
