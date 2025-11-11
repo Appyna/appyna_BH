@@ -30,11 +30,10 @@ export const SignUpPage: React.FC = () => {
         const success = await register({ name, email, password });
         
         if (success) {
-            alert('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
-            // Rediriger vers l'accueil (l'utilisateur est déjà connecté)
-            navigate('/');
+            // Rediriger vers la page de confirmation email
+            navigate('/email-confirmation');
         } else {
-            setError('Erreur lors de l\'inscription. Cet email est peut-être déjà utilisé.');
+            setError('Cet email est déjà utilisé. Vous ne pouvez pas créer 2 comptes avec le même email.');
         }
         
         setLoading(false);

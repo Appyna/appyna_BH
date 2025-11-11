@@ -124,7 +124,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (profileError) throw profileError;
 
-      await loadUserProfile(authData.user.id);
+      // Ne pas charger le profil ici - l'utilisateur doit d'abord confirmer son email
+      // Le profil sera chargé automatiquement après confirmation via onAuthStateChange
       return true;
     } catch (error) {
       console.error('Registration error:', error);

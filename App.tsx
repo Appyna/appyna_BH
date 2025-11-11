@@ -14,6 +14,7 @@ import { FavoritesPage } from './pages/FavoritesPage';
 import { BoostedListingsPage } from './pages/BoostedListingsPage';
 import { BoostHistoryPage } from './pages/BoostHistoryPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -63,6 +64,7 @@ const App: React.FC = () => {
               <Route path="/messages/:conversationId" element={<MessagesPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
             </Routes>
           </Layout>
         </Router>
