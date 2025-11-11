@@ -15,6 +15,7 @@ import { BoostedListingsPage } from './pages/BoostedListingsPage';
 import { BoostHistoryPage } from './pages/BoostHistoryPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -65,6 +66,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
               <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
             </Routes>
           </Layout>
         </Router>

@@ -6,11 +6,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, resetPassword } = useAuth();
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [resetEmail, setResetEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,12 +33,21 @@ export const LoginPage: React.FC = () => {
         setLoading(false);
     };
 
-    const handleResetPassword = (e: React.FormEvent) => {
+    const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock reset password logic
-        alert(`Un email de réinitialisation a été envoyé à ${resetEmail}`);
-        setShowForgotPassword(false);
-        setResetEmail('');
+        setResetLoading(true);
+        
+        const success = await resetPassword(resetEmail);
+        
+        if (success) {
+            alert(`Un email de réinitialisation a été envoyé à ${resetEmail}. Vérifiez votre boîte de réception.`);
+            setShowForgotPassword(false);
+            setResetEmail('');
+        } else {
+            alert('Erreur lors de l\'envoi de l\'email. Vérifiez que l\'adresse est correcte.');
+        }
+        
+        setResetLoading(false);
     };
 
     return (
@@ -182,9 +192,10 @@ export const LoginPage: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 px-6 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
+                                    disabled={resetLoading}
+                                    className="flex-1 py-3 px-6 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Envoyer
+                                    {resetLoading ? 'Envoi...' : 'Envoyer'}
                                 </button>
                             </div>
                         </form>
