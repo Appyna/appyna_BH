@@ -18,15 +18,11 @@ export const EmailConfirmationPage: React.FC = () => {
     return (
         <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-teal-50">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="flex justify-center mb-8">
-                    <Logo />
-                </div>
-                
                 <div className="bg-white/80 backdrop-blur-sm py-10 px-6 shadow-2xl rounded-3xl sm:px-12 border border-white/20">
                     <EmailIcon />
                     
                     <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 font-poppins">
-                        Inscription réussie ! 🎉
+                        Inscription réussie !
                     </h2>
                     
                     <p className="mt-4 text-center text-lg text-gray-600 font-montserrat">
@@ -76,7 +72,7 @@ export const EmailConfirmationPage: React.FC = () => {
                     
                     <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                         <p className="text-sm text-yellow-800 text-center">
-                            ⚠️ N'oubliez pas de vérifier vos <strong>spams</strong> si vous ne voyez pas l'email
+                            N'oubliez pas de vérifier vos <strong>spams</strong> si vous ne voyez pas l'email
                         </p>
                     </div>
                     
