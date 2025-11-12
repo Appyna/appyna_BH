@@ -187,9 +187,10 @@ const ChatWindow: React.FC<{
   conversation: ConversationWithData; 
   onDelete: (convId: string) => void;
   onSendMessage: (convId: string, text: string) => Promise<void>;
+  onMessageReceived: (convId: string, message: MessageType) => void;
   currentUserId: string;
   initialListingId?: string;
-}> = ({ conversation, onDelete, onSendMessage, currentUserId, initialListingId }) => {
+}> = ({ conversation, onDelete, onSendMessage, onMessageReceived, currentUserId, initialListingId }) => {
     const [newMessage, setNewMessage] = useState('');
     const [showReportModal, setShowReportModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -201,6 +202,20 @@ const ChatWindow: React.FC<{
     const listing = conversation.listing;
 
     if (!otherUser) return <div className="flex items-center justify-center h-full text-gray-500">Erreur de conversation.</div>;
+
+    // S'abonner aux nouveaux messages en temps réel pour cette conversation
+    useEffect(() => {
+        const unsubscribe = messagesService.subscribeToConversation(
+            conversation.id,
+            (message) => {
+                onMessageReceived(conversation.id, message);
+            }
+        );
+
+        return () => {
+            unsubscribe();
+        };
+    }, [conversation.id, onMessageReceived]);
 
     // Auto-scroll vers le bas
     useEffect(() => {
@@ -461,6 +476,17 @@ export const MessagesPage: React.FC = () => {
             user.id,
             locationState.recipientId!
           );
+          
+          // Enrichir la conversation et l'ajouter à la liste si elle n'existe pas
+          const enriched = await enrichConversations([conv], user.id);
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === conv.id);
+            if (!exists) {
+              return [...enriched, ...prev];
+            }
+            return prev;
+          });
+          
           navigate(`/messages/${conv.id}`, { replace: true });
         } catch (error) {
           console.error('Error creating conversation:', error);
@@ -491,6 +517,29 @@ export const MessagesPage: React.FC = () => {
     }
     await messagesService.sendMessage(convId, user.id, text);
     // Le message sera mis à jour via real-time subscription
+  };
+
+  const handleMessageReceived = (convId: string, message: MessageType) => {
+    setConversations(prev => {
+      return prev.map(conv => {
+        if (conv.id === convId) {
+          // Vérifier si le message n'existe pas déjà (éviter les doublons)
+          const messageExists = conv.messages.some(m => m.id === message.id);
+          if (!messageExists) {
+            return {
+              ...conv,
+              messages: [...conv.messages, message],
+            };
+          }
+        }
+        return conv;
+      }).sort((a, b) => {
+        // Trier par date du dernier message
+        const aTime = a.messages[a.messages.length - 1]?.createdAt || new Date(0);
+        const bTime = b.messages[b.messages.length - 1]?.createdAt || new Date(0);
+        return bTime.getTime() - aTime.getTime();
+      });
+    });
   };
 
   return (
@@ -531,6 +580,7 @@ export const MessagesPage: React.FC = () => {
               conversation={activeConversation} 
               onDelete={handleDeleteConversation}
               onSendMessage={handleSendMessage}
+              onMessageReceived={handleMessageReceived}
               currentUserId={user.id}
               initialListingId={initialListingId}
             />
