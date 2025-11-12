@@ -140,13 +140,25 @@ export const ListingDetailPage: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = (updatedListing: Partial<Listing>) => {
-    // En production: appel API pour mettre à jour
-    console.log('Updating listing:', updatedListing);
-    alert('Annonce modifiée avec succès !');
-    setShowEditModal(false);
-    // Ici, on rechargerait les données ou mettrait à jour le state
-    // Pour l'instant, on ferme juste le modal
+  const handleSaveEdit = async (updatedListing: Partial<Listing>) => {
+    if (!listing) return;
+
+    try {
+      console.log('Updating listing:', listing.id, updatedListing);
+      const success = await listingsService.updateListing(listing.id, updatedListing);
+      
+      if (success) {
+        alert('Annonce modifiée avec succès !');
+        setShowEditModal(false);
+        // Recharger les données de l'annonce
+        window.location.reload();
+      } else {
+        alert('Erreur lors de la modification de l\'annonce');
+      }
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      alert('Erreur lors de la modification de l\'annonce');
+    }
   };
 
   if (loading) {

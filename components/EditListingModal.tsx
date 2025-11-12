@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Category, CITIES_ISRAEL, ListingType, Listing } from '../types';
+import { uploadService } from '../lib/uploadService';
 
 interface EditListingModalProps {
   listing: Listing;
@@ -29,49 +30,80 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
     category: listing.category,
     city: listing.city,
     type: listing.type,
-    imageUrl: listing.imageUrl || '',
   });
 
-  // Gestion multi-photos
-  const [images, setImages] = useState<string[]>(
-    listing.imageUrl ? [listing.imageUrl] : []
-  );
+  // Gestion multi-photos - CHARGER LES IMAGES EXISTANTES
+  const [images, setImages] = useState<string[]>(listing.images || []);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
 
   const isDemand = formData.type === ListingType.DEMAND;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      const newImages = Array.from(files).map((file: File) => URL.createObjectURL(file));
+    if (files && files.length > 0) {
+      const filesArray = Array.from(files);
+      // Créer blob URLs pour preview
+      const newImages = filesArray.map((file: File) => URL.createObjectURL(file));
       setImages([...images, ...newImages]);
-      // Mettre à jour formData avec la première image
-      if (newImages.length > 0 && images.length === 0) {
-        setFormData({ ...formData, imageUrl: newImages[0] });
-      }
+      setImageFiles([...imageFiles, ...filesArray]);
+      e.target.value = '';
     }
   };
 
   const handleRemoveImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
+    const newFiles = imageFiles.filter((_, i) => i !== index);
     setImages(newImages);
-    // Mettre à jour formData avec la première image restante ou vide
-    setFormData({ ...formData, imageUrl: newImages[0] || '' });
+    setImageFiles(newFiles);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const updatedListing: Partial<Listing> = {
-      title: formData.title,
-      description: formData.description,
-      price: formData.price ? Number(formData.price) : undefined,
-      category: formData.category,
-      city: formData.city,
-      type: formData.type,
-      imageUrl: formData.imageUrl || null,
-    };
+    setUploading(true);
+    setUploadProgress('');
 
-    onSave(updatedListing);
+    try {
+      // Séparer les images existantes (URLs Cloudinary) des nouvelles (blob URLs)
+      const existingImages = images.filter(img => img.startsWith('https://res.cloudinary.com'));
+      let newCloudinaryUrls: string[] = [];
+
+      // Upload des nouvelles images vers Cloudinary si il y en a
+      if (imageFiles.length > 0) {
+        setUploadProgress(`Upload des nouvelles images... 0/${imageFiles.length}`);
+        newCloudinaryUrls = await uploadService.uploadMultipleImages(
+          imageFiles,
+          'listings',
+          (current, total) => {
+            setUploadProgress(`Upload des nouvelles images... ${current}/${total}`);
+          }
+        );
+        console.log('Nouvelles images uploadées:', newCloudinaryUrls);
+      }
+
+      // Combiner images existantes + nouvelles images
+      const allImages = [...existingImages, ...newCloudinaryUrls];
+
+      const updatedListing: Partial<Listing> = {
+        title: formData.title,
+        description: formData.description,
+        price: formData.price ? Number(formData.price) : undefined,
+        category: formData.category,
+        city: formData.city,
+        type: formData.type,
+        images: allImages,
+      };
+
+      onSave(updatedListing);
+    } catch (error) {
+      console.error('Erreur lors de l\'upload:', error);
+      alert('Erreur lors de l\'upload des images. Veuillez réessayer.');
+    } finally {
+      setUploading(false);
+      setUploadProgress('');
+    }
   };
 
   return (
@@ -237,21 +269,30 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
         </form>
 
         {/* Footer avec boutons */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-8 py-6 flex gap-3 rounded-b-3xl">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
-          >
-            Enregistrer
-          </button>
+        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-8 py-6 flex flex-col gap-3 rounded-b-3xl">
+          {uploadProgress && (
+            <div className="text-center text-sm text-primary-600 font-medium">
+              {uploadProgress}
+            </div>
+          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={uploading}
+              className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={uploading}
+              className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {uploading ? 'Enregistrement...' : 'Enregistrer'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -57,7 +57,9 @@ export async function uploadMultipleImages(
   const urls: string[] = [];
 
   for (let i = 0; i < files.length; i++) {
+    console.log(`Upload image ${i + 1}/${files.length}:`, files[i].name, 'Taille:', files[i].size);
     const url = await uploadImage(files[i], folder);
+    console.log(`Image ${i + 1} uploadée:`, url);
     urls.push(url);
     
     if (onProgress) {
@@ -65,6 +67,7 @@ export async function uploadMultipleImages(
     }
   }
 
+  console.log('Toutes les URLs uploadées:', urls);
   return urls;
 }
 
