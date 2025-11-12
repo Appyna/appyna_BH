@@ -226,6 +226,11 @@ const ChatWindow: React.FC<{
         onMarkAsRead(conversation.id);
     }, [conversation.id, currentUserId, onMarkAsRead]);
 
+    // Scroll instantané en bas au premier chargement
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, [conversation.id]);
+
     // Auto-scroll vers le bas (seulement quand le nombre de messages change)
     const previousMessageCount = useRef(conversation.messages.length);
     useEffect(() => {
@@ -245,14 +250,19 @@ const ChatWindow: React.FC<{
     }, [newMessage]);
 
     const handleSend = async () => {
-        if(newMessage.trim() && !isSending){
+        const messageToSend = newMessage.trim();
+        if(messageToSend && !isSending){
+            // Vider immédiatement le champ
+            setNewMessage('');
             setIsSending(true);
+            
             try {
-                await onSendMessage(conversation.id, newMessage.trim());
-                setNewMessage('');
+                await onSendMessage(conversation.id, messageToSend);
             } catch (error) {
                 console.error('Error sending message:', error);
                 alert('Erreur lors de l\'envoi du message');
+                // Remettre le message en cas d'erreur
+                setNewMessage(messageToSend);
             } finally {
                 setIsSending(false);
             }
