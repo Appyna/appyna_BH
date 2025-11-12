@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BackButton } from '../components/BackButton';
 import { listingsService } from '../lib/listingsService';
+import { uploadService } from '../lib/uploadService';
 
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
 const PencilIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
@@ -22,7 +23,9 @@ export const SettingsPage: React.FC = () => {
     const [name, setName] = useState(user?.name || '');
     const [bio, setBio] = useState(user?.bio || '');
     const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [hasCustomAvatar, setHasCustomAvatar] = useState(!!user?.avatarUrl);
+    const [uploading, setUploading] = useState(false);
 
     if (!user) {
         return (
@@ -38,7 +41,8 @@ export const SettingsPage: React.FC = () => {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Créer une URL temporaire pour prévisualiser l'image
+            // Sauvegarder le fichier et créer une URL temporaire pour prévisualiser
+            setAvatarFile(file);
             const url = URL.createObjectURL(file);
             setAvatarUrl(url);
             setHasCustomAvatar(true);
@@ -46,6 +50,7 @@ export const SettingsPage: React.FC = () => {
     };
 
     const handleRemoveAvatar = () => {
+        setAvatarFile(null);
         setAvatarUrl('');
         setHasCustomAvatar(false);
     };
@@ -72,17 +77,33 @@ export const SettingsPage: React.FC = () => {
             }
         }
         
-        // Mise à jour du profil via l'AuthContext
-        updateProfile({
-            name: normalizedName,
-            bio: bio,
-            avatarUrl: hasCustomAvatar ? avatarUrl : '',
-        });
-        
-        alert('Profil mis à jour avec succès !');
-        
-        // Rediriger vers le profil
-        navigate(`/profile/${user.id}`);
+        setUploading(true);
+        let finalAvatarUrl = hasCustomAvatar ? avatarUrl : '';
+
+        try {
+            // Upload de l'avatar vers Cloudinary si un nouveau fichier a été sélectionné
+            if (avatarFile && hasCustomAvatar) {
+                finalAvatarUrl = await uploadService.uploadImage(avatarFile, 'avatars');
+                console.log('Avatar uploadé sur Cloudinary:', finalAvatarUrl);
+            }
+
+            // Mise à jour du profil via l'AuthContext
+            updateProfile({
+                name: normalizedName,
+                bio: bio,
+                avatarUrl: finalAvatarUrl,
+            });
+            
+            alert('Profil mis à jour avec succès !');
+            
+            // Rediriger vers le profil
+            navigate(`/profile/${user.id}`);
+        } catch (error) {
+            console.error('Erreur upload avatar:', error);
+            alert('Erreur lors de l\'upload de l\'avatar. Veuillez réessayer.');
+        } finally {
+            setUploading(false);
+        }
     };
 
     return (
@@ -223,9 +244,10 @@ export const SettingsPage: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-2.5 px-5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
+                                    disabled={uploading}
+                                    className="flex-1 py-2.5 px-5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Enregistrer les modifications
+                                    {uploading ? 'Enregistrement...' : 'Enregistrer les modifications'}
                                 </button>
                             </div>
                         </form>
