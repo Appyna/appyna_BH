@@ -43,7 +43,21 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const filesArray = Array.from(files);
+      const MAX_IMAGES = 6;
+      const remainingSlots = MAX_IMAGES - images.length;
+      
+      if (remainingSlots <= 0) {
+        alert(`Vous pouvez avoir maximum ${MAX_IMAGES} images par annonce.`);
+        e.target.value = '';
+        return;
+      }
+      
+      const filesArray = Array.from(files).slice(0, remainingSlots);
+      
+      if (files.length > remainingSlots) {
+        alert(`Vous ne pouvez ajouter que ${remainingSlots} image(s) supplémentaire(s). Limite de ${MAX_IMAGES} images atteinte.`);
+      }
+      
       // Créer blob URLs pour preview
       const newImages = filesArray.map((file: File) => URL.createObjectURL(file));
       setImages([...images, ...newImages]);
@@ -251,20 +265,32 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
                 multiple
                 onChange={handleImageChange}
                 className="hidden"
+                disabled={images.length >= 6}
               />
               
-              <div className="flex gap-2">
-                <label 
-                  htmlFor="edit-image"
-                  className="flex-1 flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 transition-colors bg-gray-50 hover:bg-primary-50"
-                >
-                  <span className="text-sm text-gray-600 font-medium">
-                    {images.length === 0 ? 'Ajouter une photo' : 'Ajouter une photo'}
-                  </span>
-                </label>
-              </div>
+              {images.length < 6 ? (
+                <div className="flex gap-2">
+                  <label 
+                    htmlFor="edit-image"
+                    className="flex-1 flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 transition-colors bg-gray-50 hover:bg-primary-50"
+                  >
+                    <span className="text-sm text-gray-600 font-medium">
+                      {images.length === 0 ? 'Ajouter une photo' : 'Ajouter une photo'}
+                    </span>
+                  </label>
+                </div>
+              ) : (
+                <div className="flex justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                  <span className="text-sm text-gray-600 font-medium">Limite de 6 images atteinte</span>
+                </div>
+              )}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Ajoutez des photos pour rendre votre annonce plus attractive.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {images.length < 6 
+                ? `${images.length}/6 images - Ajoutez des photos pour rendre votre annonce plus attractive.`
+                : 'Maximum de 6 images atteint. Supprimez une image pour en ajouter une autre.'
+              }
+            </p>
           </div>
         </form>
 

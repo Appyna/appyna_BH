@@ -56,7 +56,21 @@ export const CreateListingPage: React.FC = () => {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
-            const filesArray = Array.from(files);
+            const MAX_IMAGES = 6;
+            const remainingSlots = MAX_IMAGES - images.length;
+            
+            if (remainingSlots <= 0) {
+                alert(`Vous pouvez ajouter maximum ${MAX_IMAGES} images par annonce.`);
+                e.target.value = '';
+                return;
+            }
+            
+            const filesArray = Array.from(files).slice(0, remainingSlots);
+            
+            if (files.length > remainingSlots) {
+                alert(`Vous ne pouvez ajouter que ${remainingSlots} image(s) supplémentaire(s). Limite de ${MAX_IMAGES} images atteinte.`);
+            }
+            
             const newImages = filesArray.map((file: File) => {
                 const url = URL.createObjectURL(file);
                 console.log('Nouvelle image ajoutée:', file.name, url);
@@ -350,18 +364,29 @@ export const CreateListingPage: React.FC = () => {
                             )}
                             
                             {/* Zone d'upload */}
-                            <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
-                                <div className="flex flex-col items-center justify-center text-center">
-                                    <PhotoIcon />
-                                    <div className="flex text-sm text-gray-600 justify-center mt-2">
-                                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                                            <span>{images.length === 0 ? 'Ajouter une photo' : 'Ajouter une photo'}</span>
-                                        </label>
+                            {images.length < 6 && (
+                                <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        <PhotoIcon />
+                                        <div className="flex text-sm text-gray-600 justify-center mt-2">
+                                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                                <span>{images.length === 0 ? 'Ajouter une photo' : 'Ajouter une photo'}</span>
+                                            </label>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF jusqu'à 10MB</p>
+                                        <p className="text-xs text-primary-600 font-medium mt-1">{images.length}/6 images</p>
+                                        <input id="file-upload" name="file-upload" type="file" multiple className="sr-only" onChange={handleImageChange} accept="image/*"/>
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF jusqu'à 10MB</p>
-                                    <input id="file-upload" name="file-upload" type="file" multiple className="sr-only" onChange={handleImageChange} accept="image/*"/>
                                 </div>
-                            </div>
+                            )}
+                            {images.length >= 6 && (
+                                <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md bg-gray-50">
+                                    <div className="text-center">
+                                        <p className="text-sm text-gray-600 font-medium">Limite de 6 images atteinte</p>
+                                        <p className="text-xs text-gray-500 mt-1">Supprimez une image pour en ajouter une autre</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Submit Button */}
