@@ -116,9 +116,10 @@ export const ProfilePage: React.FC = () => {
                                         <Link 
                                             to="/messages" 
                                             state={{ recipientId: user.id }}
-                                            className="inline-flex items-center justify-center bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg text-base"
+                                            className="inline-flex items-center justify-center bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg text-base max-w-full"
+                                            title={`Contacter ${user.name}`}
                                         >
-                                           <MailIcon /> Contacter {user.name}
+                                           <MailIcon /> <span className="truncate">Contacter {user.name}</span>
                                         </Link>
                                     </ProtectedAction>
                                 )}

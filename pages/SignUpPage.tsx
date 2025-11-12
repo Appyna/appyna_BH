@@ -89,9 +89,11 @@ export const SignUpPage: React.FC = () => {
                                 type="text"
                                 autoComplete="name"
                                 required
+                                maxLength={50}
                                 className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 font-montserrat"
                                 placeholder="Votre nom complet"
                             />
+                            <p className="mt-1 text-xs text-gray-500">Maximum 50 caractères</p>
                         </div>
                         
                         <div>

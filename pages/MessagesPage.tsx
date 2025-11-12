@@ -183,15 +183,20 @@ const ChatWindow: React.FC<{
                         </svg>
                       </div>
                     )}
-                    <div>
+                    <div className="min-w-0 flex-1">
                         <Link 
                             to={`/profile/${otherUser.id}`} 
-                            className="font-bold text-gray-800 hover:text-primary-600 transition-colors"
+                            className="font-bold text-gray-800 hover:text-primary-600 transition-colors block overflow-hidden text-ellipsis whitespace-nowrap"
+                            title={otherUser.name}
                         >
                             {otherUser.name}
                         </Link>
                         {listing && (
-                            <Link to={`/listing/${listing.id}`} className="block text-sm text-primary-600 hover:underline">
+                            <Link 
+                              to={`/listing/${listing.id}`} 
+                              className="block text-sm text-primary-600 hover:underline overflow-hidden text-ellipsis whitespace-nowrap"
+                              title={listing.title}
+                            >
                                 {listing.title}
                             </Link>
                         )}

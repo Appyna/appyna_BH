@@ -385,8 +385,14 @@ export const ListingDetailPage: React.FC = () => {
                           </div>
                         )}
                      </Link>
-                     <div>
-                        <Link to={`/profile/${user.id}`} className="font-bold text-lg text-gray-800 hover:text-primary-600">{user.name}</Link>
+                     <div className="flex-1 min-w-0">
+                        <Link 
+                          to={`/profile/${user.id}`} 
+                          className="font-bold text-lg text-gray-800 hover:text-primary-600 block overflow-hidden text-ellipsis whitespace-nowrap"
+                          title={user.name}
+                        >
+                          {user.name}
+                        </Link>
                         <p className="text-sm text-gray-500">Membre sur Appyna</p>
                      </div>
                    </div>
@@ -398,7 +404,11 @@ export const ListingDetailPage: React.FC = () => {
                    </ProtectedAction>
 
                    <div className="text-center mt-6">
-                     <Link to={`/profile/${user.id}`} className="text-sm font-semibold text-primary-600 hover:underline">
+                     <Link 
+                       to={`/profile/${user.id}`} 
+                       className="text-sm font-semibold text-primary-600 hover:underline inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                       title={`Voir toutes les annonces de ${user.name}`}
+                     >
                         Voir toutes les annonces de {user.name}
                      </Link>
                    </div>

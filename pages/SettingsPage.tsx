@@ -168,9 +168,11 @@ export const SettingsPage: React.FC = () => {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
+                                    maxLength={50}
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 font-montserrat"
                                     placeholder="Votre nom"
                                 />
+                                <p className="mt-1 text-xs text-gray-500">{name.length}/50 caractères</p>
                             </div>
 
                             {/* Email (non modifiable) */}

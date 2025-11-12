@@ -103,7 +103,12 @@ export const Header: React.FC = () => {
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 ring-1 ring-black ring-opacity-5 border border-purple-100">
                     <div className="px-4 py-3 border-b border-purple-100">
-                      <p className="text-sm font-semibold text-gray-800 font-poppins">{user.name}</p>
+                      <p 
+                        className="text-sm font-semibold text-gray-800 font-poppins overflow-hidden text-ellipsis whitespace-nowrap" 
+                        title={user.name}
+                      >
+                        {user.name}
+                      </p>
                     </div>
                     <NavLink to={`/profile/${user.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Mon Profil</NavLink>
                     <NavLink to="/messages" className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Messagerie</NavLink>
