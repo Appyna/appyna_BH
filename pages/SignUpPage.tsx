@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/icons/Logo';
 import { BackButton } from '../components/BackButton';
 import { useAuth } from '../contexts/AuthContext';
+import { listingsService } from '../lib/listingsService';
 
 export const SignUpPage: React.FC = () => {
     const navigate = useNavigate();
@@ -26,6 +27,14 @@ export const SignUpPage: React.FC = () => {
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
+
+        // Vérifier si le nom d'utilisateur est disponible
+        const isAvailable = await listingsService.checkUsernameAvailable(name);
+        if (!isAvailable) {
+            setError('Ce nom d\'utilisateur est déjà pris. Veuillez en choisir un autre.');
+            setLoading(false);
+            return;
+        }
 
         const success = await register({ name, email, password });
         

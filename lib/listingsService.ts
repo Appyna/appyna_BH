@@ -264,4 +264,27 @@ export const listingsService = {
       createdAt: data.created_at,
     };
   },
+
+  // Vérifier si un nom d'utilisateur est disponible
+  async checkUsernameAvailable(username: string, excludeUserId?: string): Promise<boolean> {
+    let query = supabase
+      .from('users')
+      .select('id')
+      .eq('name', username);
+
+    // Si on modifie un profil, exclure l'utilisateur actuel de la recherche
+    if (excludeUserId) {
+      query = query.neq('id', excludeUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error checking username:', error);
+      return false;
+    }
+
+    // Si aucun résultat, le nom est disponible
+    return data.length === 0;
+  },
 };
