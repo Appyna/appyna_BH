@@ -138,8 +138,10 @@ const ConversationItem: React.FC<{
   const listing = conv.listing;
   const lastMessage = conv.messages[conv.messages.length - 1];
   
-  // Mock: déterminer s'il y a des messages non lus (en production, vérifier avec une propriété unreadCount)
-  const hasUnreadMessages = lastMessage && lastMessage.senderId !== currentUserId && !isActive;
+  // Vérifier s'il y a des messages non lus (messages reçus qui n'ont pas de readAt)
+  const hasUnreadMessages = conv.messages.some(
+    msg => msg.senderId !== currentUserId && !msg.readAt
+  ) && !isActive;
 
   // Ne pas afficher les conversations sans messages
   if (!otherUser || !lastMessage) return null;
@@ -216,6 +218,11 @@ const ChatWindow: React.FC<{
             unsubscribe();
         };
     }, [conversation.id, onMessageReceived]);
+
+    // Marquer les messages comme lus quand on ouvre la conversation
+    useEffect(() => {
+        messagesService.markMessagesAsRead(conversation.id, currentUserId);
+    }, [conversation.id, currentUserId]);
 
     // Auto-scroll vers le bas
     useEffect(() => {

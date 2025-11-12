@@ -48,11 +48,12 @@ export const messagesService = {
             id: conv.id,
             listingId: conv.listing_id,
             participantIds: [conv.user1_id, conv.user2_id],
-            messages: (messages || []).map((msg: any) => ({
+            messages: (messages || []).map((msg: any): Message => ({
               id: msg.id,
               senderId: msg.sender_id,
               text: msg.text,
               createdAt: new Date(msg.created_at),
+              readAt: msg.read_at ? new Date(msg.read_at) : undefined,
             })),
           };
         })
@@ -101,6 +102,7 @@ export const messagesService = {
           senderId: msg.sender_id,
           text: msg.text,
           createdAt: new Date(msg.created_at),
+          readAt: msg.read_at ? new Date(msg.read_at) : undefined,
         })),
       };
     } catch (error) {
@@ -296,5 +298,24 @@ export const messagesService = {
     return () => {
       supabase.removeChannel(channel);
     };
+  },
+
+  /**
+   * Marque tous les messages non lus d'une conversation comme lus
+   */
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    try {
+      // Utiliser la fonction SQL pour marquer comme lus
+      const { error } = await supabase.rpc('mark_conversation_messages_as_read', {
+        p_conversation_id: conversationId,
+        p_user_id: userId,
+      });
+
+      if (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    } catch (error) {
+      console.error('Error in markMessagesAsRead:', error);
+    }
   },
 };
