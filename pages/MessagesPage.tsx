@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Conversation, Message as MessageType } from '../types';
 import { BackButton } from '../components/BackButton';
@@ -200,7 +200,6 @@ const ChatWindow: React.FC<{
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const hasMarkedAsRead = useRef<string | null>(null); // Track quelle conversation a été marquée comme lue
     
     const otherUser = conversation.otherUser;
     const listing = conversation.listing;
@@ -221,12 +220,10 @@ const ChatWindow: React.FC<{
         };
     }, [conversation.id, onMessageReceived]);
 
-    // Marquer les messages comme lus quand on ouvre la conversation (UNE SEULE FOIS)
+    // Marquer les messages comme lus quand on ouvre la conversation
     useEffect(() => {
-        hasMarkedAsRead.current = conversation.id;
-        messagesService.markMessagesAsRead(conversation.id, currentUserId);
         onMarkAsRead(conversation.id);
-    }, [conversation.id]); // SEULEMENT conversation.id - pas currentUserId ni onMarkAsRead
+    }, [conversation.id, onMarkAsRead]);
 
     // Scroll instantané en bas au premier chargement et à chaque changement de conversation
     useEffect(() => {
@@ -452,6 +449,7 @@ export const MessagesPage: React.FC = () => {
   const [conversations, setConversations] = useState<ConversationWithData[]>([]);
   const [loading, setLoading] = useState(true);
   const hasProcessedState = useRef(false);
+  const markedAsReadConversations = useRef<Set<string>>(new Set()); // Track conversations déjà marquées comme lues
   
   // Récupérer les données passées depuis "Contacter"
   const locationState = location.state as { recipientId?: string; listingId?: string } | null;
@@ -529,6 +527,28 @@ export const MessagesPage: React.FC = () => {
   const navState = location.state as { initialListingId?: string } | null;
   const initialListingId = navState?.initialListingId || locationState?.listingId;
   
+  const handleMarkAsRead = useCallback((convId: string) => {
+    // Ne marquer que si pas déjà fait
+    if (!markedAsReadConversations.current.has(convId) && user?.id) {
+      markedAsReadConversations.current.add(convId);
+      messagesService.markMessagesAsRead(convId, user.id);
+      
+      // Mettre à jour l'état local
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === convId) {
+          return {
+            ...conv,
+            messages: conv.messages.map(msg => ({
+              ...msg,
+              readAt: msg.senderId !== user.id ? new Date() : msg.readAt
+            }))
+          };
+        }
+        return conv;
+      }));
+    }
+  }, [user?.id]);
+
   const handleDeleteConversation = (convId: string) => {
     // TODO: Implement delete in messagesService
     setConversations(conversations.filter(c => c.id !== convId));
@@ -600,28 +620,7 @@ export const MessagesPage: React.FC = () => {
     });
   };
 
-  const handleMarkAsRead = (convId: string) => {
-    setConversations(prev => {
-      return prev.map(conv => {
-        if (conv.id === convId) {
-          // Marquer tous les messages reçus comme lus localement
-          return {
-            ...conv,
-            messages: conv.messages.map(msg => {
-              if (msg.senderId !== user?.id && !msg.readAt) {
-                return {
-                  ...msg,
-                  readAt: new Date(),
-                };
-              }
-              return msg;
-            }),
-          };
-        }
-        return conv;
-      });
-    });
-  };
+
 
   return (
     <div className="container mx-auto h-[calc(100vh-5rem)] py-4">
