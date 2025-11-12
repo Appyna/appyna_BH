@@ -200,6 +200,7 @@ const ChatWindow: React.FC<{
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const hasMarkedAsRead = useRef<string | null>(null); // Track quelle conversation a été marquée comme lue
     
     const otherUser = conversation.otherUser;
     const listing = conversation.listing;
@@ -220,10 +221,25 @@ const ChatWindow: React.FC<{
         };
     }, [conversation.id, onMessageReceived]);
 
-    // Marquer les messages comme lus quand on ouvre la conversation
+    // Marquer les messages comme lus quand on ouvre la conversation (une seule fois)
     useEffect(() => {
-        messagesService.markMessagesAsRead(conversation.id, currentUserId);
-        onMarkAsRead(conversation.id);
+        // Vérifier s'il y a des messages non lus ET si on n'a pas déjà marqué cette conversation
+        const hasUnreadMessages = conversation.messages.some(
+            msg => msg.senderId !== currentUserId && !msg.readAt
+        );
+        
+        if (hasUnreadMessages && hasMarkedAsRead.current !== conversation.id) {
+            hasMarkedAsRead.current = conversation.id;
+            messagesService.markMessagesAsRead(conversation.id, currentUserId);
+            onMarkAsRead(conversation.id);
+        }
+        
+        // Réinitialiser quand on change de conversation
+        return () => {
+            if (hasMarkedAsRead.current === conversation.id) {
+                hasMarkedAsRead.current = null;
+            }
+        };
     }, [conversation.id, currentUserId, onMarkAsRead]);
 
     // Scroll instantané en bas au premier chargement et à chaque changement de conversation
