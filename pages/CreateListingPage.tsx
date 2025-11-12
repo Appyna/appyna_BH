@@ -5,6 +5,7 @@ import { BackButton } from '../components/BackButton';
 import { ProtectedAction } from '../components/ProtectedAction';
 import { useAuth } from '../contexts/AuthContext';
 import { listingsService } from '../lib/listingsService';
+import { uploadService } from '../lib/uploadService';
 
 // Icons
 const PhotoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
@@ -47,13 +48,16 @@ export const CreateListingPage: React.FC = () => {
     const [category, setCategory] = useState<Category | ''>('');
     const [city, setCity] = useState('');
     const [images, setImages] = useState<string[]>([]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<string>('');
     const [error, setError] = useState('');
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
-            const newImages = Array.from(files).map((file: File) => {
+            const filesArray = Array.from(files);
+            const newImages = filesArray.map((file: File) => {
                 const url = URL.createObjectURL(file);
                 console.log('Nouvelle image ajoutée:', file.name, url);
                 return url;
@@ -64,28 +68,35 @@ export const CreateListingPage: React.FC = () => {
                 console.log('Images après:', updated);
                 return updated;
             });
+            setImageFiles(prevFiles => [...prevFiles, ...filesArray]);
             // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
             e.target.value = '';
         }
     };
 
     const handleRemoveImage = (index: number) => {
-        const newImages = images.filter((_, i) => i !== index);
-        setImages(newImages);
+        setImages(prevImages => prevImages.filter((_, i) => i !== index));
+        setImageFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     };
 
     const moveImageUp = (index: number) => {
         if (index === 0) return;
         const newImages = [...images];
+        const newFiles = [...imageFiles];
         [newImages[index], newImages[index - 1]] = [newImages[index - 1], newImages[index]];
+        [newFiles[index], newFiles[index - 1]] = [newFiles[index - 1], newFiles[index]];
         setImages(newImages);
+        setImageFiles(newFiles);
     };
 
     const moveImageDown = (index: number) => {
         if (index === images.length - 1) return;
         const newImages = [...images];
+        const newFiles = [...imageFiles];
         [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+        [newFiles[index], newFiles[index + 1]] = [newFiles[index + 1], newFiles[index]];
         setImages(newImages);
+        setImageFiles(newFiles);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -103,28 +114,50 @@ export const CreateListingPage: React.FC = () => {
 
         setLoading(true);
         setError('');
+        setUploadProgress('');
 
-        console.log('Images envoyées à Supabase:', images);
+        try {
+            let cloudinaryUrls: string[] = [];
 
-        const listing = await listingsService.createListing({
-            title,
-            description,
-            price: parseFloat(price) || 0,
-            category,
-            city,
-            images,
-            type: listingType,
-            userId: user.id,
-        });
+            // Upload des images vers Cloudinary si il y en a
+            if (imageFiles.length > 0) {
+                setUploadProgress(`Upload des images... 0/${imageFiles.length}`);
+                cloudinaryUrls = await uploadService.uploadMultipleImages(
+                    imageFiles,
+                    'listings',
+                    (current, total) => {
+                        setUploadProgress(`Upload des images... ${current}/${total}`);
+                    }
+                );
+                console.log('Images uploadées sur Cloudinary:', cloudinaryUrls);
+            }
 
-        if (listing) {
-            alert('Annonce publiée avec succès !');
-            navigate(`/listing/${listing.id}`);
-        } else {
-            setError('Erreur lors de la création de l\'annonce');
+            setUploadProgress('Création de l\'annonce...');
+
+            const listing = await listingsService.createListing({
+                title,
+                description,
+                price: parseFloat(price) || 0,
+                category,
+                city,
+                images: cloudinaryUrls,
+                type: listingType,
+                userId: user.id,
+            });
+
+            if (listing) {
+                alert('Annonce publiée avec succès !');
+                navigate(`/listing/${listing.id}`);
+            } else {
+                setError('Erreur lors de la création de l\'annonce');
+            }
+        } catch (err) {
+            console.error('Erreur:', err);
+            setError(err instanceof Error ? err.message : 'Erreur lors de la création de l\'annonce');
+        } finally {
+            setLoading(false);
+            setUploadProgress('');
         }
-
-        setLoading(false);
     };
 
     return (
@@ -329,6 +362,12 @@ export const CreateListingPage: React.FC = () => {
                         </div>
 
                         {/* Submit Button */}
+                        {uploadProgress && (
+                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl text-sm text-center">
+                                {uploadProgress}
+                            </div>
+                        )}
+
                         <div className="flex justify-center pt-4">
                             <ProtectedAction>
                                 <button 
