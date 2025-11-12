@@ -531,9 +531,8 @@ export const MessagesPage: React.FC = () => {
     // Ne marquer que si pas déjà fait
     if (!markedAsReadConversations.current.has(convId) && user?.id) {
       markedAsReadConversations.current.add(convId);
-      messagesService.markMessagesAsRead(convId, user.id);
       
-      // Mettre à jour l'état local
+      // Mettre à jour l'état local SEULEMENT (pas d'appel à Supabase pour éviter le loop)
       setConversations(prev => prev.map(conv => {
         if (conv.id === convId) {
           return {
