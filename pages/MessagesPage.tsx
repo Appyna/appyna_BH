@@ -221,15 +221,12 @@ const ChatWindow: React.FC<{
         };
     }, [conversation.id, onMessageReceived]);
 
-    // Marquer les messages comme lus quand on ouvre la conversation (une seule fois)
+    // Marquer les messages comme lus quand on ouvre la conversation (UNE SEULE FOIS)
     useEffect(() => {
-        // Ne marquer comme lu qu'une seule fois par conversation
-        if (hasMarkedAsRead.current !== conversation.id) {
-            hasMarkedAsRead.current = conversation.id;
-            messagesService.markMessagesAsRead(conversation.id, currentUserId);
-            onMarkAsRead(conversation.id);
-        }
-    }, [conversation.id, currentUserId, onMarkAsRead]);
+        hasMarkedAsRead.current = conversation.id;
+        messagesService.markMessagesAsRead(conversation.id, currentUserId);
+        onMarkAsRead(conversation.id);
+    }, [conversation.id]); // SEULEMENT conversation.id - pas currentUserId ni onMarkAsRead
 
     // Scroll instantané en bas au premier chargement et à chaque changement de conversation
     useEffect(() => {
