@@ -60,9 +60,12 @@ export const SettingsPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        // Normaliser le nom : trim + réduire espaces multiples à un seul
+        const normalizedName = name.trim().replace(/\s+/g, ' ');
+        
         // Vérifier si le nom a changé et s'il est disponible
-        if (name !== user.name) {
-            const isAvailable = await listingsService.checkUsernameAvailable(name, user.id);
+        if (normalizedName !== user.name) {
+            const isAvailable = await listingsService.checkUsernameAvailable(normalizedName, user.id);
             if (!isAvailable) {
                 alert('Ce nom d\'utilisateur est déjà pris. Veuillez en choisir un autre.');
                 return;
@@ -71,7 +74,7 @@ export const SettingsPage: React.FC = () => {
         
         // Mise à jour du profil via l'AuthContext
         updateProfile({
-            name: name,
+            name: normalizedName,
             bio: bio,
             avatarUrl: hasCustomAvatar ? avatarUrl : '',
         });

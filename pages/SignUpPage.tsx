@@ -24,9 +24,12 @@ export const SignUpPage: React.FC = () => {
         setLoading(true);
 
         const formData = new FormData(e.target as HTMLFormElement);
-        const name = formData.get('name') as string;
+        const rawName = formData.get('name') as string;
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
+
+        // Normaliser le nom : trim + réduire espaces multiples à un seul
+        const name = rawName.trim().replace(/\s+/g, ' ');
 
         // Vérifier si le nom d'utilisateur est disponible
         const isAvailable = await listingsService.checkUsernameAvailable(name);

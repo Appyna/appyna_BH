@@ -267,10 +267,13 @@ export const listingsService = {
 
   // Vérifier si un nom d'utilisateur est disponible
   async checkUsernameAvailable(username: string, excludeUserId?: string): Promise<boolean> {
+    // Normaliser le nom : trim + réduire espaces multiples à un seul
+    const normalizedUsername = username.trim().replace(/\s+/g, ' ');
+
+    // Récupérer tous les utilisateurs
     let query = supabase
       .from('users')
-      .select('id')
-      .eq('name', username);
+      .select('id, name');
 
     // Si on modifie un profil, exclure l'utilisateur actuel de la recherche
     if (excludeUserId) {
@@ -284,7 +287,13 @@ export const listingsService = {
       return false;
     }
 
-    // Si aucun résultat, le nom est disponible
-    return data.length === 0;
+    // Vérifier si un nom normalisé correspond
+    const nameExists = data.some(user => {
+      const existingNormalized = user.name.trim().replace(/\s+/g, ' ');
+      return existingNormalized.toLowerCase() === normalizedUsername.toLowerCase();
+    });
+
+    // Si aucune correspondance, le nom est disponible
+    return !nameExists;
   },
 };
