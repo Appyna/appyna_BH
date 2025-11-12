@@ -102,8 +102,13 @@ export const ProfilePage: React.FC = () => {
                                 <DefaultAvatarIcon />
                             </div>
                         )}
-                        <div className="text-center md:text-left flex-1">
-                            <h1 className="text-3xl font-bold text-gray-900 font-poppins">{user.name}</h1>
+                        <div className="text-center md:text-left flex-1 min-w-0">
+                            <h1 
+                                className="text-3xl font-bold text-gray-900 font-poppins overflow-hidden text-ellipsis whitespace-nowrap" 
+                                title={user.name}
+                            >
+                                {user.name}
+                            </h1>
                             {user.bio && <p className="text-gray-600 mt-2">{user.bio}</p>}
                             
                             <div className="mt-4">
@@ -129,7 +134,12 @@ export const ProfilePage: React.FC = () => {
                     
                     {/* User's Listings */}
                     <div className="mt-12">
-                        <h2 className="text-xl font-bold text-gray-800 font-poppins mb-6">Annonces de {user.name} ({userListings.length})</h2>
+                        <h2 
+                            className="text-xl font-bold text-gray-800 font-poppins mb-6 overflow-hidden text-ellipsis whitespace-nowrap"
+                            title={`Annonces de ${user.name} (${userListings.length})`}
+                        >
+                            Annonces de {user.name} ({userListings.length})
+                        </h2>
                         {userListings.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
                                 {userListings.map(listing => (
