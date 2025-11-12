@@ -241,22 +241,25 @@ export const CreateListingPage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Prix */}
                             <div>
-                                <Label htmlFor="price" required>Prix</Label>
+                                <Label htmlFor="price" required={listingType !== ListingType.DEMAND}>Prix</Label>
                                 <div className="relative">
                                     <ProtectedAction>
                                         <Input 
                                             id="price" 
                                             type="number" 
-                                            placeholder="0"
+                                            placeholder={listingType === ListingType.DEMAND ? "Optionnel" : "0"}
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             className="pr-8"
-                                            required
+                                            required={listingType !== ListingType.DEMAND}
                                             min="0"
                                         />
                                     </ProtectedAction>
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">₪</span>
                                 </div>
+                                {listingType === ListingType.DEMAND && (
+                                    <p className="text-xs text-gray-500 mt-1">Le prix est facultatif pour les demandes.</p>
+                                )}
                             </div>
                             
                             {/* Ville */}
