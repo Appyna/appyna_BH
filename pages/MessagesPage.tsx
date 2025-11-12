@@ -226,10 +226,14 @@ const ChatWindow: React.FC<{
         onMarkAsRead(conversation.id);
     }, [conversation.id, currentUserId, onMarkAsRead]);
 
-    // Auto-scroll vers le bas
+    // Auto-scroll vers le bas (seulement quand le nombre de messages change)
+    const previousMessageCount = useRef(conversation.messages.length);
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [conversation.messages]);
+        if (conversation.messages.length !== previousMessageCount.current) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            previousMessageCount.current = conversation.messages.length;
+        }
+    }, [conversation.messages.length]);
 
     // Auto-resize du textarea
     useEffect(() => {
