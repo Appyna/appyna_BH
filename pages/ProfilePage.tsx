@@ -81,7 +81,7 @@ export const ProfilePage: React.FC = () => {
             <div className="container mx-auto px-4 py-12">
                 <div className="max-w-5xl mx-auto">
                     {/* Profile Header */}
-                    <div className="bg-white p-8 rounded-2xl shadow-md flex flex-col md:flex-row items-center gap-8 relative">
+                    <div className="bg-white p-8 rounded-2xl shadow-md flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
                         {/* Bouton Signaler - Pour profils externes (icône top-right) */}
                         {!isOwnProfile && (
                           <button
@@ -102,9 +102,9 @@ export const ProfilePage: React.FC = () => {
                                 <DefaultAvatarIcon />
                             </div>
                         )}
-                        <div className="text-center md:text-left flex-1 min-w-0">
+                        <div className="text-center md:text-left flex-1 min-w-0 w-full md:w-auto">
                             <h1 
-                                className="text-3xl font-bold text-gray-900 font-poppins overflow-hidden text-ellipsis whitespace-nowrap" 
+                                className="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins overflow-hidden text-ellipsis whitespace-nowrap px-2" 
                                 title={user.name}
                             >
                                 {user.name}
