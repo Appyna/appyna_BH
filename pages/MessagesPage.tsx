@@ -190,9 +190,10 @@ const ChatWindow: React.FC<{
   onDelete: (convId: string) => void;
   onSendMessage: (convId: string, text: string) => Promise<void>;
   onMessageReceived: (convId: string, message: MessageType) => void;
+  onMarkAsRead: (convId: string) => void;
   currentUserId: string;
   initialListingId?: string;
-}> = ({ conversation, onDelete, onSendMessage, onMessageReceived, currentUserId, initialListingId }) => {
+}> = ({ conversation, onDelete, onSendMessage, onMessageReceived, onMarkAsRead, currentUserId, initialListingId }) => {
     const [newMessage, setNewMessage] = useState('');
     const [showReportModal, setShowReportModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -222,7 +223,8 @@ const ChatWindow: React.FC<{
     // Marquer les messages comme lus quand on ouvre la conversation
     useEffect(() => {
         messagesService.markMessagesAsRead(conversation.id, currentUserId);
-    }, [conversation.id, currentUserId]);
+        onMarkAsRead(conversation.id);
+    }, [conversation.id, currentUserId, onMarkAsRead]);
 
     // Auto-scroll vers le bas
     useEffect(() => {
@@ -583,6 +585,29 @@ export const MessagesPage: React.FC = () => {
     });
   };
 
+  const handleMarkAsRead = (convId: string) => {
+    setConversations(prev => {
+      return prev.map(conv => {
+        if (conv.id === convId) {
+          // Marquer tous les messages reçus comme lus localement
+          return {
+            ...conv,
+            messages: conv.messages.map(msg => {
+              if (msg.senderId !== user?.id && !msg.readAt) {
+                return {
+                  ...msg,
+                  readAt: new Date(),
+                };
+              }
+              return msg;
+            }),
+          };
+        }
+        return conv;
+      });
+    });
+  };
+
   return (
     <div className="container mx-auto h-[calc(100vh-5rem)] py-4">
       <BackButton />
@@ -622,6 +647,7 @@ export const MessagesPage: React.FC = () => {
               onDelete={handleDeleteConversation}
               onSendMessage={handleSendMessage}
               onMessageReceived={handleMessageReceived}
+              onMarkAsRead={handleMarkAsRead}
               currentUserId={user.id}
               initialListingId={initialListingId}
             />
