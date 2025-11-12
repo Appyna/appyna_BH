@@ -52,11 +52,6 @@ export const messagesService = {
             readAt: msg.read_at ? new Date(msg.read_at) : undefined,
           }));
 
-          const unreadCount = mappedMessages.filter(m => !m.readAt && m.senderId !== conv.user1_id && m.senderId !== conv.user2_id).length;
-          if (unreadCount > 0) {
-            console.log(`💬 Conversation ${conv.id}: ${unreadCount} messages non lus`);
-          }
-
           return {
             id: conv.id,
             listingId: conv.listing_id,
@@ -307,17 +302,4 @@ export const messagesService = {
     };
   },
 
-  /**
-   * Marque tous les messages non lus d'une conversation comme lus
-   */
-  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
-    try {
-      await supabase.rpc('mark_conversation_messages_as_read', {
-        p_conversation_id: conversationId,
-        p_user_id: userId,
-      });
-    } catch (error) {
-      console.error('Error marking messages as read:', error);
-    }
-  },
 };

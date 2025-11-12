@@ -268,7 +268,6 @@ const ChatWindow: React.FC<{
     };
 
     const handleDeleteConversation = () => {
-        console.log("Deleting conversation:", conversation.id);
         onDelete(conversation.id);
         setShowDeleteModal(false);
     };
