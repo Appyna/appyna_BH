@@ -39,6 +39,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     <Link to={`/listing/${listing.id}`} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
       <div className="relative w-full overflow-hidden rounded-2xl aspect-[4/3] md:aspect-square bg-gray-200 shadow-lg group-hover:shadow-2xl transition-all duration-300">
         <ImageWithFallback
+          key={`card-${listing.id}-${listing.images?.[0]}`}
           src={listing.images?.[0]}
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

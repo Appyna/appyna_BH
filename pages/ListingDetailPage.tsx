@@ -227,6 +227,7 @@ export const ListingDetailPage: React.FC = () => {
                 onClick={openModal}
               >
                 <ImageWithFallback 
+                  key={`main-${currentImageIndex}-${images[currentImageIndex]}`}
                   src={images[currentImageIndex]} 
                   alt={`${listing.title} - Image ${currentImageIndex + 1}`} 
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
@@ -448,6 +449,7 @@ export const ListingDetailPage: React.FC = () => {
           <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
             {/* Image agrandie */}
             <ImageWithFallback 
+              key={`modal-${currentImageIndex}-${images[currentImageIndex]}`}
               src={images[currentImageIndex]} 
               alt={`${listing.title} - Image ${currentImageIndex + 1}`}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
