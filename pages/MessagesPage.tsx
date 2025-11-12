@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
-import { mockConversations, mockListings, mockUsers } from '../data/mock';
-import { Conversation } from '../types';
+import { Conversation, Message as MessageType } from '../types';
 import { BackButton } from '../components/BackButton';
 import { ReportModal } from '../components/ReportModal';
 import { useAuth } from '../contexts/AuthContext';
-
-// Fix: Set a mock current user ID to make the component functional for the demo.
-// In a real app, this would come from an authentication context.
-const currentUserId = mockUsers.length > 1 ? mockUsers[1].id : (mockUsers.length > 0 ? mockUsers[0].id : '');
+import { messagesService } from '../lib/messagesService';
+import { supabase } from '../lib/supabaseClient';
 
 // Formater la date pour la liste des conversations
 const formatConversationDate = (date: Date) => {
@@ -67,10 +64,78 @@ const formatDateSeparator = (date: Date) => {
   }
 };
 
-const ConversationItem: React.FC<{ conv: Conversation, isActive: boolean }> = ({ conv, isActive }) => {
-  const otherParticipantId = conv.participantIds.find(id => id !== currentUserId);
-  const otherUser = mockUsers.find(u => u.id === otherParticipantId);
-  const listing = mockListings.find(l => l.id === conv.listingId);
+interface ConversationWithData extends Conversation {
+  otherUser?: { id: string; name: string; avatarUrl?: string };
+  listing?: { id: string; title: string };
+}
+
+// Helper pour enrichir les conversations avec les données utilisateur et annonce
+async function enrichConversations(conversations: Conversation[], currentUserId: string): Promise<ConversationWithData[]> {
+  const enriched = await Promise.all(
+    conversations.map(async (conv) => {
+      const otherUserId = conv.participantIds.find(id => id !== currentUserId);
+      
+      // Récupérer les données de l'autre utilisateur
+      let otherUser: { id: string; name: string; avatarUrl?: string } | undefined;
+      if (otherUserId) {
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .select('id, name, avatar_url')
+            .eq('id', otherUserId)
+            .single();
+          
+          if (!error && data) {
+            otherUser = {
+              id: data.id,
+              name: data.name,
+              avatarUrl: data.avatar_url,
+            };
+          }
+        } catch (err) {
+          console.error('Error fetching user:', err);
+        }
+      }
+
+      // Récupérer les données de l'annonce
+      let listing: { id: string; title: string } | undefined;
+      if (conv.listingId) {
+        try {
+          const { data, error } = await supabase
+            .from('listings')
+            .select('id, title')
+            .eq('id', conv.listingId)
+            .single();
+          
+          if (!error && data) {
+            listing = {
+              id: data.id,
+              title: data.title,
+            };
+          }
+        } catch (err) {
+          console.error('Error fetching listing:', err);
+        }
+      }
+
+      return {
+        ...conv,
+        otherUser,
+        listing,
+      };
+    })
+  );
+
+  return enriched;
+}
+
+const ConversationItem: React.FC<{ 
+  conv: ConversationWithData, 
+  isActive: boolean,
+  currentUserId: string 
+}> = ({ conv, isActive, currentUserId }) => {
+  const otherUser = conv.otherUser;
+  const listing = conv.listing;
   const lastMessage = conv.messages[conv.messages.length - 1];
   
   // Mock: déterminer s'il y a des messages non lus (en production, vérifier avec une propriété unreadCount)
@@ -119,20 +184,21 @@ const ConversationItem: React.FC<{ conv: Conversation, isActive: boolean }> = ({
 };
 
 const ChatWindow: React.FC<{ 
-  conversation: Conversation; 
+  conversation: ConversationWithData; 
   onDelete: (convId: string) => void;
-  onAddToHistory: (conv: Conversation) => Conversation;
+  onSendMessage: (convId: string, text: string) => Promise<void>;
+  currentUserId: string;
   initialListingId?: string;
-}> = ({ conversation, onDelete, onAddToHistory, initialListingId }) => {
+}> = ({ conversation, onDelete, onSendMessage, currentUserId, initialListingId }) => {
     const [newMessage, setNewMessage] = useState('');
     const [showReportModal, setShowReportModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     
-    const otherParticipantId = conversation.participantIds.find(id => id !== currentUserId);
-    const otherUser = mockUsers.find(u => u.id === otherParticipantId);
-    const listing = mockListings.find(l => l.id === conversation.listingId);
+    const otherUser = conversation.otherUser;
+    const listing = conversation.listing;
 
     if (!otherUser) return <div className="flex items-center justify-center h-full text-gray-500">Erreur de conversation.</div>;
 
@@ -150,16 +216,18 @@ const ChatWindow: React.FC<{
         }
     }, [newMessage]);
 
-    const handleSend = () => {
-        if(newMessage.trim()){
-            // Si c'est une conversation temporaire (pas encore dans l'historique), l'ajouter maintenant
-            if (conversation.messages.length === 0) {
-                onAddToHistory(conversation);
+    const handleSend = async () => {
+        if(newMessage.trim() && !isSending){
+            setIsSending(true);
+            try {
+                await onSendMessage(conversation.id, newMessage.trim());
+                setNewMessage('');
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Erreur lors de l\'envoi du message');
+            } finally {
+                setIsSending(false);
             }
-            
-            console.log("Sending message:", newMessage); // Mock sending
-            // En production: ajouter le message à la conversation
-            setNewMessage('');
         }
     };
 
@@ -342,78 +410,87 @@ export const MessagesPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [conversations, setConversations] = useState(mockConversations.filter(c => c.participantIds.includes(currentUserId!)));
-  const [tempConversation, setTempConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] = useState<ConversationWithData[]>([]);
+  const [loading, setLoading] = useState(true);
   const hasProcessedState = useRef(false);
   
   // Récupérer les données passées depuis "Contacter"
   const locationState = location.state as { recipientId?: string; listingId?: string } | null;
-  
-  // Créer ou trouver la conversation appropriée
+
+  // Charger les conversations de l'utilisateur
   useEffect(() => {
-    if (locationState?.recipientId && !conversationId && !hasProcessedState.current) {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    const loadConversations = async () => {
+      try {
+        const data = await messagesService.getConversations(user.id);
+        const enriched = await enrichConversations(data, user.id);
+        setConversations(enriched);
+      } catch (error) {
+        console.error('Error loading conversations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadConversations();
+
+    // S'abonner aux mises à jour en temps réel
+    const unsubscribe = messagesService.subscribeToUserConversations(user.id, () => {
+      // Recharger toutes les conversations quand il y a une mise à jour
+      loadConversations();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.id]);
+  
+  // Gérer la création/recherche de conversation depuis "Contacter"
+  useEffect(() => {
+    if (locationState?.recipientId && locationState?.listingId && !conversationId && !hasProcessedState.current && user?.id) {
       hasProcessedState.current = true;
       
-      // Chercher si une conversation existe déjà avec cette personne
-      const existingConv = conversations.find(c => 
-        c.participantIds.includes(locationState.recipientId!)
-      );
-      
-      if (existingConv) {
-        // Conversation existe déjà, naviguer vers elle
-        navigate(`/messages/${existingConv.id}`, { 
-          replace: true,
-          state: { initialListingId: locationState.listingId }
-        });
-      } else {
-        // Créer une conversation temporaire (qui ne sera dans l'historique qu'après l'envoi d'un message)
-        const newConv: Conversation = {
-          id: `temp_${Date.now()}`,
-          participantIds: [currentUserId!, locationState.recipientId],
-          listingId: locationState.listingId || '',
-          messages: []
-        };
-        setTempConversation(newConv);
-        // Naviguer vers la conversation temporaire
-        setTimeout(() => {
-          navigate(`/messages/${newConv.id}`, { 
-            replace: true,
-            state: { initialListingId: locationState.listingId }
-          });
-        }, 100);
-      }
+      const handleContact = async () => {
+        try {
+          const conv = await messagesService.getOrCreateConversation(
+            locationState.listingId!,
+            user.id,
+            locationState.recipientId!
+          );
+          navigate(`/messages/${conv.id}`, { replace: true });
+        } catch (error) {
+          console.error('Error creating conversation:', error);
+          alert('Erreur lors de la création de la conversation');
+        }
+      };
+
+      handleContact();
     }
-  }, [locationState, conversationId, conversations, navigate]);
+  }, [locationState, conversationId, user?.id, navigate]);
   
-  // Chercher la conversation active (dans l'historique ou temporaire)
-  const activeConversation = conversations.find(c => c.id === conversationId) || 
-                            (tempConversation?.id === conversationId ? tempConversation : undefined);
+  // Chercher la conversation active
+  const activeConversation = conversations.find(c => c.id === conversationId);
   
   // Récupérer l'initialListingId depuis le state de navigation
   const navState = location.state as { initialListingId?: string } | null;
   const initialListingId = navState?.initialListingId || locationState?.listingId;
   
   const handleDeleteConversation = (convId: string) => {
+    // TODO: Implement delete in messagesService
     setConversations(conversations.filter(c => c.id !== convId));
-    // Rediriger vers la messagerie principale
     navigate('/messages', { replace: true });
   };
   
-  // Fonction pour ajouter une conversation à l'historique lors de l'envoi d'un message
-  const handleAddToHistory = (conv: Conversation) => {
-    if (tempConversation?.id === conv.id) {
-      // Remplacer l'ID temporaire par un vrai ID
-      const permanentConv = {
-        ...conv,
-        id: `conv_${Date.now()}`
-      };
-      setConversations(prev => [...prev, permanentConv]);
-      setTempConversation(null);
-      // Mettre à jour l'URL
-      navigate(`/messages/${permanentConv.id}`, { replace: true });
-      return permanentConv;
+  const handleSendMessage = async (convId: string, text: string) => {
+    if (!user?.id) {
+      throw new Error('User not authenticated');
     }
-    return conv;
+    await messagesService.sendMessage(convId, user.id, text);
+    // Le message sera mis à jour via real-time subscription
   };
 
   return (
@@ -426,11 +503,22 @@ export const MessagesPage: React.FC = () => {
             <h1 className="text-2xl font-bold font-poppins text-gray-800">Messagerie</h1>
           </div>
           <div className="flex-grow overflow-y-auto p-2 space-y-1">
-            {conversations.length > 0 ? conversations.map(conv => (
-              <ConversationItem key={conv.id} conv={conv} isActive={conv.id === conversationId} />
-            )) : (
+            {loading ? (
+              <div className="p-4 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+              </div>
+            ) : conversations.length > 0 && user ? (
+              conversations.map(conv => (
+                <ConversationItem 
+                  key={conv.id} 
+                  conv={conv} 
+                  isActive={conv.id === conversationId}
+                  currentUserId={user.id}
+                />
+              ))
+            ) : (
               <div className="p-4 text-center text-sm text-gray-500">
-                Vous devez être connecté pour voir vos messages.
+                {user ? 'Aucune conversation' : 'Vous devez être connecté pour voir vos messages.'}
               </div>
             )}
           </div>
@@ -438,13 +526,19 @@ export const MessagesPage: React.FC = () => {
 
         {/* Chat Area */}
         <div className={`w-full md:w-2/3 lg:w-3/4 ${conversationId ? 'block' : 'hidden md:block'}`}>
-          {activeConversation ? (
+          {activeConversation && user ? (
             <ChatWindow 
               conversation={activeConversation} 
               onDelete={handleDeleteConversation}
-              onAddToHistory={handleAddToHistory}
+              onSendMessage={handleSendMessage}
+              currentUserId={user.id}
               initialListingId={initialListingId}
             />
+          ) : loading ? (
+            <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 p-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+              <p>Chargement...</p>
+            </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 p-4">
                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
