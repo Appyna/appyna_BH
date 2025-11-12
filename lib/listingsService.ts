@@ -185,6 +185,17 @@ export const listingsService = {
 
   // Supprimer une annonce
   async deleteListing(id: string): Promise<boolean> {
+    // Récupérer l'annonce pour obtenir les URLs des images
+    const listing = await this.getListingById(id);
+    
+    if (listing && listing.images && listing.images.length > 0) {
+      // Supprimer les images de Cloudinary
+      const { uploadService } = await import('./uploadService');
+      console.log('Suppression des images de l\'annonce:', listing.images);
+      await uploadService.deleteMultipleImages(listing.images);
+    }
+
+    // Supprimer l'annonce de la base de données
     const { error } = await supabase
       .from('listings')
       .delete()
