@@ -226,18 +226,17 @@ const ChatWindow: React.FC<{
         onMarkAsRead(conversation.id);
     }, [conversation.id, currentUserId, onMarkAsRead]);
 
-    // Scroll instantané en bas au premier chargement
+    // Scroll instantané en bas au premier chargement et à chaque changement de conversation
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        // Petit délai pour s'assurer que le DOM est rendu
+        setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        }, 0);
     }, [conversation.id]);
 
-    // Auto-scroll vers le bas (seulement quand le nombre de messages change)
-    const previousMessageCount = useRef(conversation.messages.length);
+    // Auto-scroll vers le bas quand on ajoute des messages
     useEffect(() => {
-        if (conversation.messages.length !== previousMessageCount.current) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            previousMessageCount.current = conversation.messages.length;
-        }
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [conversation.messages.length]);
 
     // Auto-resize du textarea
@@ -539,6 +538,8 @@ export const MessagesPage: React.FC = () => {
       throw new Error('User not authenticated');
     }
     
+    console.log('📤 Envoi du message:', text);
+    
     // Optimistic update : ajouter le message immédiatement localement
     const tempMessage: MessageType = {
       id: `temp-${Date.now()}`,
@@ -547,23 +548,31 @@ export const MessagesPage: React.FC = () => {
       createdAt: new Date(),
     };
     
+    console.log('💾 Ajout du message temporaire:', tempMessage);
+    
     setConversations(prev => {
-      return prev.map(conv => {
+      const updated = prev.map(conv => {
         if (conv.id === convId) {
-          return {
+          const newConv = {
             ...conv,
             messages: [...conv.messages, tempMessage],
           };
+          console.log('✅ Conversation mise à jour avec', newConv.messages.length, 'messages');
+          return newConv;
         }
         return conv;
       });
+      return updated;
     });
     
     // Envoyer le message à Supabase (le real-time remplacera le message temp)
     await messagesService.sendMessage(convId, user.id, text);
+    console.log('🚀 Message envoyé à Supabase');
   };
 
   const handleMessageReceived = (convId: string, message: MessageType) => {
+    console.log('📨 Message reçu via real-time:', message);
+    
     setConversations(prev => {
       return prev.map(conv => {
         if (conv.id === convId) {
@@ -571,6 +580,7 @@ export const MessagesPage: React.FC = () => {
           const tempIndex = conv.messages.findIndex(m => m.id.startsWith('temp-') && m.text === message.text);
           
           if (tempIndex >= 0) {
+            console.log('🔄 Remplacement du message temporaire');
             // Remplacer le message temporaire par le vrai
             const newMessages = [...conv.messages];
             newMessages[tempIndex] = message;
@@ -582,10 +592,13 @@ export const MessagesPage: React.FC = () => {
             // Vérifier si le message n'existe pas déjà
             const messageExists = conv.messages.some(m => m.id === message.id);
             if (!messageExists) {
+              console.log('➕ Ajout du nouveau message');
               return {
                 ...conv,
                 messages: [...conv.messages, message],
               };
+            } else {
+              console.log('⚠️ Message déjà existant, ignoré');
             }
           }
         }
