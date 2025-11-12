@@ -312,21 +312,12 @@ export const messagesService = {
    */
   async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
     try {
-      console.log('📖 Marking messages as read for conversation:', conversationId);
-      
-      // Utiliser la fonction SQL pour marquer comme lus
-      const { error } = await supabase.rpc('mark_conversation_messages_as_read', {
+      await supabase.rpc('mark_conversation_messages_as_read', {
         p_conversation_id: conversationId,
         p_user_id: userId,
       });
-
-      if (error) {
-        console.error('❌ Error marking messages as read:', error);
-      } else {
-        console.log('✅ Messages marked as read successfully');
-      }
     } catch (error) {
-      console.error('❌ Error in markMessagesAsRead:', error);
+      console.error('Error marking messages as read:', error);
     }
   },
 };
