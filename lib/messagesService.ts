@@ -157,7 +157,7 @@ export const messagesService = {
       return {
         id: newConv.id,
         listingId: newConv.listing_id,
-        participantIds: newConv.participant_ids,
+        participantIds: [newConv.user1_id, newConv.user2_id],
         messages: [],
       };
     } catch (error) {
