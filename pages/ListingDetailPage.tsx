@@ -90,6 +90,16 @@ export const ListingDetailPage: React.FC = () => {
   const images = listing?.images && listing.images.length > 0 ? listing.images : [undefined];
   const hasMultipleImages = images.length > 1 && images[0] !== undefined;
 
+  // Debug: afficher les URLs des images
+  useEffect(() => {
+    if (images && images.length > 0) {
+      console.log('🖼️ Images affichées dans la galerie:', images);
+      images.forEach((img, idx) => {
+        console.log(`Image ${idx + 1}:`, img);
+      });
+    }
+  }, [listing]);
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
