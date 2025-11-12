@@ -104,8 +104,8 @@ export const ProfilePage: React.FC = () => {
                         )}
                         <div className="text-center md:text-left flex-1 min-w-0 w-full md:w-auto">
                             <h1 
-                                className="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins overflow-hidden text-ellipsis whitespace-nowrap px-2" 
-                                title={user.name}
+                                className="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins px-2 break-words hyphens-auto" 
+                                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
                             >
                                 {user.name}
                             </h1>
@@ -135,8 +135,8 @@ export const ProfilePage: React.FC = () => {
                     {/* User's Listings */}
                     <div className="mt-12">
                         <h2 
-                            className="text-xl font-bold text-gray-800 font-poppins mb-6 overflow-hidden text-ellipsis whitespace-nowrap"
-                            title={`Annonces de ${user.name} (${userListings.length})`}
+                            className="text-xl font-bold text-gray-800 font-poppins mb-6 break-words"
+                            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
                         >
                             Annonces de {user.name} ({userListings.length})
                         </h2>
