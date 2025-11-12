@@ -44,17 +44,24 @@ export const messagesService = {
             return null;
           }
 
+          const mappedMessages = (messages || []).map((msg: any): Message => ({
+            id: msg.id,
+            senderId: msg.sender_id,
+            text: msg.text,
+            createdAt: new Date(msg.created_at),
+            readAt: msg.read_at ? new Date(msg.read_at) : undefined,
+          }));
+
+          const unreadCount = mappedMessages.filter(m => !m.readAt && m.senderId !== conv.user1_id && m.senderId !== conv.user2_id).length;
+          if (unreadCount > 0) {
+            console.log(`💬 Conversation ${conv.id}: ${unreadCount} messages non lus`);
+          }
+
           return {
             id: conv.id,
             listingId: conv.listing_id,
             participantIds: [conv.user1_id, conv.user2_id],
-            messages: (messages || []).map((msg: any): Message => ({
-              id: msg.id,
-              senderId: msg.sender_id,
-              text: msg.text,
-              createdAt: new Date(msg.created_at),
-              readAt: msg.read_at ? new Date(msg.read_at) : undefined,
-            })),
+            messages: mappedMessages,
           };
         })
       );
@@ -305,6 +312,8 @@ export const messagesService = {
    */
   async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
     try {
+      console.log('📖 Marking messages as read for conversation:', conversationId);
+      
       // Utiliser la fonction SQL pour marquer comme lus
       const { error } = await supabase.rpc('mark_conversation_messages_as_read', {
         p_conversation_id: conversationId,
@@ -312,10 +321,12 @@ export const messagesService = {
       });
 
       if (error) {
-        console.error('Error marking messages as read:', error);
+        console.error('❌ Error marking messages as read:', error);
+      } else {
+        console.log('✅ Messages marked as read successfully');
       }
     } catch (error) {
-      console.error('Error in markMessagesAsRead:', error);
+      console.error('❌ Error in markMessagesAsRead:', error);
     }
   },
 };
