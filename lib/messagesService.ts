@@ -254,12 +254,38 @@ export const messagesService = {
   ) {
     const channel = supabase
       .channel(`user-conversations:${userId}`)
+      // Écouter les nouveaux messages
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'messages',
+        },
+        () => {
+          onUpdate();
+        }
+      )
+      // Écouter les nouvelles conversations
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `user1_id=eq.${userId}`,
+        },
+        () => {
+          onUpdate();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `user2_id=eq.${userId}`,
         },
         () => {
           onUpdate();

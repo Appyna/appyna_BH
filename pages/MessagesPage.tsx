@@ -515,21 +515,55 @@ export const MessagesPage: React.FC = () => {
     if (!user?.id) {
       throw new Error('User not authenticated');
     }
+    
+    // Optimistic update : ajouter le message immédiatement localement
+    const tempMessage: MessageType = {
+      id: `temp-${Date.now()}`,
+      senderId: user.id,
+      text,
+      createdAt: new Date(),
+    };
+    
+    setConversations(prev => {
+      return prev.map(conv => {
+        if (conv.id === convId) {
+          return {
+            ...conv,
+            messages: [...conv.messages, tempMessage],
+          };
+        }
+        return conv;
+      });
+    });
+    
+    // Envoyer le message à Supabase (le real-time remplacera le message temp)
     await messagesService.sendMessage(convId, user.id, text);
-    // Le message sera mis à jour via real-time subscription
   };
 
   const handleMessageReceived = (convId: string, message: MessageType) => {
     setConversations(prev => {
       return prev.map(conv => {
         if (conv.id === convId) {
-          // Vérifier si le message n'existe pas déjà (éviter les doublons)
-          const messageExists = conv.messages.some(m => m.id === message.id);
-          if (!messageExists) {
+          // Remplacer le message temporaire ou ajouter le nouveau message
+          const tempIndex = conv.messages.findIndex(m => m.id.startsWith('temp-') && m.text === message.text);
+          
+          if (tempIndex >= 0) {
+            // Remplacer le message temporaire par le vrai
+            const newMessages = [...conv.messages];
+            newMessages[tempIndex] = message;
             return {
               ...conv,
-              messages: [...conv.messages, message],
+              messages: newMessages,
             };
+          } else {
+            // Vérifier si le message n'existe pas déjà
+            const messageExists = conv.messages.some(m => m.id === message.id);
+            if (!messageExists) {
+              return {
+                ...conv,
+                messages: [...conv.messages, message],
+              };
+            }
           }
         }
         return conv;
