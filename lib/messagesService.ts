@@ -38,17 +38,17 @@ export const messagesService = {
         return [];
       }
 
-      // OPTIMISATION: Charger les 50 derniers messages par conversation en 1 seule requête (fix N+1)
+      // OPTIMISATION: Charger tous les messages en 1 seule requête (fix N+1)
       const conversationIds = conversations.map(c => c.id);
       const { data: allMessages, error: msgError } = await supabase
-        .rpc('get_latest_messages_by_conversations', {
-          conversation_ids: conversationIds,
-          messages_limit: 50
-        });
+        .from('messages')
+        .select('id, conversation_id, sender_id, text, created_at')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: true });
 
       if (msgError) {
         logger.error('Error fetching messages:', msgError);
-        return [];
+        // Ne pas retourner [] ici, continuer avec conversations vides
       }
 
       // Grouper les messages par conversation_id
