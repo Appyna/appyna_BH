@@ -455,6 +455,7 @@ export const MessagesPage: React.FC = () => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<ConversationWithData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [, forceUpdate] = useState(0); // Pour forcer re-render du point bleu
   const hasProcessedState = useRef(false);
   
   // Récupérer les données passées depuis "Contacter"
@@ -551,9 +552,9 @@ export const MessagesPage: React.FC = () => {
     const lastMessage = conversation.messages[conversation.messages.length - 1];
     setLastSeenMessageId(convId, lastMessage.id);
     
-    // Forcer un re-render pour mettre à jour le point bleu
-    setConversations([...conversations]);
-  }, [conversations]);
+    // Forcer un re-render léger pour mettre à jour le point bleu
+    forceUpdate(prev => prev + 1);
+  }, [conversations, forceUpdate]);
 
   const handleDeleteConversation = (convId: string) => {
     // TODO: Implement delete in messagesService
