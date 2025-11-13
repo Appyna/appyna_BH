@@ -76,8 +76,8 @@ export const ListingDetailPage: React.FC = () => {
     }
   };
   
-  // Vérifier si l'annonce est en cours de boost (simulation)
-  const isCurrentlyBoosted = listing?.isBoosted || false;
+  // Vérifier si l'annonce est en cours de boost
+  const isCurrentlyBoosted = listing?.boostedUntil && new Date(listing.boostedUntil) > new Date();
 
   // Fonction pour afficher la bannière pendant 3 secondes
   const showBanner = (message: string) => {

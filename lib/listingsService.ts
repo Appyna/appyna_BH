@@ -19,10 +19,7 @@ export const listingsService = {
           avatar_url,
           city
         )
-      `)
-      // Tri : annonces boostées en premier, puis par date de création
-      .order('boosted_until', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+      `);
 
     if (filters?.category) {
       query = query.eq('category', filters.category);
@@ -44,7 +41,7 @@ export const listingsService = {
       return [];
     }
 
-    return data.map((listing: any) => ({
+    const listings = data.map((listing: any) => ({
       id: listing.id,
       title: listing.title,
       description: listing.description,
@@ -64,6 +61,19 @@ export const listingsService = {
       boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
     }));
+
+    // Tri manuel : annonces boostées actives en premier
+    return listings.sort((a, b) => {
+      const now = new Date();
+      const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
+      const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
+      
+      if (aBoostActive && !bBoostActive) return -1;
+      if (!aBoostActive && bBoostActive) return 1;
+      
+      // Si les deux sont boostées ou aucune, tri par date de création
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   },
 
   // Récupérer une annonce par ID
