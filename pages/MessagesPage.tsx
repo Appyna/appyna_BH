@@ -180,11 +180,11 @@ const ConversationItem: React.FC<{
           </p>
         </div>
         {listing && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500 truncate">{listing.title}</p>
-            {/* Badge de nouveau message - à côté du titre de l'annonce */}
+            {/* Badge de nouveau message - aligné à droite */}
             {hasUnreadMessages && (
-              <div className="w-2 h-2 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full flex-shrink-0 ml-auto"></div>
             )}
           </div>
         )}
