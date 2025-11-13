@@ -132,16 +132,24 @@ async function enrichConversations(conversations: Conversation[], currentUserId:
 const ConversationItem: React.FC<{ 
   conv: ConversationWithData, 
   isActive: boolean,
-  currentUserId: string 
-}> = ({ conv, isActive, currentUserId }) => {
+  currentUserId: string,
+  getLastSeenMessageId: (convId: string) => string | null
+}> = ({ conv, isActive, currentUserId, getLastSeenMessageId }) => {
   const otherUser = conv.otherUser;
   const listing = conv.listing;
   const lastMessage = conv.messages[conv.messages.length - 1];
   
-  // Vérifier s'il y a des messages non lus (messages reçus qui n'ont pas de readAt)
-  const hasUnreadMessages = conv.messages.some(
-    msg => msg.senderId !== currentUserId && !msg.readAt
-  ) && !isActive;
+  // Vérifier s'il y a des messages non lus : comparer le dernier message avec le dernier vu
+  const lastSeenId = getLastSeenMessageId(conv.id);
+  const hasUnreadMessages = !isActive && conv.messages.some(msg => {
+    // Un message est non lu s'il est reçu (pas envoyé par moi) et après le dernier vu
+    if (msg.senderId === currentUserId) return false;
+    if (!lastSeenId) return true; // Jamais ouvert = non lu
+    // Trouver l'index du dernier message vu
+    const lastSeenIndex = conv.messages.findIndex(m => m.id === lastSeenId);
+    const currentIndex = conv.messages.findIndex(m => m.id === msg.id);
+    return currentIndex > lastSeenIndex;
+  });
 
   // Ne pas afficher les conversations sans messages
   if (!otherUser || !lastMessage) return null;
@@ -448,10 +456,19 @@ export const MessagesPage: React.FC = () => {
   const [conversations, setConversations] = useState<ConversationWithData[]>([]);
   const [loading, setLoading] = useState(true);
   const hasProcessedState = useRef(false);
-  const markedAsReadConversations = useRef<Set<string>>(new Set()); // Track conversations déjà marquées comme lues
   
   // Récupérer les données passées depuis "Contacter"
   const locationState = location.state as { recipientId?: string; listingId?: string } | null;
+  
+  // Helper: Récupérer le dernier message vu pour une conversation depuis localStorage
+  const getLastSeenMessageId = (convId: string): string | null => {
+    return localStorage.getItem(`lastSeen_${convId}`);
+  };
+  
+  // Helper: Sauvegarder le dernier message vu pour une conversation
+  const setLastSeenMessageId = (convId: string, messageId: string) => {
+    localStorage.setItem(`lastSeen_${convId}`, messageId);
+  };
 
   // Charger les conversations de l'utilisateur
   useEffect(() => {
@@ -527,38 +544,16 @@ export const MessagesPage: React.FC = () => {
   const initialListingId = navState?.initialListingId || locationState?.listingId;
   
   const handleMarkAsRead = useCallback((convId: string) => {
-    if (!user?.id) return;
-    
-    // Vérifier s'il y a des messages non lus dans cette conversation
     const conversation = conversations.find(c => c.id === convId);
-    if (!conversation) return;
+    if (!conversation || conversation.messages.length === 0) return;
     
-    const hasUnreadMessages = conversation.messages.some(
-      msg => msg.senderId !== user.id && !msg.readAt
-    );
+    // Sauvegarder le dernier message comme "vu" dans localStorage
+    const lastMessage = conversation.messages[conversation.messages.length - 1];
+    setLastSeenMessageId(convId, lastMessage.id);
     
-    // Ne marquer que s'il y a vraiment des messages non lus
-    if (hasUnreadMessages && !markedAsReadConversations.current.has(convId)) {
-      markedAsReadConversations.current.add(convId);
-      
-      // 1. Mettre à jour l'état local immédiatement pour l'UI
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === convId) {
-          return {
-            ...conv,
-            messages: conv.messages.map(msg => ({
-              ...msg,
-              readAt: msg.senderId !== user.id ? new Date() : msg.readAt
-            }))
-          };
-        }
-        return conv;
-      }));
-      
-      // 2. Persister en base de données (async, silencieux)
-      messagesService.markMessagesAsRead(convId, user.id);
-    }
-  }, [user?.id, conversations]);
+    // Forcer un re-render pour mettre à jour le point bleu
+    setConversations([...conversations]);
+  }, [conversations]);
 
   const handleDeleteConversation = (convId: string) => {
     // TODO: Implement delete in messagesService
@@ -654,6 +649,7 @@ export const MessagesPage: React.FC = () => {
                   conv={conv} 
                   isActive={conv.id === conversationId}
                   currentUserId={user.id}
+                  getLastSeenMessageId={getLastSeenMessageId}
                 />
               ))
             ) : (
