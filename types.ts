@@ -95,6 +95,8 @@ export interface Listing {
     city: string;
   };
   boostedAt?: string | null;
+  boostedUntil?: string | null;
+  isBoosted?: boolean;
   createdAt: string;
 }
 

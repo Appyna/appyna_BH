@@ -2,10 +2,10 @@
 
 -- Ajouter colonne boosted_until (date d'expiration du boost)
 ALTER TABLE listings 
-ADD COLUMN boosted_until TIMESTAMPTZ DEFAULT NULL;
+ADD COLUMN IF NOT EXISTS boosted_until TIMESTAMPTZ DEFAULT NULL;
 
 -- Index pour rechercher rapidement les annonces boostées
-CREATE INDEX idx_listings_boosted 
+CREATE INDEX IF NOT EXISTS idx_listings_boosted 
 ON listings (boosted_until DESC NULLS LAST);
 
 -- Fonction pour booster une annonce

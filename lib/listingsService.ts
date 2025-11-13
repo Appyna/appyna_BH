@@ -61,6 +61,7 @@ export const listingsService = {
         city: listing.users.city || '',
       } : undefined,
       boostedAt: listing.boosted_at,
+      boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
     }));
   },
@@ -107,6 +108,7 @@ export const listingsService = {
         city: data.users.city || '',
       } : undefined,
       boostedAt: data.boosted_at,
+      boostedUntil: data.boosted_until,
       createdAt: data.created_at,
     };
   },
