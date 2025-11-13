@@ -163,7 +163,7 @@ const ConversationItem: React.FC<{
     >
       {/* Badge de nouveau message */}
       {hasUnreadMessages && (
-        <div className="absolute top-4 right-2 w-2.5 h-2.5 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full"></div>
+        <div className="absolute top-6 right-2 w-2 h-2 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full"></div>
       )}
       
       {otherUser.avatarUrl ? (
