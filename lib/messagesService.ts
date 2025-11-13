@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { Conversation, Message } from '../types';
+import { logger } from './logger';
 
 // Constantes de validation
 const MAX_MESSAGE_LENGTH = 5000;
@@ -29,7 +30,7 @@ export const messagesService = {
         .range(offset, offset + CONVERSATIONS_LIMIT - 1);
 
       if (convError) {
-        console.error('Error fetching conversations:', convError);
+        logger.error('Error fetching conversations:', convError);
         return [];
       }
 
@@ -37,39 +38,46 @@ export const messagesService = {
         return [];
       }
 
-      // Pour chaque conversation, récupérer les messages
-      const conversationsWithMessages = await Promise.all(
-        conversations.map(async (conv) => {
-          const { data: messages, error: msgError } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: true });
+      // OPTIMISATION: Charger les 50 derniers messages par conversation en 1 seule requête (fix N+1)
+      const conversationIds = conversations.map(c => c.id);
+      const { data: allMessages, error: msgError } = await supabase
+        .rpc('get_latest_messages_by_conversations', {
+          conversation_ids: conversationIds,
+          messages_limit: 50
+        });
 
-          if (msgError) {
-            console.error('Error fetching messages:', msgError);
-            return null;
-          }
+      if (msgError) {
+        logger.error('Error fetching messages:', msgError);
+        return [];
+      }
 
-          const mappedMessages = (messages || []).map((msg: any): Message => ({
-            id: msg.id,
-            senderId: msg.sender_id,
-            text: msg.text,
-            createdAt: new Date(msg.created_at),
-          }));
+      // Grouper les messages par conversation_id
+      const messagesByConversation = new Map<string, Message[]>();
+      (allMessages || []).forEach((msg: any) => {
+        const message: Message = {
+          id: msg.id,
+          senderId: msg.sender_id,
+          text: msg.text,
+          createdAt: new Date(msg.created_at),
+        };
+        
+        if (!messagesByConversation.has(msg.conversation_id)) {
+          messagesByConversation.set(msg.conversation_id, []);
+        }
+        messagesByConversation.get(msg.conversation_id)!.push(message);
+      });
 
-          return {
-            id: conv.id,
-            listingId: conv.listing_id,
-            participantIds: [conv.user1_id, conv.user2_id],
-            messages: mappedMessages,
-          };
-        })
-      );
+      // Construire les conversations avec leurs messages
+      const conversationsWithMessages = conversations.map(conv => ({
+        id: conv.id,
+        listingId: conv.listing_id,
+        participantIds: [conv.user1_id, conv.user2_id],
+        messages: messagesByConversation.get(conv.id) || [],
+      }));
 
-      return conversationsWithMessages.filter((c): c is Conversation => c !== null);
+      return conversationsWithMessages;
     } catch (error) {
-      console.error('Error in getConversations:', error);
+      logger.error('Error in getConversations:', error);
       return [];
     }
   },
@@ -86,7 +94,7 @@ export const messagesService = {
         .single();
 
       if (convError || !conv) {
-        console.error('Error fetching conversation:', convError);
+        logger.error('Error fetching conversation:', convError);
         return null;
       }
 
@@ -97,7 +105,7 @@ export const messagesService = {
         .order('created_at', { ascending: true });
 
       if (msgError) {
-        console.error('Error fetching messages:', msgError);
+        logger.error('Error fetching messages:', msgError);
         return null;
       }
 
@@ -113,7 +121,7 @@ export const messagesService = {
         })),
       };
     } catch (error) {
-      console.error('Error in getConversationById:', error);
+      logger.error('Error in getConversationById:', error);
       return null;
     }
   },
@@ -136,7 +144,7 @@ export const messagesService = {
         .maybeSingle();
 
       if (searchError && searchError.code !== 'PGRST116') {
-        console.error('Error searching conversation:', searchError);
+        logger.error('Error searching conversation:', searchError);
         return null;
       }
 
@@ -159,7 +167,7 @@ export const messagesService = {
         .single();
 
       if (createError || !newConv) {
-        console.error('Error creating conversation:', createError);
+        logger.error('Error creating conversation:', createError);
         return null;
       }
 
@@ -170,7 +178,7 @@ export const messagesService = {
         messages: [],
       };
     } catch (error) {
-      console.error('Error in getOrCreateConversation:', error);
+      logger.error('Error in getOrCreateConversation:', error);
       return null;
     }
   },
@@ -206,7 +214,7 @@ export const messagesService = {
         .single();
 
       if (error || !message) {
-        console.error('Error sending message:', error);
+        logger.error('Error sending message:', error);
         return null;
       }
 
@@ -223,7 +231,7 @@ export const messagesService = {
         createdAt: new Date(message.created_at),
       };
     } catch (error) {
-      console.error('Error in sendMessage:', error);
+      logger.error('Error in sendMessage:', error);
       return null;
     }
   },
@@ -327,13 +335,13 @@ export const messagesService = {
       });
 
       if (error) {
-        console.error('Error deleting conversation:', error);
+        logger.error('Error deleting conversation:', error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Error in deleteConversation:', error);
+      logger.error('Error in deleteConversation:', error);
       return false;
     }
   },
