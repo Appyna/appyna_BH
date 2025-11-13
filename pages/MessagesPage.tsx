@@ -157,15 +157,10 @@ const ConversationItem: React.FC<{
   return (
     <Link
       to={`/messages/${conv.id}`}
-      className={`flex items-center p-3 rounded-lg transition-colors relative ${
+      className={`flex items-center p-3 rounded-lg transition-colors ${
         isActive ? 'bg-primary-50' : 'hover:bg-gray-50'
       }`}
     >
-      {/* Badge de nouveau message */}
-      {hasUnreadMessages && (
-        <div className="absolute top-6 right-2 w-2 h-2 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full"></div>
-      )}
-      
       {otherUser.avatarUrl ? (
         <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-12 w-12 rounded-full object-cover mr-3" />
       ) : (
@@ -184,7 +179,15 @@ const ConversationItem: React.FC<{
             {formatConversationDate(lastMessage.createdAt)}
           </p>
         </div>
-        {listing && <p className="text-sm text-gray-500 truncate">{listing.title}</p>}
+        {listing && (
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-500 truncate">{listing.title}</p>
+            {/* Badge de nouveau message - à côté du titre de l'annonce */}
+            {hasUnreadMessages && (
+              <div className="w-2 h-2 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full flex-shrink-0"></div>
+            )}
+          </div>
+        )}
         <p className={`text-sm truncate ${hasUnreadMessages ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>
           {lastMessage.text}
         </p>
