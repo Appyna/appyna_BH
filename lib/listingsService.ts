@@ -20,6 +20,8 @@ export const listingsService = {
           city
         )
       `)
+      // Tri : annonces boostées en premier, puis par date de création
+      .order('boosted_until', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
     if (filters?.category) {
@@ -209,12 +211,13 @@ export const listingsService = {
     return true;
   },
 
-  // Booster une annonce
-  async boostListing(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('listings')
-      .update({ boosted_at: new Date().toISOString() })
-      .eq('id', id);
+  // Booster une annonce pour X jours
+  async boostListing(id: string, days: number): Promise<boolean> {
+    const { data, error } = await supabase
+      .rpc('boost_listing', {
+        p_listing_id: id,
+        p_days: days
+      });
 
     if (error) {
       console.error('Error boosting listing:', error);

@@ -45,7 +45,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start">
-           {listing.boostedAt && (
+           {listing.boostedUntil && new Date(listing.boostedUntil) > new Date() && (
              <div className="flex items-center gap-1 bg-gradient-to-r from-primary-600/90 to-secondary-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-md shadow-lg">
                <ZapIcon />
                BOOSTÉ
