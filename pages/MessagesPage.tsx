@@ -458,6 +458,9 @@ export const MessagesPage: React.FC = () => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<ConversationWithData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const [, forceUpdate] = useState(0); // Pour forcer re-render du point bleu
   const hasProcessedState = useRef(false);
   
@@ -487,7 +490,7 @@ export const MessagesPage: React.FC = () => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [forceUpdate]);
 
-  // Charger les conversations de l'utilisateur
+  // Charger les conversations de l'utilisateur (initial)
   useEffect(() => {
     if (!user?.id) {
       setLoading(false);
@@ -496,9 +499,12 @@ export const MessagesPage: React.FC = () => {
 
     const loadConversations = async () => {
       try {
-        const data = await messagesService.getConversations(user.id);
+        const data = await messagesService.getConversations(user.id, 0);
         const enriched = await enrichConversations(data, user.id);
         setConversations(enriched);
+        setOffset(50);
+        // Si moins de 50 conversations, c'est qu'il n'y en a plus
+        setHasMore(data.length >= 50);
       } catch (error) {
         console.error('Error loading conversations:', error);
       } finally {
@@ -571,6 +577,29 @@ export const MessagesPage: React.FC = () => {
     // Forcer un re-render léger pour mettre à jour le point bleu
     forceUpdate(prev => prev + 1);
   }, [conversations, forceUpdate]);
+
+  const handleLoadMore = async () => {
+    if (!user?.id || loadingMore || !hasMore) return;
+    
+    setLoadingMore(true);
+    try {
+      const data = await messagesService.getConversations(user.id, offset);
+      const enriched = await enrichConversations(data, user.id);
+      
+      // Ajouter les nouvelles conversations à la liste existante
+      setConversations(prev => [...prev, ...enriched]);
+      
+      // Mettre à jour l'offset pour le prochain chargement
+      setOffset(prev => prev + 50);
+      
+      // Si moins de 50 conversations chargées, c'est qu'il n'y en a plus
+      setHasMore(data.length >= 50);
+    } catch (error) {
+      console.error('Error loading more conversations:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleDeleteConversation = async (convId: string) => {
     if (!user?.id) return;
@@ -669,15 +698,37 @@ export const MessagesPage: React.FC = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
               </div>
             ) : conversations.length > 0 && user ? (
-              conversations.map(conv => (
-                <ConversationItem 
-                  key={conv.id} 
-                  conv={conv} 
-                  isActive={conv.id === conversationId}
-                  currentUserId={user.id}
-                  getLastSeenMessageId={getLastSeenMessageId}
-                />
-              ))
+              <>
+                {conversations.map(conv => (
+                  <ConversationItem 
+                    key={conv.id} 
+                    conv={conv} 
+                    isActive={conv.id === conversationId}
+                    currentUserId={user.id}
+                    getLastSeenMessageId={getLastSeenMessageId}
+                  />
+                ))}
+                
+                {/* Bouton "Charger plus" */}
+                {hasMore && (
+                  <div className="p-4 text-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="w-full py-2.5 px-4 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-montserrat"
+                    >
+                      {loadingMore ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                          Chargement...
+                        </span>
+                      ) : (
+                        'Charger plus de conversations'
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="p-4 text-center text-sm text-gray-500">
                 {user ? 'Aucune conversation' : 'Vous devez être connecté pour voir vos messages.'}

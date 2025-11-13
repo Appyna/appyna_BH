@@ -28,9 +28,11 @@ function checkRateLimit(): boolean {
 
 export const messagesService = {
   /**
-   * Récupère les conversations récentes d'un utilisateur (limité à 50)
+   * Récupère les conversations récentes d'un utilisateur (avec pagination)
+   * @param userId - ID de l'utilisateur
+   * @param offset - Nombre de conversations à sauter (pour pagination)
    */
-  async getConversations(userId: string): Promise<Conversation[]> {
+  async getConversations(userId: string, offset: number = 0): Promise<Conversation[]> {
     try {
       // Récupérer les conversations où l'utilisateur est participant (AVEC PAGINATION)
       const { data: conversations, error: convError } = await supabase
@@ -45,7 +47,7 @@ export const messagesService = {
         `)
         .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
         .order('updated_at', { ascending: false })
-        .limit(CONVERSATIONS_LIMIT);
+        .range(offset, offset + CONVERSATIONS_LIMIT - 1);
 
       if (convError) {
         console.error('Error fetching conversations:', convError);
