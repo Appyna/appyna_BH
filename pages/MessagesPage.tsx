@@ -531,7 +531,7 @@ export const MessagesPage: React.FC = () => {
     if (!markedAsReadConversations.current.has(convId) && user?.id) {
       markedAsReadConversations.current.add(convId);
       
-      // Mettre à jour l'état local SEULEMENT (pas d'appel à Supabase pour éviter le loop)
+      // 1. Mettre à jour l'état local immédiatement pour l'UI
       setConversations(prev => prev.map(conv => {
         if (conv.id === convId) {
           return {
@@ -544,6 +544,9 @@ export const MessagesPage: React.FC = () => {
         }
         return conv;
       }));
+      
+      // 2. Persister en base de données (async, silencieux)
+      messagesService.markMessagesAsRead(convId, user.id);
     }
   }, [user?.id]);
 

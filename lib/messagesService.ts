@@ -302,4 +302,17 @@ export const messagesService = {
     };
   },
 
+  /**
+   * Marque tous les messages non lus d'une conversation comme lus en base de données
+   */
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    try {
+      await supabase.rpc('mark_conversation_messages_as_read', {
+        p_conversation_id: conversationId,
+        p_user_id: userId,
+      });
+    } catch (error) {
+      // Silencieux - pas grave si ça échoue
+    }
+  },
 };
