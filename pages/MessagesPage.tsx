@@ -527,8 +527,18 @@ export const MessagesPage: React.FC = () => {
   const initialListingId = navState?.initialListingId || locationState?.listingId;
   
   const handleMarkAsRead = useCallback((convId: string) => {
-    // Ne marquer que si pas déjà fait
-    if (!markedAsReadConversations.current.has(convId) && user?.id) {
+    if (!user?.id) return;
+    
+    // Vérifier s'il y a des messages non lus dans cette conversation
+    const conversation = conversations.find(c => c.id === convId);
+    if (!conversation) return;
+    
+    const hasUnreadMessages = conversation.messages.some(
+      msg => msg.senderId !== user.id && !msg.readAt
+    );
+    
+    // Ne marquer que s'il y a vraiment des messages non lus
+    if (hasUnreadMessages && !markedAsReadConversations.current.has(convId)) {
       markedAsReadConversations.current.add(convId);
       
       // 1. Mettre à jour l'état local immédiatement pour l'UI
@@ -548,7 +558,7 @@ export const MessagesPage: React.FC = () => {
       // 2. Persister en base de données (async, silencieux)
       messagesService.markMessagesAsRead(convId, user.id);
     }
-  }, [user?.id]);
+  }, [user?.id, conversations]);
 
   const handleDeleteConversation = (convId: string) => {
     // TODO: Implement delete in messagesService
