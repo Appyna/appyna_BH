@@ -267,9 +267,20 @@ const ChatWindow: React.FC<{
             
             try {
                 await onSendMessage(conversation.id, messageToSend);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error sending message:', error);
-                alert('Erreur lors de l\'envoi du message');
+                
+                // Afficher le message d'erreur approprié
+                if (error.message?.includes('trop de messages')) {
+                    alert('⏱️ Vous envoyez trop de messages. Veuillez patienter une minute avant de réessayer.');
+                } else if (error.message?.includes('5000')) {
+                    alert('📝 Votre message est trop long (maximum 5000 caractères).');
+                } else if (error.message?.includes('vide')) {
+                    alert('✍️ Votre message ne peut pas être vide.');
+                } else {
+                    alert('❌ Erreur lors de l\'envoi du message. Veuillez réessayer.');
+                }
+                
                 // Remettre le message en cas d'erreur
                 setNewMessage(messageToSend);
             } finally {
