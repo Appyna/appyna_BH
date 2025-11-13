@@ -1,13 +1,38 @@
 import { supabase } from './supabaseClient';
 import { Conversation, Message } from '../types';
 
+// Constantes de validation
+const MAX_MESSAGE_LENGTH = 5000;
+const CONVERSATIONS_LIMIT = 50; // Pagination
+
+// Rate limiting simple (côté client)
+const messageTimestamps: number[] = [];
+const MAX_MESSAGES_PER_MINUTE = 30;
+
+function checkRateLimit(): boolean {
+  const now = Date.now();
+  const oneMinuteAgo = now - 60000;
+  
+  // Retirer les timestamps > 1 minute
+  while (messageTimestamps.length > 0 && messageTimestamps[0] < oneMinuteAgo) {
+    messageTimestamps.shift();
+  }
+  
+  if (messageTimestamps.length >= MAX_MESSAGES_PER_MINUTE) {
+    return false;
+  }
+  
+  messageTimestamps.push(now);
+  return true;
+}
+
 export const messagesService = {
   /**
-   * Récupère toutes les conversations d'un utilisateur
+   * Récupère les conversations récentes d'un utilisateur (limité à 50)
    */
   async getConversations(userId: string): Promise<Conversation[]> {
     try {
-      // Récupérer les conversations où l'utilisateur est participant
+      // Récupérer les conversations où l'utilisateur est participant (AVEC PAGINATION)
       const { data: conversations, error: convError } = await supabase
         .from('conversations')
         .select(`
@@ -19,7 +44,8 @@ export const messagesService = {
           updated_at
         `)
         .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .limit(CONVERSATIONS_LIMIT);
 
       if (convError) {
         console.error('Error fetching conversations:', convError);
@@ -169,7 +195,7 @@ export const messagesService = {
   },
 
   /**
-   * Envoie un message dans une conversation
+   * Envoie un message dans une conversation avec validation et rate limiting
    */
   async sendMessage(
     conversationId: string,
@@ -177,13 +203,27 @@ export const messagesService = {
     text: string
   ): Promise<Message | null> {
     try {
+      // Validation de la longueur
+      if (!text || text.trim().length === 0) {
+        throw new Error('Le message ne peut pas être vide');
+      }
+      
+      if (text.length > MAX_MESSAGE_LENGTH) {
+        throw new Error(`Le message ne peut pas dépasser ${MAX_MESSAGE_LENGTH} caractères`);
+      }
+      
+      // Rate limiting côté client
+      if (!checkRateLimit()) {
+        throw new Error('Vous envoyez trop de messages. Veuillez patienter.');
+      }
+      
       const { data: message, error } = await supabase
         .from('messages')
         .insert([
           {
             conversation_id: conversationId,
             sender_id: senderId,
-            text: text,
+            text: text.trim(),
           },
         ])
         .select()
@@ -298,5 +338,27 @@ export const messagesService = {
     return () => {
       supabase.removeChannel(channel);
     };
+  },
+
+  /**
+   * Supprime une conversation (soft delete)
+   */
+  async deleteConversation(conversationId: string, userId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase.rpc('soft_delete_conversation', {
+        p_conversation_id: conversationId,
+        p_user_id: userId,
+      });
+
+      if (error) {
+        console.error('Error deleting conversation:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in deleteConversation:', error);
+      return false;
+    }
   },
 };

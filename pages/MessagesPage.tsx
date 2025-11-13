@@ -474,6 +474,19 @@ export const MessagesPage: React.FC = () => {
     localStorage.setItem(`lastSeen_${convId}`, messageId);
   };
 
+  // Synchro localStorage entre onglets
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key?.startsWith('lastSeen_')) {
+        // Un autre onglet a marqué une conversation comme lue
+        forceUpdate(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [forceUpdate]);
+
   // Charger les conversations de l'utilisateur
   useEffect(() => {
     if (!user?.id) {
@@ -559,10 +572,19 @@ export const MessagesPage: React.FC = () => {
     forceUpdate(prev => prev + 1);
   }, [conversations, forceUpdate]);
 
-  const handleDeleteConversation = (convId: string) => {
-    // TODO: Implement delete in messagesService
-    setConversations(conversations.filter(c => c.id !== convId));
-    navigate('/messages', { replace: true });
+  const handleDeleteConversation = async (convId: string) => {
+    if (!user?.id) return;
+    
+    // Soft delete en base de données
+    const success = await messagesService.deleteConversation(convId, user.id);
+    
+    if (success) {
+      // Retirer localement après suppression réussie
+      setConversations(conversations.filter(c => c.id !== convId));
+      navigate('/messages', { replace: true });
+    } else {
+      alert('Erreur lors de la suppression de la conversation');
+    }
   };
   
   const handleSendMessage = async (convId: string, text: string) => {

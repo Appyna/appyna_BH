@@ -112,9 +112,7 @@ export interface Message {
   senderId: string;
   text: string;
   imageUrl?: string;
-  // FIX: Renamed `timestamp` to `createdAt` for consistency with other types.
   createdAt: Date;
-  readAt?: Date | null;
 }
 
 export interface Conversation {
