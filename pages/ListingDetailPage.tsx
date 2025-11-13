@@ -116,11 +116,23 @@ export const ListingDetailPage: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteListing = () => {
-    // En production: appel API pour supprimer
-    alert('Annonce supprimée avec succès !');
-    setShowDeleteModal(false);
-    navigate('/');
+  const handleDeleteListing = async () => {
+    if (!listing) return;
+    
+    try {
+      const success = await listingsService.deleteListing(listing.id);
+      
+      if (success) {
+        alert('Annonce supprimée avec succès !');
+        setShowDeleteModal(false);
+        navigate('/');
+      } else {
+        alert('Erreur lors de la suppression de l\'annonce');
+      }
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      alert('Une erreur est survenue lors de la suppression');
+    }
   };
 
   const handleBoostListing = () => {
