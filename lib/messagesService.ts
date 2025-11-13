@@ -5,27 +5,6 @@ import { Conversation, Message } from '../types';
 const MAX_MESSAGE_LENGTH = 5000;
 const CONVERSATIONS_LIMIT = 50; // Pagination
 
-// Rate limiting simple (côté client)
-const messageTimestamps: number[] = [];
-const MAX_MESSAGES_PER_MINUTE = 30;
-
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  const oneMinuteAgo = now - 60000;
-  
-  // Retirer les timestamps > 1 minute
-  while (messageTimestamps.length > 0 && messageTimestamps[0] < oneMinuteAgo) {
-    messageTimestamps.shift();
-  }
-  
-  if (messageTimestamps.length >= MAX_MESSAGES_PER_MINUTE) {
-    return false;
-  }
-  
-  messageTimestamps.push(now);
-  return true;
-}
-
 export const messagesService = {
   /**
    * Récupère les conversations récentes d'un utilisateur (avec pagination)
@@ -212,11 +191,6 @@ export const messagesService = {
       
       if (text.length > MAX_MESSAGE_LENGTH) {
         throw new Error(`Le message ne peut pas dépasser ${MAX_MESSAGE_LENGTH} caractères`);
-      }
-      
-      // Rate limiting côté client
-      if (!checkRateLimit()) {
-        throw new Error('Vous envoyez trop de messages. Veuillez patienter.');
       }
       
       const { data: message, error } = await supabase
