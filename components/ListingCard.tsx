@@ -37,24 +37,24 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
-  // Déterminer la page de retour
-  const currentPath = location.pathname;
-  let returnTo = currentPath;
-  
-  // Si on est sur la page favoris, forcer le retour vers /favorites
-  if (fromFavorites || currentPath === '/favorites') {
-    returnTo = '/favorites';
-  }
+  // Sauvegarder la position de scroll avant de naviguer
+  const handleClick = () => {
+    const currentPath = location.pathname;
+    const scrollPosition = window.scrollY;
+    
+    // Sauvegarder position et page de retour
+    sessionStorage.setItem('scroll_position', scrollPosition.toString());
+    sessionStorage.setItem('return_path', currentPath + location.search);
+  };
 
-  // Préserver les query params ET l'info de provenance
+  // Préserver les query params
   const linkTo = {
     pathname: `/listing/${listing.id}`,
     search: location.search,
-    state: { returnTo, from: 'listing-card' }, // Passer l'info de la page de retour
   };
 
   return (
-    <Link to={linkTo} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
+    <Link to={linkTo} onClick={handleClick} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
       <div className="relative w-full overflow-hidden rounded-2xl aspect-[4/3] md:aspect-square bg-gray-200 shadow-lg group-hover:shadow-2xl transition-all duration-300">
         <ImageWithFallback
           key={`card-${listing.id}-${listing.images?.[0]}`}

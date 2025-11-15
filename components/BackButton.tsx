@@ -9,17 +9,16 @@ const ArrowLeftIcon = () => (
 
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleBack = () => {
-    // Vérifier d'où on vient
-    const state = location.state as { from?: string; returnTo?: string };
+    // Récupérer la page de retour depuis sessionStorage
+    const returnPath = sessionStorage.getItem('return_path');
     
-    if (state?.returnTo) {
-      // Si on a une destination de retour spécifique
-      navigate(state.returnTo, { state: { from: 'listing-detail' } });
+    if (returnPath) {
+      // Naviguer vers la page sauvegardée
+      navigate(returnPath);
     } else {
-      // Sinon, utiliser l'historique du navigateur avec l'info qu'on vient d'un détail
+      // Fallback : historique du navigateur
       navigate(-1);
     }
   };
