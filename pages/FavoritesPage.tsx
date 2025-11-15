@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { mockListings } from '../data/mock';
 import { BackButton } from '../components/BackButton';
 import { ListingCard } from '../components/ListingCard';
+import { listingsService } from '../lib/listingsService';
+import { Listing } from '../types';
 
 const getRelativeTime = (date: Date): string => {
   const now = new Date();
@@ -25,11 +26,39 @@ const getRelativeTime = (date: Date): string => {
 
 export const FavoritesPage: React.FC = () => {
   const { user } = useAuth();
+  const [favoriteListings, setFavoriteListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filtrer les annonces favorites de l'utilisateur
-  const favoriteListings = mockListings.filter(
-    listing => user?.favorites.includes(listing.id)
-  );
+  // Charger les annonces favorites depuis Supabase
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (!user?.favorites || user.favorites.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const allListings = await listingsService.getListings();
+      const favorites = allListings.filter(listing => 
+        user.favorites.includes(listing.id)
+      );
+      setFavoriteListings(favorites);
+      setLoading(false);
+    };
+
+    loadFavorites();
+  }, [user?.favorites]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <BackButton />
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+          <div className="text-center py-20">Chargement de vos favoris...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

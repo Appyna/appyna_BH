@@ -131,9 +131,6 @@ export const Header: React.FC = () => {
                           <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsProfileOpen(false); setIsSettingsOpen(false); }}>
                             Modifier mon profil
                           </NavLink>
-                          <NavLink to="/boosted-listings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsProfileOpen(false); setIsSettingsOpen(false); }}>
-                            Mes annonces boostées
-                          </NavLink>
                           <button 
                             className="block w-full text-left px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" 
                             onClick={() => { setShowContactModal(true); setIsSettingsOpen(false); }}
@@ -201,9 +198,6 @@ export const Header: React.FC = () => {
                       <div className="bg-gray-50 rounded-xl mt-2 border-l-2 border-primary-400">
                         <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsMenuOpen(false); setIsSettingsOpen(false); }}>
                           Modifier mon profil
-                        </NavLink>
-                        <NavLink to="/boosted-listings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsMenuOpen(false); setIsSettingsOpen(false); }}>
-                          Mes annonces boostées
                         </NavLink>
                         <button 
                           className="block w-full text-left px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" 

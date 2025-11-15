@@ -11,7 +11,6 @@ import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FavoritesPage } from './pages/FavoritesPage';
-import { BoostedListingsPage } from './pages/BoostedListingsPage';
 import { BoostHistoryPage } from './pages/BoostHistoryPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
@@ -58,7 +57,6 @@ const App: React.FC = () => {
               <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/boosted-listings" element={<BoostedListingsPage />} />
               <Route path="/boost-history" element={<BoostHistoryPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/messages" element={<MessagesPage />} />
