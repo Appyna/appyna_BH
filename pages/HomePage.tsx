@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ListingCard } from '../components/ListingCard';
 import { CITIES_ISRAEL, Category, Listing, ListingType } from '../types';
 import { listingsService } from '../lib/listingsService';
@@ -27,14 +28,19 @@ const getRelativeTime = (date: Date): string => {
 };
 
 export const HomePage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [displayedListings, setDisplayedListings] = useState(12);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedType, setSelectedType] = useState<'ALL' | 'OFFER' | 'DEMAND'>('ALL');
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Récupérer les filtres depuis l'URL
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '');
+  const [selectedType, setSelectedType] = useState<'ALL' | 'OFFER' | 'DEMAND'>(
+    (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL'
+  );
 
   // Charger les annonces depuis Supabase
   useEffect(() => {
@@ -46,6 +52,17 @@ export const HomePage: React.FC = () => {
     };
     loadListings();
   }, []);
+
+  // Mettre à jour l'URL quand les filtres changent
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedCity) params.set('city', selectedCity);
+    if (selectedType !== 'ALL') params.set('type', selectedType);
+    
+    setSearchParams(params, { replace: true });
+  }, [searchTerm, selectedCategory, selectedCity, selectedType, setSearchParams]);
 
   // Les annonces sont déjà triées par listingsService.getListings()
   // (annonces boostées actives en premier, puis par date de création)

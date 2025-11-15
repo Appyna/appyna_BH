@@ -63,7 +63,7 @@ export const listingsService = {
     }));
 
     // Tri manuel : annonces boostées actives en premier
-    const sorted = listings.sort((a, b) => {
+    return listings.sort((a, b) => {
       const now = new Date();
       const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
       const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
@@ -80,15 +80,6 @@ export const listingsService = {
       // 3. Si aucune n'est boostée, tri par date de création
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
-    // Log les 5 premières annonces pour debug
-    console.log('🔍 5 premières annonces après tri:');
-    sorted.slice(0, 5).forEach((listing, index) => {
-      const isBoostActive = listing.boostedUntil && new Date(listing.boostedUntil) > new Date();
-      console.log(`${index + 1}. "${listing.title}" - Boostée: ${isBoostActive ? '✅' : '❌'} - boostedUntil: ${listing.boostedUntil || 'null'}`);
-    });
-
-    return sorted;
   },
 
   // Récupérer une annonce par ID
