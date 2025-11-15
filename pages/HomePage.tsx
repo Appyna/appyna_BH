@@ -47,21 +47,11 @@ export const HomePage: React.FC = () => {
     loadListings();
   }, []);
 
-  // Séparer les annonces boostées et non boostées
-  const boostedListings = allListings.filter(l => l.boostedAt).sort((a, b) => {
-    const dateA = a.boostedAt ? new Date(a.boostedAt).getTime() : 0;
-    const dateB = b.boostedAt ? new Date(b.boostedAt).getTime() : 0;
-    return dateB - dateA;
-  });
-  
-  const nonBoostedListings = allListings.filter(l => !l.boostedAt).sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-  
-  const sortedListings = [...boostedListings, ...nonBoostedListings];
+  // Les annonces sont déjà triées par listingsService.getListings()
+  // (annonces boostées actives en premier, puis par date de création)
   
   // Filtrer les annonces selon les critères de recherche
-  const filteredListings = sortedListings.filter(listing => {
+  const filteredListings = allListings.filter(listing => {
     const matchesSearch = searchTerm === '' || 
       listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       listing.description.toLowerCase().includes(searchTerm.toLowerCase());
