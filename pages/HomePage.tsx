@@ -34,13 +34,52 @@ export const HomePage: React.FC = () => {
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Récupérer les filtres depuis l'URL
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '');
-  const [selectedType, setSelectedType] = useState<'ALL' | 'OFFER' | 'DEMAND'>(
-    (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL'
-  );
+  // Lire directement depuis l'URL (pas de state local)
+  const searchTerm = searchParams.get('search') || '';
+  const selectedCategory = searchParams.get('category') || '';
+  const selectedCity = searchParams.get('city') || '';
+  const selectedType = (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL';
+
+  // Fonctions pour mettre à jour les filtres
+  const setSearchTerm = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const setSelectedCategory = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set('category', value);
+    } else {
+      params.delete('category');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const setSelectedCity = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set('city', value);
+    } else {
+      params.delete('city');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const setSelectedType = (value: 'ALL' | 'OFFER' | 'DEMAND') => {
+    const params = new URLSearchParams(searchParams);
+    if (value !== 'ALL') {
+      params.set('type', value);
+    } else {
+      params.delete('type');
+    }
+    setSearchParams(params, { replace: true });
+  };
 
   // Charger les annonces depuis Supabase
   useEffect(() => {
@@ -52,17 +91,6 @@ export const HomePage: React.FC = () => {
     };
     loadListings();
   }, []);
-
-  // Mettre à jour l'URL quand les filtres changent
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchTerm) params.set('search', searchTerm);
-    if (selectedCategory) params.set('category', selectedCategory);
-    if (selectedCity) params.set('city', selectedCity);
-    if (selectedType !== 'ALL') params.set('type', selectedType);
-    
-    setSearchParams(params, { replace: true });
-  }, [searchTerm, selectedCategory, selectedCity, selectedType, setSearchParams]);
 
   // Les annonces sont déjà triées par listingsService.getListings()
   // (annonces boostées actives en premier, puis par date de création)
