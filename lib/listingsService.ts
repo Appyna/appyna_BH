@@ -68,10 +68,6 @@ export const listingsService = {
       const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
       const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
       
-      // Debug: afficher le statut boost
-      console.log(`Tri: ${a.title.substring(0, 20)} - boostedUntil: ${a.boostedUntil}, active: ${aBoostActive}`);
-      console.log(`Tri: ${b.title.substring(0, 20)} - boostedUntil: ${b.boostedUntil}, active: ${bBoostActive}`);
-      
       // 1. Les annonces boostées actives d'abord
       if (aBoostActive && !bBoostActive) return -1;
       if (!aBoostActive && bBoostActive) return 1;
