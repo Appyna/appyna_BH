@@ -41,10 +41,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
   const handleClick = () => {
     const currentPath = location.pathname;
     const scrollPosition = window.scrollY;
+    const fullPath = currentPath + location.search;
+    
+    console.log('💾 Sauvegarde position:', {
+      path: fullPath,
+      scroll: scrollPosition
+    });
     
     // Sauvegarder position et page de retour
     sessionStorage.setItem('scroll_position', scrollPosition.toString());
-    sessionStorage.setItem('return_path', currentPath + location.search);
+    sessionStorage.setItem('return_path', fullPath);
   };
 
   // Préserver les query params

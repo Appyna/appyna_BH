@@ -14,6 +14,8 @@ export const BackButton: React.FC = () => {
     // Récupérer la page de retour depuis sessionStorage
     const returnPath = sessionStorage.getItem('return_path');
     
+    console.log('🔙 BackButton click, returnPath:', returnPath);
+    
     if (returnPath) {
       // Naviguer vers la page sauvegardée
       navigate(returnPath);

@@ -27,13 +27,22 @@ const ScrollManager: React.FC = () => {
     const savedPosition = sessionStorage.getItem('scroll_position');
     const returnPath = sessionStorage.getItem('return_path');
     
+    console.log('📍 ScrollManager:', {
+      currentPath: location.pathname + location.search,
+      returnPath,
+      savedPosition,
+      match: (location.pathname + location.search) === returnPath
+    });
+    
     if (savedPosition && returnPath && (location.pathname + location.search) === returnPath) {
-      // Restaurer la position de scroll
+      // Restaurer la position de scroll avec délai pour laisser la page se charger
+      console.log('✅ Restauration scroll vers:', savedPosition);
       setTimeout(() => {
         window.scrollTo(0, parseInt(savedPosition));
+        console.log('✅ Scroll restauré à:', window.scrollY);
         // Nettoyer après restauration
         sessionStorage.removeItem('scroll_position');
-      }, 0);
+      }, 100); // Augmenter le délai à 100ms
     } else if (location.pathname.startsWith('/listing/')) {
       // Page détail : scroll to top
       window.scrollTo(0, 0);
