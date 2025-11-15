@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 interface ListingCardProps {
   listing: Listing;
   getRelativeTime?: (date: Date) => string;
+  fromFavorites?: boolean; // Nouveau prop pour indiquer qu'on vient de la page favoris
 }
 
 const HeartIcon = ({ filled }: { filled: boolean }) => (
@@ -24,7 +25,7 @@ const ZapIcon = () => (
 );
 
 
-export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime }) => {
+export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime, fromFavorites = false }) => {
   const { user, toggleFavorite: toggleFavoriteContext } = useAuth();
   const location = useLocation();
   const isFavorite = user?.favorites.includes(listing.id) || false;
@@ -36,10 +37,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
-  // Préserver les query params de la page actuelle dans le lien
+  // Préserver les query params ET l'info de provenance
   const linkTo = {
     pathname: `/listing/${listing.id}`,
-    search: location.search, // Garde les query params (search, category, city, type)
+    search: location.search,
+    state: fromFavorites ? { from: 'favorites' } : undefined, // Passer l'info de provenance
   };
 
   return (
