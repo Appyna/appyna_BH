@@ -269,6 +269,7 @@ export const listingsService = {
       type: listing.type,
       userId: listing.user_id,
       boostedAt: listing.boosted_at,
+      boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
     }));
   },
