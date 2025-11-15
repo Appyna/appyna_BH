@@ -34,11 +34,47 @@ export const HomePage: React.FC = () => {
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Lire directement depuis l'URL (pas de state local)
-  const searchTerm = searchParams.get('search') || '';
-  const selectedCategory = searchParams.get('category') || '';
-  const selectedCity = searchParams.get('city') || '';
-  const selectedType = (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL';
+  // Lire depuis l'URL ou sessionStorage (backup)
+  const searchTerm = searchParams.get('search') || sessionStorage.getItem('search_filter') || '';
+  const selectedCategory = searchParams.get('category') || sessionStorage.getItem('category_filter') || '';
+  const selectedCity = searchParams.get('city') || sessionStorage.getItem('city_filter') || '';
+  const selectedType = (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || (sessionStorage.getItem('type_filter') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL';
+
+  // Sauvegarder les filtres dans sessionStorage
+  React.useEffect(() => {
+    if (searchTerm) sessionStorage.setItem('search_filter', searchTerm);
+    else sessionStorage.removeItem('search_filter');
+    
+    if (selectedCategory) sessionStorage.setItem('category_filter', selectedCategory);
+    else sessionStorage.removeItem('category_filter');
+    
+    if (selectedCity) sessionStorage.setItem('city_filter', selectedCity);
+    else sessionStorage.removeItem('city_filter');
+    
+    if (selectedType !== 'ALL') sessionStorage.setItem('type_filter', selectedType);
+    else sessionStorage.removeItem('type_filter');
+  }, [searchTerm, selectedCategory, selectedCity, selectedType]);
+
+  // Restaurer les filtres depuis sessionStorage au montage
+  React.useEffect(() => {
+    const hasUrlParams = searchParams.toString().length > 0;
+    if (!hasUrlParams) {
+      const params = new URLSearchParams();
+      const savedSearch = sessionStorage.getItem('search_filter');
+      const savedCategory = sessionStorage.getItem('category_filter');
+      const savedCity = sessionStorage.getItem('city_filter');
+      const savedType = sessionStorage.getItem('type_filter');
+
+      if (savedSearch) params.set('search', savedSearch);
+      if (savedCategory) params.set('category', savedCategory);
+      if (savedCity) params.set('city', savedCity);
+      if (savedType) params.set('type', savedType);
+
+      if (params.toString()) {
+        setSearchParams(params, { replace: true });
+      }
+    }
+  }, []);
 
   // Fonctions pour mettre à jour les filtres
   const setSearchTerm = (value: string) => {
