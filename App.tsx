@@ -37,12 +37,31 @@ const ScrollManager: React.FC = () => {
     if (savedPosition && returnPath && (location.pathname + location.search) === returnPath) {
       // Restaurer la position de scroll avec délai pour laisser la page se charger
       console.log('✅ Restauration scroll vers:', savedPosition);
-      setTimeout(() => {
-        window.scrollTo(0, parseInt(savedPosition));
-        console.log('✅ Scroll restauré à:', window.scrollY);
-        // Nettoyer après restauration
-        sessionStorage.removeItem('scroll_position');
-      }, 100); // Augmenter le délai à 100ms
+      
+      const targetPosition = parseInt(savedPosition);
+      
+      // Utiliser requestAnimationFrame pour attendre que le DOM soit prêt
+      // Puis vérifier plusieurs fois que le contenu est chargé
+      const restoreScroll = (attempts = 0) => {
+        requestAnimationFrame(() => {
+          const bodyHeight = document.body.scrollHeight;
+          const canScroll = bodyHeight > targetPosition;
+          
+          console.log(`📏 Tentative ${attempts + 1}: bodyHeight=${bodyHeight}, target=${targetPosition}, canScroll=${canScroll}`);
+          
+          if (canScroll || attempts >= 20) {
+            // On peut scroller ou on a essayé assez de fois
+            window.scrollTo(0, targetPosition);
+            console.log('✅ Scroll restauré à:', window.scrollY);
+            sessionStorage.removeItem('scroll_position');
+          } else {
+            // Réessayer après un court délai
+            setTimeout(() => restoreScroll(attempts + 1), 50);
+          }
+        });
+      };
+      
+      restoreScroll();
     } else if (location.pathname.startsWith('/listing/')) {
       // Page détail : scroll to top
       window.scrollTo(0, 0);
