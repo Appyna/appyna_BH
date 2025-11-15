@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Listing, ListingType } from '../types';
 import { ImageWithFallback } from './ImageWithFallback';
 import { ProtectedAction } from './ProtectedAction';
@@ -26,6 +26,7 @@ const ZapIcon = () => (
 
 export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime }) => {
   const { user, toggleFavorite: toggleFavoriteContext } = useAuth();
+  const location = useLocation();
   const isFavorite = user?.favorites.includes(listing.id) || false;
   const isOwnListing = user?.id === listing.userId;
   
@@ -35,8 +36,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
+  // Préserver les query params de la page actuelle dans le lien
+  const linkTo = {
+    pathname: `/listing/${listing.id}`,
+    search: location.search, // Garde les query params (search, category, city, type)
+  };
+
   return (
-    <Link to={`/listing/${listing.id}`} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
+    <Link to={linkTo} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
       <div className="relative w-full overflow-hidden rounded-2xl aspect-[4/3] md:aspect-square bg-gray-200 shadow-lg group-hover:shadow-2xl transition-all duration-300">
         <ImageWithFallback
           key={`card-${listing.id}-${listing.images?.[0]}`}
