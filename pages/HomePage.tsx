@@ -48,7 +48,7 @@ export const HomePage: React.FC = () => {
     } else {
       params.delete('search');
     }
-    setSearchParams(params, { replace: true });
+    setSearchParams(params);
   };
 
   const setSelectedCategory = (value: string) => {
@@ -58,7 +58,7 @@ export const HomePage: React.FC = () => {
     } else {
       params.delete('category');
     }
-    setSearchParams(params, { replace: true });
+    setSearchParams(params);
   };
 
   const setSelectedCity = (value: string) => {
@@ -68,7 +68,7 @@ export const HomePage: React.FC = () => {
     } else {
       params.delete('city');
     }
-    setSearchParams(params, { replace: true });
+    setSearchParams(params);
   };
 
   const setSelectedType = (value: 'ALL' | 'OFFER' | 'DEMAND') => {
@@ -78,7 +78,7 @@ export const HomePage: React.FC = () => {
     } else {
       params.delete('type');
     }
-    setSearchParams(params, { replace: true });
+    setSearchParams(params);
   };
 
   // Charger les annonces depuis Supabase
