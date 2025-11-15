@@ -40,21 +40,6 @@ export const HomePage: React.FC = () => {
   const selectedCity = searchParams.get('city') || sessionStorage.getItem('city_filter') || '';
   const selectedType = (searchParams.get('type') as 'ALL' | 'OFFER' | 'DEMAND') || (sessionStorage.getItem('type_filter') as 'ALL' | 'OFFER' | 'DEMAND') || 'ALL';
 
-  // Sauvegarder les filtres dans sessionStorage
-  React.useEffect(() => {
-    if (searchTerm) sessionStorage.setItem('search_filter', searchTerm);
-    else sessionStorage.removeItem('search_filter');
-    
-    if (selectedCategory) sessionStorage.setItem('category_filter', selectedCategory);
-    else sessionStorage.removeItem('category_filter');
-    
-    if (selectedCity) sessionStorage.setItem('city_filter', selectedCity);
-    else sessionStorage.removeItem('city_filter');
-    
-    if (selectedType !== 'ALL') sessionStorage.setItem('type_filter', selectedType);
-    else sessionStorage.removeItem('type_filter');
-  }, [searchTerm, selectedCategory, selectedCity, selectedType]);
-
   // Restaurer les filtres depuis sessionStorage au montage
   React.useEffect(() => {
     const hasUrlParams = searchParams.toString().length > 0;
@@ -81,8 +66,10 @@ export const HomePage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
     if (value) {
       params.set('search', value);
+      sessionStorage.setItem('search_filter', value);
     } else {
       params.delete('search');
+      sessionStorage.removeItem('search_filter');
     }
     setSearchParams(params);
   };
@@ -91,8 +78,10 @@ export const HomePage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
     if (value) {
       params.set('category', value);
+      sessionStorage.setItem('category_filter', value);
     } else {
       params.delete('category');
+      sessionStorage.removeItem('category_filter');
     }
     setSearchParams(params);
   };
@@ -101,8 +90,10 @@ export const HomePage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
     if (value) {
       params.set('city', value);
+      sessionStorage.setItem('city_filter', value);
     } else {
       params.delete('city');
+      sessionStorage.removeItem('city_filter');
     }
     setSearchParams(params);
   };
@@ -111,8 +102,10 @@ export const HomePage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
     if (value !== 'ALL') {
       params.set('type', value);
+      sessionStorage.setItem('type_filter', value);
     } else {
       params.delete('type');
+      sessionStorage.removeItem('type_filter');
     }
     setSearchParams(params);
   };
