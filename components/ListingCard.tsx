@@ -37,11 +37,20 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
+  // Déterminer la page de retour
+  const currentPath = location.pathname;
+  let returnTo = currentPath;
+  
+  // Si on est sur la page favoris, forcer le retour vers /favorites
+  if (fromFavorites || currentPath === '/favorites') {
+    returnTo = '/favorites';
+  }
+
   // Préserver les query params ET l'info de provenance
   const linkTo = {
     pathname: `/listing/${listing.id}`,
     search: location.search,
-    state: fromFavorites ? { from: 'favorites' } : undefined, // Passer l'info de provenance
+    state: { returnTo, from: 'listing-card' }, // Passer l'info de la page de retour
   };
 
   return (

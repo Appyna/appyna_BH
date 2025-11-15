@@ -12,11 +12,14 @@ export const BackButton: React.FC = () => {
   const location = useLocation();
 
   const handleBack = () => {
-    // Vérifier si on vient de la page favoris
-    const state = location.state as { from?: string };
-    if (state?.from === 'favorites') {
-      navigate('/favorites');
+    // Vérifier d'où on vient
+    const state = location.state as { from?: string; returnTo?: string };
+    
+    if (state?.returnTo) {
+      // Si on a une destination de retour spécifique
+      navigate(state.returnTo, { state: { from: 'listing-detail' } });
     } else {
+      // Sinon, utiliser l'historique du navigateur avec l'info qu'on vient d'un détail
       navigate(-1);
     }
   };

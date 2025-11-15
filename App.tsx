@@ -18,13 +18,52 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
-// A component to handle scroll to top on route change
-const ScrollToTop: React.FC = () => {
-  const { pathname } = useLocation();
+// A component to handle scroll position management
+const ScrollManager: React.FC = () => {
+  const location = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    // Sauvegarder la position de scroll avant de quitter une page liste
+    const saveScrollPosition = () => {
+      const scrollPosition = window.scrollY;
+      const pathname = location.pathname;
+      
+      // Sauvegarder pour les pages de liste
+      if (pathname === '/' || pathname === '/favorites' || pathname.startsWith('/profile/')) {
+        sessionStorage.setItem(`scroll_${pathname}`, scrollPosition.toString());
+      }
+    };
+
+    // Restaurer ou scroll to top selon le contexte
+    const restoreOrScrollTop = () => {
+      const state = location.state as { from?: string };
+      const scrollKey = `scroll_${location.pathname}`;
+      const savedPosition = sessionStorage.getItem(scrollKey);
+
+      // Si on revient d'une page détail, restaurer la position
+      if (savedPosition && (state?.from === 'listing-detail' || window.history.state?.usr?.from === 'listing-detail')) {
+        setTimeout(() => {
+          window.scrollTo(0, parseInt(savedPosition));
+        }, 0);
+      } else if (location.pathname.startsWith('/listing/')) {
+        // Page détail : toujours scroll to top
+        window.scrollTo(0, 0);
+      } else if (!savedPosition) {
+        // Nouvelle page sans position sauvegardée : scroll to top
+        window.scrollTo(0, 0);
+      }
+    };
+
+    restoreOrScrollTop();
+
+    // Sauvegarder avant de quitter la page
+    window.addEventListener('beforeunload', saveScrollPosition);
+    
+    return () => {
+      saveScrollPosition();
+      window.removeEventListener('beforeunload', saveScrollPosition);
+    };
+  }, [location]);
 
   return null;
 };
@@ -48,7 +87,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <MenuProvider>
         <Router>
-          <ScrollToTop />
+          <ScrollManager />
           <Layout>
             <Routes>
               <Route path="/" element={<HomePage />} />
