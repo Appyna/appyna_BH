@@ -39,13 +39,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
 
   // Sauvegarder la position de scroll avant de naviguer
   const handleClick = () => {
-    const currentPath = location.pathname;
+    // Utiliser le chemin actuel, sauf si on vient de favoris
+    let currentPath = location.pathname;
+    
+    // IMPORTANT: Si on est sur la page favoris, forcer le retour vers /favorites
+    if (fromFavorites) {
+      currentPath = '/favorites';
+    }
+    
     const scrollPosition = window.scrollY;
     const fullPath = currentPath + location.search;
     
     console.log('💾 Sauvegarde position:', {
       path: fullPath,
-      scroll: scrollPosition
+      scroll: scrollPosition,
+      fromFavorites
     });
     
     // Sauvegarder position et page de retour

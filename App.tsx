@@ -43,25 +43,37 @@ const ScrollManager: React.FC = () => {
       // Utiliser requestAnimationFrame pour attendre que le DOM soit prêt
       // Puis vérifier plusieurs fois que le contenu est chargé
       const restoreScroll = (attempts = 0) => {
-        requestAnimationFrame(() => {
-          const bodyHeight = document.body.scrollHeight;
-          const canScroll = bodyHeight > targetPosition;
-          
-          console.log(`📏 Tentative ${attempts + 1}: bodyHeight=${bodyHeight}, target=${targetPosition}, canScroll=${canScroll}`);
-          
-          if (canScroll || attempts >= 20) {
-            // On peut scroller ou on a essayé assez de fois
-            window.scrollTo(0, targetPosition);
-            console.log('✅ Scroll restauré à:', window.scrollY);
-            sessionStorage.removeItem('scroll_position');
-          } else {
-            // Réessayer après un court délai
-            setTimeout(() => restoreScroll(attempts + 1), 50);
-          }
-        });
+        const bodyHeight = document.body.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const maxScroll = bodyHeight - windowHeight;
+        const canScroll = maxScroll >= targetPosition;
+        
+        console.log(`📏 Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}, canScroll=${canScroll}`);
+        
+        if (canScroll) {
+          // Le contenu est assez grand, on peut scroller
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'instant' // Scroll instantané
+          });
+          console.log('✅ Scroll restauré à:', window.scrollY);
+          sessionStorage.removeItem('scroll_position');
+        } else if (attempts < 10) {
+          // Réessayer après un court délai (max 10 tentatives = 500ms)
+          setTimeout(() => restoreScroll(attempts + 1), 50);
+        } else {
+          // Dernière tentative : scroller au maximum possible
+          window.scrollTo({
+            top: Math.min(targetPosition, maxScroll),
+            behavior: 'instant'
+          });
+          console.log('⚠️ Scroll partiel restauré à:', window.scrollY, '(target:', targetPosition, ')');
+          sessionStorage.removeItem('scroll_position');
+        }
       };
       
-      restoreScroll();
+      // Utiliser requestAnimationFrame pour être sûr que le DOM est monté
+      requestAnimationFrame(() => restoreScroll());
     } else if (location.pathname.startsWith('/listing/')) {
       // Page détail : scroll to top
       window.scrollTo(0, 0);
