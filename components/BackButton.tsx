@@ -14,15 +14,22 @@ export const BackButton: React.FC = () => {
     const returnPath = sessionStorage.getItem('return_path');
     const scrollPosition = sessionStorage.getItem('scroll_position');
     
-    console.log('🔙 BackButton click:', {
+    console.log('🔙 BackButton click - AVANT navigation:', {
       returnPath,
-      scrollPosition
+      scrollPosition,
+      returnPathType: typeof returnPath,
+      isFavorites: returnPath === '/favorites',
+      allStorage: Object.keys(sessionStorage).reduce((acc, key) => {
+        acc[key] = sessionStorage.getItem(key);
+        return acc;
+      }, {} as Record<string, string | null>)
     });
     
     // CORRECTION: Si returnPath est /favorites, toujours y retourner directement
     if (returnPath === '/favorites') {
-      console.log('✅ Retour forcé vers Mes Favoris');
+      console.log('✅ Retour forcé vers Mes Favoris (/favorites)');
       navigate('/favorites');
+      console.log('✅ Navigate appelé vers /favorites');
     } else if (returnPath) {
       // Pour les autres pages (accueil avec filtres, profil), naviguer vers returnPath
       console.log('✅ Navigation directe vers:', returnPath);
