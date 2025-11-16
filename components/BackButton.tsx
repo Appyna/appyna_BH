@@ -27,10 +27,10 @@ export const BackButton: React.FC = () => {
     });
     
     if (returnPath) {
-      // Naviguer directement vers le returnPath
+      // Naviguer directement vers le returnPath avec replace pour éviter de passer par /
       // La restauration du scroll se fera automatiquement dans la page de destination
       console.log('✅ Navigation vers:', returnPath);
-      navigate(returnPath);
+      navigate(returnPath, { replace: true });
     } else {
       // Fallback : historique du navigateur via React Router
       console.log('⚠️ Pas de returnPath, navigation -1');
