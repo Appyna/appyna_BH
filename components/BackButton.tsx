@@ -10,11 +10,16 @@ const ArrowLeftIcon = () => (
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const returnPath = sessionStorage.getItem('return_path');
     const scrollPosition = sessionStorage.getItem('scroll_position');
     
-    console.log('🔙 BackButton click - AVANT navigation:', {
+    alert('BackButton cliqué! returnPath=' + returnPath);
+    
+    console.log('🔙 🔙 🔙 BackButton click - AVANT navigation:', {
       returnPath,
       scrollPosition,
       returnPathType: typeof returnPath,
@@ -27,7 +32,7 @@ export const BackButton: React.FC = () => {
     
     // CORRECTION: Si returnPath est /favorites, toujours y retourner directement
     if (returnPath === '/favorites') {
-      console.log('✅ Retour forcé vers Mes Favoris (/favorites)');
+      console.log('✅ ✅ ✅ Retour forcé vers Mes Favoris (/favorites)');
       navigate('/favorites');
       console.log('✅ Navigate appelé vers /favorites');
     } else if (returnPath) {
