@@ -17,9 +17,9 @@ export const BackButton: React.FC = () => {
     console.log('🔙 BackButton click, returnPath:', returnPath);
     
     if (returnPath) {
-      // Utiliser window.history.back() au lieu de navigate() 
-      // pour respecter l'historique réel du navigateur
-      window.history.back();
+      // Naviguer directement vers le returnPath
+      // La restauration du scroll se fera automatiquement dans la page de destination
+      navigate(returnPath);
     } else {
       // Fallback : historique du navigateur via React Router
       navigate(-1);
