@@ -143,7 +143,7 @@ export const ProfilePage: React.FC = () => {
                         {userListings.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
                                 {userListings.map(listing => (
-                                    <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} />
+                                    <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} fromProfile={true} />
                                 ))}
                             </div>
                         ) : (

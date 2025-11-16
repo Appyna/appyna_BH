@@ -9,7 +9,8 @@ import { useAuth } from '../contexts/AuthContext';
 interface ListingCardProps {
   listing: Listing;
   getRelativeTime?: (date: Date) => string;
-  fromFavorites?: boolean; // Nouveau prop pour indiquer qu'on vient de la page favoris
+  fromFavorites?: boolean; // Page favoris
+  fromProfile?: boolean; // Page profil
 }
 
 const HeartIcon = ({ filled }: { filled: boolean }) => (
@@ -25,7 +26,7 @@ const ZapIcon = () => (
 );
 
 
-export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime, fromFavorites = false }) => {
+export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime, fromFavorites = false, fromProfile = false }) => {
   const { user, toggleFavorite: toggleFavoriteContext } = useAuth();
   const location = useLocation();
   const isFavorite = user?.favorites.includes(listing.id) || false;
@@ -39,26 +40,35 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
 
   // Sauvegarder la position de scroll avant de naviguer
   const handleClick = () => {
-    // Utiliser le chemin actuel, sauf si on vient de favoris
-    let currentPath = location.pathname;
+    // Utiliser le chemin actuel par défaut
+    let returnPath = location.pathname + location.search;
     
-    // IMPORTANT: Si on est sur la page favoris, forcer le retour vers /favorites
+    // IMPORTANT: Forcer le chemin de retour selon la page d'origine
     if (fromFavorites) {
-      currentPath = '/favorites';
+      returnPath = '/favorites';
+    } else if (fromProfile) {
+      // Garder le chemin complet du profil
+      returnPath = location.pathname; // Ex: /profile/user-id
     }
     
     const scrollPosition = window.scrollY;
-    const fullPath = currentPath + location.search;
     
     console.log('💾 Sauvegarde position:', {
-      path: fullPath,
+      path: returnPath,
       scroll: scrollPosition,
-      fromFavorites
+      fromFavorites,
+      fromProfile
     });
     
-    // Sauvegarder position et page de retour
-    sessionStorage.setItem('scroll_position', scrollPosition.toString());
-    sessionStorage.setItem('return_path', fullPath);
+    // Ne sauvegarder que si on a une position > 0 OU si c'est un nouveau clic
+    // (ne pas écraser une position existante avec 0)
+    const existingPosition = sessionStorage.getItem('scroll_position');
+    const existingPath = sessionStorage.getItem('return_path');
+    
+    if (scrollPosition > 0 || !existingPosition || existingPath !== returnPath) {
+      sessionStorage.setItem('scroll_position', scrollPosition.toString());
+      sessionStorage.setItem('return_path', returnPath);
+    }
   };
 
   // Préserver les query params
