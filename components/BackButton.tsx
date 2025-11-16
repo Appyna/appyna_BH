@@ -17,11 +17,11 @@ export const BackButton: React.FC = () => {
     console.log('🔙 BackButton click, returnPath:', returnPath);
     
     if (returnPath) {
-      // Naviguer vers la page sauvegardée en remplaçant l'historique actuel
-      // Cela évite de créer une nouvelle entrée et de passer par /
-      navigate(returnPath, { replace: true });
+      // Utiliser window.history.back() au lieu de navigate() 
+      // pour respecter l'historique réel du navigateur
+      window.history.back();
     } else {
-      // Fallback : historique du navigateur
+      // Fallback : historique du navigateur via React Router
       navigate(-1);
     }
   };
