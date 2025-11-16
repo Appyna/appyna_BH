@@ -19,8 +19,12 @@ export const BackButton: React.FC = () => {
       scrollPosition
     });
     
-    if (returnPath) {
-      // Naviguer directement vers returnPath au lieu de navigate(-1)
+    // CORRECTION: Si returnPath est /favorites, toujours y retourner directement
+    if (returnPath === '/favorites') {
+      console.log('✅ Retour forcé vers Mes Favoris');
+      navigate('/favorites');
+    } else if (returnPath) {
+      // Pour les autres pages (accueil avec filtres, profil), naviguer vers returnPath
       console.log('✅ Navigation directe vers:', returnPath);
       navigate(returnPath);
     } else {
