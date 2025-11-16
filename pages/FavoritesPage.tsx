@@ -49,6 +49,20 @@ export const FavoritesPage: React.FC = () => {
     loadFavorites();
   }, [user?.favorites]);
 
+  // Sauvegarder qu'on est sur la page favoris (pour éviter d'écraser avec scroll=0)
+  useEffect(() => {
+    const returnPath = sessionStorage.getItem('return_path');
+    // Si returnPath est déjà /favorites avec une position sauvegardée, ne pas toucher
+    if (returnPath !== '/favorites' || !sessionStorage.getItem('scroll_position')) {
+      // Première visite ou pas de position sauvegardée : marquer comme page favoris
+      sessionStorage.setItem('on_favorites_page', 'true');
+    }
+    
+    return () => {
+      sessionStorage.removeItem('on_favorites_page');
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">

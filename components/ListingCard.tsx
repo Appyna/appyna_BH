@@ -52,22 +52,32 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     }
     
     const scrollPosition = window.scrollY;
+    const existingPosition = sessionStorage.getItem('scroll_position');
+    const existingPath = sessionStorage.getItem('return_path');
     
     console.log('💾 Sauvegarde position:', {
       path: returnPath,
       scroll: scrollPosition,
+      existingPosition,
+      existingPath,
       fromFavorites,
       fromProfile
     });
     
-    // Ne sauvegarder que si on a une position > 0 OU si c'est un nouveau clic
-    // (ne pas écraser une position existante avec 0)
-    const existingPosition = sessionStorage.getItem('scroll_position');
-    const existingPath = sessionStorage.getItem('return_path');
+    // Sauvegarder seulement si :
+    // 1. On a scrollé (position > 50px minimum)
+    // 2. OU il n'y a pas de position existante pour ce chemin
+    // 3. OU on change de chemin
+    const shouldSave = scrollPosition > 50 || 
+                      existingPath !== returnPath || 
+                      !existingPosition;
     
-    if (scrollPosition > 0 || !existingPosition || existingPath !== returnPath) {
+    if (shouldSave) {
       sessionStorage.setItem('scroll_position', scrollPosition.toString());
       sessionStorage.setItem('return_path', returnPath);
+      console.log('✅ Position sauvegardée');
+    } else {
+      console.log('⏭️ Position non sauvegardée (scroll trop faible et chemin identique)');
     }
   };
 

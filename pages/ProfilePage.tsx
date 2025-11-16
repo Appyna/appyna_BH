@@ -67,6 +67,20 @@ export const ProfilePage: React.FC = () => {
         loadUserData();
     }, [userId, currentUser, isOwnProfile]);
 
+    // Marquer qu'on est sur une page profil
+    useEffect(() => {
+        const returnPath = sessionStorage.getItem('return_path');
+        const currentPath = `/profile/${userId}`;
+        // Si returnPath est déjà ce profil avec une position sauvegardée, ne pas toucher
+        if (returnPath !== currentPath || !sessionStorage.getItem('scroll_position')) {
+            sessionStorage.setItem('on_profile_page', currentPath);
+        }
+        
+        return () => {
+            sessionStorage.removeItem('on_profile_page');
+        };
+    }, [userId]);
+
     if (loading) {
         return <div className="text-center py-20">Chargement...</div>;
     }
