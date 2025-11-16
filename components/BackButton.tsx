@@ -19,9 +19,15 @@ export const BackButton: React.FC = () => {
       scrollPosition
     });
     
-    // Simplement faire un retour arrière
-    // La restauration du scroll se fera automatiquement dans la page de destination
-    navigate(-1);
+    if (returnPath) {
+      // Naviguer directement vers returnPath au lieu de navigate(-1)
+      console.log('✅ Navigation directe vers:', returnPath);
+      navigate(returnPath);
+    } else {
+      // Fallback si pas de returnPath
+      console.log('⚠️ Pas de returnPath, navigate(-1)');
+      navigate(-1);
+    }
   };
 
   return (
