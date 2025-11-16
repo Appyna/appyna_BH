@@ -12,6 +12,8 @@ import { SignUpPage } from './pages/SignUpPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FavoritesPage } from './pages/FavoritesPage';
 import { BoostHistoryPage } from './pages/BoostHistoryPage';
+import { BoostSuccessPage } from './pages/BoostSuccessPage';
+import { BoostCancelPage } from './pages/BoostCancelPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -115,6 +117,8 @@ const App: React.FC = () => {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/boost-history" element={<BoostHistoryPage />} />
+              <Route path="/boost/success" element={<BoostSuccessPage />} />
+              <Route path="/boost/cancel" element={<BoostCancelPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />

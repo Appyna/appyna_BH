@@ -1,38 +1,57 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 interface BoostListingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBoost: (days: number) => Promise<void>;
+  listingId: string;
   listingTitle: string;
 }
 
 export const BoostListingModal: React.FC<BoostListingModalProps> = ({
   isOpen,
   onClose,
-  onBoost,
+  listingId,
   listingTitle
 }) => {
-  const [selectedBoost, setSelectedBoost] = useState<string>('3d');
+  const { user } = useAuth();
+  const [selectedDuration, setSelectedDuration] = useState<number>(7);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   if (!isOpen) return null;
 
   const handleBoost = async () => {
-    if (!selectedBoost) return;
+    if (!user) {
+      setError('Vous devez être connecté');
+      return;
+    }
     
     setIsLoading(true);
+    setError('');
+    
     try {
-      const daysMap: Record<string, number> = {
-        '24h': 1,
-        '3d': 3,
-        '7d': 7
-      };
-      await onBoost(daysMap[selectedBoost]);
-      onClose();
-    } catch (error) {
-      console.error('Erreur boost:', error);
-    } finally {
+      // Appeler l'Edge Function pour créer la session Stripe
+      const { data, error: functionError } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          listingId,
+          userId: user.id,
+          duration: selectedDuration
+        }
+      });
+
+      if (functionError) throw functionError;
+
+      // Rediriger vers Stripe Checkout
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('URL de paiement non reçue');
+      }
+    } catch (err: any) {
+      console.error('Erreur boost:', err);
+      setError(err.message || 'Erreur lors de la création du paiement');
       setIsLoading(false);
     }
   };
@@ -62,55 +81,61 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {/* 24h */}
+          {/* 7 jours */}
           <div 
-            onClick={() => setSelectedBoost('24h')}
+            onClick={() => setSelectedDuration(7)}
             className={`border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
-              selectedBoost === '24h' 
+              selectedDuration === 7 
                 ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
                 : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
             }`}
           >
             <div className="flex items-start mb-2">
-              <input type="radio" name="boost" checked={selectedBoost === '24h'} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
-              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 24h</span>
+              <input type="radio" name="boost" checked={selectedDuration === 7} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 7 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">9,90 <span className="text-base font-medium text-gray-500">₪</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">20 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
 
-          {/* 3 jours */}
+          {/* 14 jours */}
           <div 
-            onClick={() => setSelectedBoost('3d')}
+            onClick={() => setSelectedDuration(14)}
             className={`relative border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
-              selectedBoost === '3d' 
+              selectedDuration === 14 
                 ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
                 : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
             }`}
           >
             <span className="text-xs font-bold bg-secondary-400 text-white px-2 py-0.5 rounded-full absolute -top-2.5 right-2">Populaire</span>
             <div className="flex items-start mb-2">
-              <input type="radio" name="boost" checked={selectedBoost === '3d'} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
-              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 3 jours</span>
+              <input type="radio" name="boost" checked={selectedDuration === 14} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 14 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">19,90 <span className="text-base font-medium text-gray-500">₪</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">35 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
 
-          {/* 7 jours */}
+          {/* 30 jours */}
           <div 
-            onClick={() => setSelectedBoost('7d')}
+            onClick={() => setSelectedDuration(30)}
             className={`border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
-              selectedBoost === '7d' 
+              selectedDuration === 30 
                 ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
                 : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
             }`}
           >
             <div className="flex items-start mb-2">
-              <input type="radio" name="boost" checked={selectedBoost === '7d'} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
-              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 7 jours</span>
+              <input type="radio" name="boost" checked={selectedDuration === 30} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 30 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">39,90 <span className="text-base font-medium text-gray-500">₪</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">60 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="flex gap-3">
           <button
@@ -125,7 +150,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
             disabled={isLoading}
             className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Chargement...' : 'Valider'}
+            {isLoading ? '⏳ Redirection...' : '💳 Payer avec Stripe'}
           </button>
         </div>
       </div>

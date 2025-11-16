@@ -554,7 +554,7 @@ export const ListingDetailPage: React.FC = () => {
       <BoostListingModal
         isOpen={showBoostModal}
         onClose={() => setShowBoostModal(false)}
-        onBoost={handleBoostListing}
+        listingId={listing.id}
         listingTitle={listing.title}
       />
 
