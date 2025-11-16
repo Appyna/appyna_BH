@@ -38,53 +38,32 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
-  // Sauvegarder la position de scroll avant de naviguer
-  const handleClick = () => {
-    // Utiliser le chemin actuel par défaut
-    let returnPath = location.pathname + location.search;
-    
-    // IMPORTANT: Forcer le chemin de retour selon la page d'origine
-    if (fromFavorites) {
-      returnPath = '/favorites';
-    } else if (fromProfile) {
-      // Garder le chemin complet du profil
-      returnPath = location.pathname; // Ex: /profile/user-id
-    }
-    
-    const scrollPosition = window.scrollY;
-    const existingPosition = sessionStorage.getItem('scroll_position');
-    const existingPath = sessionStorage.getItem('return_path');
-    
-    console.log('💾 Sauvegarde position:', {
-      path: returnPath,
-      scroll: scrollPosition,
-      existingPosition,
-      existingPath,
-      fromFavorites,
-      fromProfile
-    });
-    
-    // Sauvegarder seulement si :
-    // 1. On a scrollé (position > 50px minimum)
-    // 2. OU il n'y a pas de position existante pour ce chemin
-    // 3. OU on change de chemin
-    const shouldSave = scrollPosition > 50 || 
-                      existingPath !== returnPath || 
-                      !existingPosition;
-    
-    if (shouldSave) {
-      sessionStorage.setItem('scroll_position', scrollPosition.toString());
-      sessionStorage.setItem('return_path', returnPath);
-      console.log('✅ Position sauvegardée');
-    } else {
-      console.log('⏭️ Position non sauvegardée (scroll trop faible et chemin identique)');
-    }
-  };
+  // Préparer les données de navigation avec returnPath et scroll
+  const returnPath = fromFavorites 
+    ? '/favorites' 
+    : fromProfile 
+      ? location.pathname 
+      : location.pathname + location.search;
+  
+  const scrollPosition = window.scrollY;
 
-  // Préserver les query params
+  // Link avec state pour passer returnPath et scrollPosition
   const linkTo = {
     pathname: `/listing/${listing.id}`,
     search: location.search,
+  };
+  
+  const handleClick = () => {
+    // Sauvegarder en sessionStorage aussi (backup)
+    sessionStorage.setItem('scroll_position', scrollPosition.toString());
+    sessionStorage.setItem('return_path', returnPath);
+    
+    console.log('💾 Navigation vers annonce:', {
+      returnPath,
+      scrollPosition,
+      fromFavorites,
+      fromProfile
+    });
   };
 
   return (

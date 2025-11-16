@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const ArrowLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -9,14 +9,19 @@ const ArrowLeftIcon = () => (
 
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
-  const returnPath = sessionStorage.getItem('return_path');
+  const location = useLocation();
+  
+  // Récupérer returnPath depuis location.state OU sessionStorage (fallback)
+  const state = location.state as { returnPath?: string; scrollPosition?: number } | null;
+  const returnPath = state?.returnPath || sessionStorage.getItem('return_path');
+  const savedScroll = state?.scrollPosition || sessionStorage.getItem('scroll_position');
 
   const handleClick = (e: React.MouseEvent) => {
-    const scrollPosition = sessionStorage.getItem('scroll_position');
-    
     console.log('🔙 BackButton click:', {
       returnPath,
-      scrollPosition,
+      scrollPosition: savedScroll,
+      fromState: !!state?.returnPath,
+      fromSessionStorage: !!sessionStorage.getItem('return_path'),
       willNavigateTo: returnPath || 'navigate(-1)'
     });
   };
