@@ -17,8 +17,9 @@ export const BackButton: React.FC = () => {
     console.log('🔙 BackButton click, returnPath:', returnPath);
     
     if (returnPath) {
-      // Naviguer vers la page sauvegardée
-      navigate(returnPath);
+      // Naviguer vers la page sauvegardée en remplaçant l'historique actuel
+      // Cela évite de créer une nouvelle entrée et de passer par /
+      navigate(returnPath, { replace: true });
     } else {
       // Fallback : historique du navigateur
       navigate(-1);
