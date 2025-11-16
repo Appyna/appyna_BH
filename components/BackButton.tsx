@@ -13,15 +13,27 @@ export const BackButton: React.FC = () => {
   const handleBack = () => {
     // Récupérer la page de retour depuis sessionStorage
     const returnPath = sessionStorage.getItem('return_path');
+    const scrollPosition = sessionStorage.getItem('scroll_position');
     
-    console.log('🔙 BackButton click, returnPath:', returnPath);
+    console.log('🔙 BackButton click:', {
+      returnPath,
+      scrollPosition,
+      allSessionStorage: {
+        scroll_position: sessionStorage.getItem('scroll_position'),
+        return_path: sessionStorage.getItem('return_path'),
+        on_favorites_page: sessionStorage.getItem('on_favorites_page'),
+        on_profile_page: sessionStorage.getItem('on_profile_page')
+      }
+    });
     
     if (returnPath) {
       // Naviguer directement vers le returnPath
       // La restauration du scroll se fera automatiquement dans la page de destination
+      console.log('✅ Navigation vers:', returnPath);
       navigate(returnPath);
     } else {
       // Fallback : historique du navigateur via React Router
+      console.log('⚠️ Pas de returnPath, navigation -1');
       navigate(-1);
     }
   };
