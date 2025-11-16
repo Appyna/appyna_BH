@@ -49,19 +49,56 @@ export const FavoritesPage: React.FC = () => {
     loadFavorites();
   }, [user?.favorites]);
 
-  // Sauvegarder qu'on est sur la page favoris (pour éviter d'écraser avec scroll=0)
+  // Restaurer la position de scroll DIRECTEMENT (même logique que HomePage)
   useEffect(() => {
+    const savedPosition = sessionStorage.getItem('scroll_position');
     const returnPath = sessionStorage.getItem('return_path');
-    // Si returnPath est déjà /favorites avec une position sauvegardée, ne pas toucher
-    if (returnPath !== '/favorites' || !sessionStorage.getItem('scroll_position')) {
-      // Première visite ou pas de position sauvegardée : marquer comme page favoris
-      sessionStorage.setItem('on_favorites_page', 'true');
-    }
     
-    return () => {
-      sessionStorage.removeItem('on_favorites_page');
-    };
-  }, []);
+    console.log('📍 FavoritesPage - Restauration:', {
+      returnPath,
+      savedPosition,
+      currentPath: '/favorites',
+      match: returnPath === '/favorites'
+    });
+    
+    if (savedPosition && returnPath === '/favorites' && !loading) {
+      const targetPosition = parseInt(savedPosition);
+      
+      const restoreScroll = (attempts = 0) => {
+        const bodyHeight = document.body.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const maxScroll = bodyHeight - windowHeight;
+        const canScroll = maxScroll >= targetPosition;
+        
+        console.log(`📏 Favoris - Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}`);
+        
+        if (canScroll) {
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'instant'
+          });
+          console.log('✅ Favoris - Scroll restauré à:', window.scrollY);
+          sessionStorage.removeItem('scroll_position');
+          sessionStorage.removeItem('return_path');
+        } else if (attempts < 10) {
+          setTimeout(() => restoreScroll(attempts + 1), 50);
+        } else {
+          window.scrollTo({
+            top: Math.min(targetPosition, maxScroll),
+            behavior: 'instant'
+          });
+          console.log('⚠️ Favoris - Scroll partiel à:', window.scrollY);
+          sessionStorage.removeItem('scroll_position');
+          sessionStorage.removeItem('return_path');
+        }
+      };
+      
+      requestAnimationFrame(() => restoreScroll());
+    } else {
+      // Scroll to top si pas de restauration
+      window.scrollTo(0, 0);
+    }
+  }, [loading]); // Déclencher après le chargement des favoris
 
   if (loading) {
     return (

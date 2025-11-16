@@ -67,19 +67,57 @@ export const ProfilePage: React.FC = () => {
         loadUserData();
     }, [userId, currentUser, isOwnProfile]);
 
-    // Marquer qu'on est sur une page profil
+    // Restaurer la position de scroll DIRECTEMENT (même logique que HomePage)
     useEffect(() => {
+        const savedPosition = sessionStorage.getItem('scroll_position');
         const returnPath = sessionStorage.getItem('return_path');
         const currentPath = `/profile/${userId}`;
-        // Si returnPath est déjà ce profil avec une position sauvegardée, ne pas toucher
-        if (returnPath !== currentPath || !sessionStorage.getItem('scroll_position')) {
-            sessionStorage.setItem('on_profile_page', currentPath);
-        }
         
-        return () => {
-            sessionStorage.removeItem('on_profile_page');
-        };
-    }, [userId]);
+        console.log('📍 ProfilePage - Restauration:', {
+            returnPath,
+            savedPosition,
+            currentPath,
+            match: returnPath === currentPath
+        });
+        
+        if (savedPosition && returnPath === currentPath && !loading) {
+            const targetPosition = parseInt(savedPosition);
+            
+            const restoreScroll = (attempts = 0) => {
+                const bodyHeight = document.body.scrollHeight;
+                const windowHeight = window.innerHeight;
+                const maxScroll = bodyHeight - windowHeight;
+                const canScroll = maxScroll >= targetPosition;
+                
+                console.log(`📏 Profil - Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}`);
+                
+                if (canScroll) {
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'instant'
+                    });
+                    console.log('✅ Profil - Scroll restauré à:', window.scrollY);
+                    sessionStorage.removeItem('scroll_position');
+                    sessionStorage.removeItem('return_path');
+                } else if (attempts < 10) {
+                    setTimeout(() => restoreScroll(attempts + 1), 50);
+                } else {
+                    window.scrollTo({
+                        top: Math.min(targetPosition, maxScroll),
+                        behavior: 'instant'
+                    });
+                    console.log('⚠️ Profil - Scroll partiel à:', window.scrollY);
+                    sessionStorage.removeItem('scroll_position');
+                    sessionStorage.removeItem('return_path');
+                }
+            };
+            
+            requestAnimationFrame(() => restoreScroll());
+        } else {
+            // Scroll to top si pas de restauration
+            window.scrollTo(0, 0);
+        }
+    }, [userId, loading]); // Déclencher après le chargement
 
     if (loading) {
         return <div className="text-center py-20">Chargement...</div>;
