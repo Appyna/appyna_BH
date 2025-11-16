@@ -10,38 +10,14 @@ const ArrowLeftIcon = () => (
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleBack = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleBack = () => {
     const returnPath = sessionStorage.getItem('return_path');
-    const scrollPosition = sessionStorage.getItem('scroll_position');
     
-    alert('BackButton cliqué! returnPath=' + returnPath);
-    
-    console.log('🔙 🔙 🔙 BackButton click - AVANT navigation:', {
-      returnPath,
-      scrollPosition,
-      returnPathType: typeof returnPath,
-      isFavorites: returnPath === '/favorites',
-      allStorage: Object.keys(sessionStorage).reduce((acc, key) => {
-        acc[key] = sessionStorage.getItem(key);
-        return acc;
-      }, {} as Record<string, string | null>)
-    });
-    
-    // CORRECTION: Si returnPath est /favorites, toujours y retourner directement
-    if (returnPath === '/favorites') {
-      console.log('✅ ✅ ✅ Retour forcé vers Mes Favoris (/favorites)');
-      navigate('/favorites');
-      console.log('✅ Navigate appelé vers /favorites');
-    } else if (returnPath) {
-      // Pour les autres pages (accueil avec filtres, profil), naviguer vers returnPath
-      console.log('✅ Navigation directe vers:', returnPath);
+    // Si returnPath existe, naviguer vers cette page
+    if (returnPath) {
       navigate(returnPath);
     } else {
-      // Fallback si pas de returnPath
-      console.log('⚠️ Pas de returnPath, navigate(-1)');
+      // Fallback : retour arrière classique
       navigate(-1);
     }
   };
