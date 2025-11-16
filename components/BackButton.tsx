@@ -9,6 +9,7 @@ const ArrowLeftIcon = () => (
 
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
     // Récupérer la page de retour depuis sessionStorage
@@ -18,6 +19,7 @@ export const BackButton: React.FC = () => {
     console.log('🔙 BackButton click:', {
       returnPath,
       scrollPosition,
+      currentPath: location.pathname,
       allSessionStorage: {
         scroll_position: sessionStorage.getItem('scroll_position'),
         return_path: sessionStorage.getItem('return_path'),
@@ -27,10 +29,14 @@ export const BackButton: React.FC = () => {
     });
     
     if (returnPath) {
-      // Naviguer directement vers le returnPath avec replace pour éviter de passer par /
-      // La restauration du scroll se fera automatiquement dans la page de destination
       console.log('✅ Navigation vers:', returnPath);
-      navigate(returnPath, { replace: true });
+      
+      // Utiliser window.history pour forcer une vraie navigation sans passer par /
+      // On garde les données en sessionStorage pour la restauration
+      window.history.pushState(null, '', returnPath);
+      
+      // Puis forcer React Router à détecter le changement
+      window.dispatchEvent(new PopStateEvent('popstate'));
     } else {
       // Fallback : historique du navigateur via React Router
       console.log('⚠️ Pas de returnPath, navigation -1');
