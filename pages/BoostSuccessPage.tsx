@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 const CheckIcon = () => (
   <svg className="w-16 h-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -9,6 +9,17 @@ const CheckIcon = () => (
 
 export const BoostSuccessPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [duration, setDuration] = useState<number>(7);
+
+  useEffect(() => {
+    // Récupérer la durée depuis sessionStorage
+    const storedDuration = sessionStorage.getItem('boost_duration');
+    if (storedDuration) {
+      setDuration(parseInt(storedDuration));
+      sessionStorage.removeItem('boost_duration');
+    }
+  }, []);
 
   useEffect(() => {
     // Auto-redirect après 5 secondes
@@ -36,7 +47,7 @@ export const BoostSuccessPage: React.FC = () => {
         
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
           <p className="text-sm text-green-800 font-medium">
-            ✨ Votre annonce est boostée pour 7 jours
+            Votre annonce est boostée pour {duration} jour{duration > 1 ? 's' : ''}
           </p>
         </div>
 

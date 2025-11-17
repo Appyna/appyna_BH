@@ -72,9 +72,11 @@ export const listingsService = {
       if (aBoostActive && !bBoostActive) return -1;
       if (!aBoostActive && bBoostActive) return 1;
       
-      // 2. Si les deux sont boostées, tri par date de création (plus récent d'abord)
+      // 2. Si les deux sont boostées, tri par date de boost (plus récent d'abord)
       if (aBoostActive && bBoostActive) {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        const aBoostDate = a.boostedAt ? new Date(a.boostedAt).getTime() : new Date(a.createdAt).getTime();
+        const bBoostDate = b.boostedAt ? new Date(b.boostedAt).getTime() : new Date(b.createdAt).getTime();
+        return bBoostDate - aBoostDate;
       }
       
       // 3. Si aucune n'est boostée, tri par date de création

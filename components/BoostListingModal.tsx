@@ -43,6 +43,9 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
 
       if (functionError) throw functionError;
 
+      // Sauvegarder la durée pour l'afficher sur la page de succès
+      sessionStorage.setItem('boost_duration', selectedDuration.toString());
+      
       // Rediriger vers Stripe Checkout
       if (data?.url) {
         window.location.href = data.url;

@@ -142,6 +142,7 @@ serve(async (req) => {
           .from('listings')
           .update({ 
             boosted_until: boostedUntil.toISOString(),
+            boosted_at: new Date().toISOString(),
           })
           .eq('id', listingId)
 
