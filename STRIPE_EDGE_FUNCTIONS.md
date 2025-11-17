@@ -39,14 +39,14 @@ serve(async (req) => {
       throw new Error('listingId and userId are required')
     }
 
-    // Prix selon la durée (en centimes)
+    // Prix selon la durée (en agorot - centimes ILS)
     const priceMap: Record<number, number> = {
-      7: 2000,  // 20 ILS pour 7 jours
-      14: 3500, // 35 ILS pour 14 jours
-      30: 6000, // 60 ILS pour 30 jours
+      1: 990,   // 9.90 ILS pour 1 jour
+      3: 2490,  // 24.90 ILS pour 3 jours
+      7: 3990,  // 39.90 ILS pour 7 jours
     }
 
-    const amount = priceMap[duration] || 2000
+    const amount = priceMap[duration] || 990
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

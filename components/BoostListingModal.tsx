@@ -16,7 +16,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
   listingTitle
 }) => {
   const { user } = useAuth();
-  const [selectedDuration, setSelectedDuration] = useState<number>(7);
+  const [selectedDuration, setSelectedDuration] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -81,6 +81,39 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {/* 1 jour */}
+          <div 
+            onClick={() => setSelectedDuration(1)}
+            className={`border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
+              selectedDuration === 1 
+                ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
+                : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
+            }`}
+          >
+            <div className="flex items-start mb-2">
+              <input type="radio" name="boost" checked={selectedDuration === 1} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 1 jour</span>
+            </div>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">9.90 <span className="text-base font-medium text-gray-500">₪</span></p>
+          </div>
+
+          {/* 3 jours */}
+          <div 
+            onClick={() => setSelectedDuration(3)}
+            className={`relative border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
+              selectedDuration === 3 
+                ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
+                : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
+            }`}
+          >
+            <span className="text-xs font-bold bg-secondary-400 text-white px-2 py-0.5 rounded-full absolute -top-2.5 right-2">Populaire</span>
+            <div className="flex items-start mb-2">
+              <input type="radio" name="boost" checked={selectedDuration === 3} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
+              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 3 jours</span>
+            </div>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">24.90 <span className="text-base font-medium text-gray-500">₪</span></p>
+          </div>
+
           {/* 7 jours */}
           <div 
             onClick={() => setSelectedDuration(7)}
@@ -94,40 +127,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
               <input type="radio" name="boost" checked={selectedDuration === 7} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
               <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 7 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">20 <span className="text-base font-medium text-gray-500">₪</span></p>
-          </div>
-
-          {/* 14 jours */}
-          <div 
-            onClick={() => setSelectedDuration(14)}
-            className={`relative border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
-              selectedDuration === 14 
-                ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
-                : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
-            }`}
-          >
-            <span className="text-xs font-bold bg-secondary-400 text-white px-2 py-0.5 rounded-full absolute -top-2.5 right-2">Populaire</span>
-            <div className="flex items-start mb-2">
-              <input type="radio" name="boost" checked={selectedDuration === 14} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
-              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 14 jours</span>
-            </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">35 <span className="text-base font-medium text-gray-500">₪</span></p>
-          </div>
-
-          {/* 30 jours */}
-          <div 
-            onClick={() => setSelectedDuration(30)}
-            className={`border-2 rounded-2xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
-              selectedDuration === 30 
-                ? 'border-primary-600 bg-primary-50 shadow-xl transform scale-105' 
-                : 'border-gray-200 hover:border-primary-300 hover:shadow-lg'
-            }`}
-          >
-            <div className="flex items-start mb-2">
-              <input type="radio" name="boost" checked={selectedDuration === 30} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
-              <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 30 jours</span>
-            </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">60 <span className="text-base font-medium text-gray-500">₪</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">39.90 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
         </div>
 
