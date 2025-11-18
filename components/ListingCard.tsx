@@ -88,21 +88,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
            {listing.boostedUntil && new Date(listing.boostedUntil) > new Date() && (
              <div className="flex items-center gap-1 bg-gradient-to-r from-primary-600/90 to-secondary-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-md shadow-lg">
                <ZapIcon />
-               {isOwnListing ? (() => {
-                 const now = new Date();
-                 const end = new Date(listing.boostedUntil);
-                 const diffMs = end.getTime() - now.getTime();
-                 const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-                 const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
-                 
-                 if (diffDays > 1) {
-                   return `BOOSTÉ - Reste ${diffDays}j`;
-                 } else if (diffHours > 1) {
-                   return `BOOSTÉ - Reste ${diffHours}h`;
-                 } else {
-                   return 'BOOSTÉ - Expire bientôt';
-                 }
-               })() : 'BOOSTÉ'}
+               BOOSTÉ
              </div>
            )}
            <div className="flex-grow"></div>

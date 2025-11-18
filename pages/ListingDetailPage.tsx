@@ -257,7 +257,21 @@ export const ListingDetailPage: React.FC = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                     </svg>
-                    BOOSTÉ
+                    {isOwnListing && listing.boostedUntil ? (() => {
+                      const now = new Date();
+                      const end = new Date(listing.boostedUntil);
+                      const diffMs = end.getTime() - now.getTime();
+                      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                      const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+                      
+                      if (diffDays > 1) {
+                        return `BOOSTÉ - Reste ${diffDays}j`;
+                      } else if (diffHours > 1) {
+                        return `BOOSTÉ - Reste ${diffHours}h`;
+                      } else {
+                        return 'BOOSTÉ - Expire bientôt';
+                      }
+                    })() : 'BOOSTÉ'}
                   </div>
                 )}
                 
