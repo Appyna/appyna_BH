@@ -14,7 +14,7 @@ Vous devez créer 2 Edge Functions dans votre dashboard Supabase :
 
 ```typescript
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import Stripe from 'https://esm.sh/stripe@14.0.0?target=deno'
+import Stripe from 'https://esm.sh/stripe@13.11.0?target=deno'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2023-10-16',
@@ -49,13 +49,12 @@ serve(async (req) => {
     const amount = priceMap[duration] || 990
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
             currency: 'ils',
             product_data: {
-              name: `Boost d'annonce - ${duration} jours`,
+              name: `Boost d'annonce - ${duration} jour${duration > 1 ? 's' : ''}`,
               description: 'Mettez votre annonce en avant',
             },
             unit_amount: amount,
@@ -64,6 +63,9 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
+      automatic_payment_methods: {
+        enabled: true,
+      },
       success_url: `${req.headers.get('origin')}/boost/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/boost/cancel`,
       metadata: {
@@ -102,7 +104,7 @@ serve(async (req) => {
 
 ```typescript
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import Stripe from 'https://esm.sh/stripe@14.0.0?target=deno'
+import Stripe from 'https://esm.sh/stripe@13.11.0?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
