@@ -160,8 +160,8 @@ export const CreateListingPage: React.FC = () => {
             });
 
             if (listing) {
-                alert('Annonce publiée avec succès !');
-                navigate(`/listing/${listing.id}`);
+                console.log('✅ Annonce créée, redirection vers:', `/listing/${listing.id}?showBoost=true`);
+                navigate(`/listing/${listing.id}?showBoost=true`);
             } else {
                 setError('Erreur lors de la création de l\'annonce');
             }

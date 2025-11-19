@@ -7,13 +7,15 @@ interface BoostListingModalProps {
   onClose: () => void;
   listingId: string;
   listingTitle: string;
+  showSuccessMessage?: boolean;
 }
 
 export const BoostListingModal: React.FC<BoostListingModalProps> = ({
   isOpen,
   onClose,
   listingId,
-  listingTitle
+  listingTitle,
+  showSuccessMessage = false
 }) => {
   const { user } = useAuth();
   const [selectedDuration, setSelectedDuration] = useState<number>(1);
@@ -78,6 +80,19 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
             </button>
           </div>
         </div>
+        
+        {showSuccessMessage && (
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <p className="text-green-800 font-semibold text-sm sm:text-base">
+                ✅ Votre annonce a été publiée avec succès !
+              </p>
+            </div>
+          </div>
+        )}
         
         <p className="text-gray-700 font-montserrat font-semibold mb-8 text-center text-sm sm:text-base">
           Maximisez vos réponses dès maintenant ! Boostez votre annonce pour apparaître en tête des recherches et sur la page d'accueil.
@@ -146,7 +161,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
             disabled={isLoading}
             className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-sm sm:text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat"
           >
-            Annuler
+            Ne pas booster
           </button>
           <button
             onClick={handleBoost}

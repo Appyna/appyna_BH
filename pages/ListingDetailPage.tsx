@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { BackButton } from '../components/BackButton';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 import { ProtectedAction } from '../components/ProtectedAction';
@@ -33,6 +33,7 @@ export const ListingDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser, toggleFavorite } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,6 +47,7 @@ export const ListingDetailPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedBoost, setSelectedBoost] = useState('24h');
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isAutoBoostModal, setIsAutoBoostModal] = useState(false);
   
   // État pour la bannière de notification
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
@@ -66,6 +68,36 @@ export const ListingDetailPage: React.FC = () => {
 
   // Vérifier si c'est l'annonce de l'utilisateur connecté
   const isOwnListing = currentUser?.id === listing?.userId;
+
+  // Ouvrir automatiquement le modal de boost après création d'annonce
+  useEffect(() => {
+    const shouldShowBoost = searchParams.get('showBoost') === 'true';
+    console.log('🚀 Boost check:', { 
+      shouldShowBoost, 
+      isOwnListing, 
+      hasListing: !!listing, 
+      loading,
+      currentUserId: currentUser?.id,
+      listingUserId: listing?.userId
+    });
+    
+    if (shouldShowBoost && isOwnListing && listing && !loading) {
+      console.log('✅ Opening boost modal automatically');
+      setShowBoostModal(true);
+      setIsAutoBoostModal(true);
+      // Supprimer le paramètre de l'URL après ouverture
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('showBoost');
+      setSearchParams(newSearchParams);
+    }
+  }, [searchParams, isOwnListing, listing, loading, currentUser, setSearchParams]);
+
+  // Réinitialiser le flag auto-boost quand le modal se ferme
+  useEffect(() => {
+    if (!showBoostModal) {
+      setIsAutoBoostModal(false);
+    }
+  }, [searchParams, isOwnListing, listing, loading, currentUser, setSearchParams]);
   
   // État favori
   const isFavorite = currentUser?.favorites.includes(listing?.id || '') || false;
@@ -570,6 +602,7 @@ export const ListingDetailPage: React.FC = () => {
         onClose={() => setShowBoostModal(false)}
         listingId={listing.id}
         listingTitle={listing.title}
+        showSuccessMessage={isAutoBoostModal}
       />
 
       {/* Modal d'édition */}
