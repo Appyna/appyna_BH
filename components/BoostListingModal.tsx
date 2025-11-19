@@ -63,24 +63,24 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-8 my-8">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <span className="text-2xl mr-2">⚡</span>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins">
-              Booster mon annonce
-            </h3>
+          <div className="flex-1"></div>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins text-center">
+            Booster mon annonce
+          </h3>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
         
         <p className="text-gray-700 font-montserrat font-semibold mb-8 text-center text-sm sm:text-base">
-          Maximisez vos chances de réponse dès maintenant ! Boostez votre annonce pour apparaître tout en haut des recherches et de la page d'accueil.
+          Maximisez vos réponses dès maintenant ! Boostez votre annonce pour apparaître en tête des recherches et sur la page d'accueil.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -153,7 +153,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
             disabled={isLoading}
             className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '⏳ Chargement...' : '� Booster l\'annonce'}
+            {isLoading ? 'Chargement...' : 'Booster'}
           </button>
         </div>
       </div>
