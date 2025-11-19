@@ -64,7 +64,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
       <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-8 my-8">
         <div className="flex justify-between items-center mb-6">
           <div className="flex-1"></div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins text-center">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins text-center">
             Booster mon annonce
           </h3>
           <div className="flex-1 flex justify-end">
@@ -144,14 +144,14 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat"
+            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-sm sm:text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat"
           >
             Annuler
           </button>
           <button
             onClick={handleBoost}
             disabled={isLoading}
-            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Chargement...' : 'Booster'}
           </button>
