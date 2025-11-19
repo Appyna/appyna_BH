@@ -249,18 +249,25 @@ export const listingsService = {
   },
 
   // Récupérer les annonces d'un utilisateur
-  async getUserListings(userId: string): Promise<Listing[]> {
-    const { data, error } = await supabase
+  async getUserListings(userId: string, includeHidden: boolean = true): Promise<Listing[]> {
+    let query = supabase
       .from('listings')
       .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .eq('user_id', userId);
+
+    // Si on ne veut pas les annonces masquées (ex: vue publique du profil)
+    if (!includeHidden) {
+      query = query.eq('is_hidden', false);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching user listings:', error);
       return [];
     }
 
+    // La RLS policy s'occupe aussi du filtrage is_hidden pour la sécurité
     return data.map((listing: any) => ({
       id: listing.id,
       title: listing.title,
@@ -274,6 +281,7 @@ export const listingsService = {
       boostedAt: listing.boosted_at,
       boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
+      isHidden: listing.is_hidden, // Pour afficher un badge "Masquée" sur ses propres annonces
     }));
   },
 

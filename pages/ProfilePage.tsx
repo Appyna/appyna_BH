@@ -60,7 +60,10 @@ export const ProfilePage: React.FC = () => {
             }
             
             // Charger les annonces
-            const listings = await listingsService.getUserListings(userId);
+            // Si c'est notre profil ou qu'on est admin, on voit tout (includeHidden = true)
+            // Sinon, on cache les annonces masquées (includeHidden = false)
+            const includeHidden = isOwnProfile || currentUser?.is_admin === true;
+            const listings = await listingsService.getUserListings(userId, includeHidden);
             setUserListings(listings);
             setLoading(false);
         };
