@@ -64,7 +64,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
       <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-8 my-8">
         <div className="flex justify-between items-center mb-6">
           <div className="flex-1"></div>
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins text-center">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins text-center">
             Booster mon annonce
           </h3>
           <div className="flex-1 flex justify-end">
