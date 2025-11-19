@@ -82,9 +82,10 @@ export const ListingDetailPage: React.FC = () => {
     });
     
     if (shouldShowBoost && isOwnListing && listing && !loading) {
-      console.log('✅ Opening boost modal automatically');
+      console.log('✅ Opening boost modal automatically with success message');
       setShowBoostModal(true);
       setIsAutoBoostModal(true);
+      console.log('🎯 isAutoBoostModal set to:', true);
       // Définir le retour vers l'accueil pour le bouton retour
       sessionStorage.setItem('return_path', '/');
       // Supprimer le paramètre de l'URL après ouverture
@@ -99,7 +100,7 @@ export const ListingDetailPage: React.FC = () => {
     if (!showBoostModal) {
       setIsAutoBoostModal(false);
     }
-  }, [searchParams, isOwnListing, listing, loading, currentUser, setSearchParams]);
+  }, [showBoostModal]);
   
   // État favori
   const isFavorite = currentUser?.favorites.includes(listing?.id || '') || false;
