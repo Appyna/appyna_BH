@@ -107,6 +107,8 @@ export interface User {
   bio: string;
   avatarUrl: string;
   favorites: string[]; // array of listing IDs
+  is_admin?: boolean;
+  is_banned?: boolean;
 }
 
 export interface Message {

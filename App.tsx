@@ -17,6 +17,7 @@ import { BoostCancelPage } from './pages/BoostCancelPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import AdminModerationPage from './pages/AdminModerationPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -119,6 +120,7 @@ const App: React.FC = () => {
               <Route path="/boost-history" element={<BoostHistoryPage />} />
               <Route path="/boost/success" element={<BoostSuccessPage />} />
               <Route path="/boost/cancel" element={<BoostCancelPage />} />
+              <Route path="/admin/moderation" element={<AdminModerationPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />

@@ -73,7 +73,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           phone: data.phone || '',
           city: data.city || '',
           bio: data.bio || '',
-          favorites: data.favorites?.map((f: any) => f.listing_id) || []
+          favorites: data.favorites?.map((f: any) => f.listing_id) || [],
+          is_admin: data.is_admin || false,
+          is_banned: data.is_banned || false
         });
       }
     } catch (error) {
