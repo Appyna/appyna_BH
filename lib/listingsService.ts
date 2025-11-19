@@ -19,7 +19,8 @@ export const listingsService = {
           avatar_url,
           city
         )
-      `);
+      `)
+      .eq('is_hidden', false); // Exclure les annonces masquées
 
     if (filters?.category) {
       query = query.eq('category', filters.category);

@@ -65,6 +65,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) throw error;
 
       if (data) {
+        // Vérifier si l'utilisateur est banni
+        if (data.is_banned) {
+          await supabase.auth.signOut();
+          alert('Votre compte a été banni pour violation des conditions d\'utilisation.');
+          setUser(null);
+          return;
+        }
+
         setUser({
           id: data.id,
           name: data.name,
