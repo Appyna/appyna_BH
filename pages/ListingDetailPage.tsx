@@ -85,6 +85,8 @@ export const ListingDetailPage: React.FC = () => {
       console.log('✅ Opening boost modal automatically');
       setShowBoostModal(true);
       setIsAutoBoostModal(true);
+      // Définir le retour vers l'accueil pour le bouton retour
+      sessionStorage.setItem('return_path', '/');
       // Supprimer le paramètre de l'URL après ouverture
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('showBoost');

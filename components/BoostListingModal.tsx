@@ -64,35 +64,33 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-8 my-8">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex-1"></div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins text-center">
-            Booster mon annonce
-          </h3>
-          <div className="flex-1 flex justify-end">
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         
         {showSuccessMessage && (
-          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-2xl shadow-sm">
+            <div className="flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <p className="text-green-800 font-semibold text-sm sm:text-base">
-                ✅ Votre annonce a été publiée avec succès !
+              <p className="text-green-800 font-bold text-base sm:text-lg font-poppins">
+                Annonce publiée avec succès !
               </p>
             </div>
           </div>
         )}
+        
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 font-poppins text-center mb-6">
+          Booster mon annonce
+        </h3>
         
         <p className="text-gray-700 font-montserrat font-semibold mb-8 text-center text-sm sm:text-base">
           Maximisez vos réponses dès maintenant ! Boostez votre annonce pour apparaître en tête des recherches et sur la page d'accueil.
