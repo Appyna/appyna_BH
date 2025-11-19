@@ -66,7 +66,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
           <div className="flex items-center">
             <span className="text-2xl mr-2">⚡</span>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins">
-              Boostez votre annonce
+              Booster mon annonce
             </h3>
           </div>
           <button
@@ -79,8 +79,8 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
           </button>
         </div>
         
-        <p className="text-gray-600 font-montserrat mb-8 text-center text-sm sm:text-base">
-          Les annonces boostées sont affichées en haut des pages pour multiplier les chances de réponse.
+        <p className="text-gray-700 font-montserrat font-semibold mb-8 text-center text-sm sm:text-base">
+          Maximisez vos chances de réponse dès maintenant ! Boostez votre annonce pour apparaître tout en haut des recherches et de la page d'accueil.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -153,7 +153,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
             disabled={isLoading}
             className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '⏳ Redirection...' : '💳 Payer avec Stripe'}
+            {isLoading ? '⏳ Chargement...' : '� Booster l\'annonce'}
           </button>
         </div>
       </div>
