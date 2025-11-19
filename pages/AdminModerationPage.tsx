@@ -54,18 +54,29 @@ const AdminModerationPage: React.FC = () => {
     try {
       switch (actionType) {
         case 'approve':
+          console.log('🔄 Approbation du signalement:', selectedReport.id);
           success = await reportsService.approveReport(selectedReport.id, user.id, moderatorNote);
+          console.log('✅ Approuvé:', success);
           break;
         case 'reject':
+          console.log('🔄 Rejet du signalement:', selectedReport.id);
           success = await reportsService.rejectReport(selectedReport.id, user.id, moderatorNote);
+          console.log('✅ Rejeté:', success);
           break;
         case 'ban':
-          if (selectedReport.reporter) {
-            success = await reportsService.banUser(selectedReport.reporter.id, moderatorNote);
+          // Bannir le propriétaire de l'annonce (pas le reporter!)
+          if (selectedReport.listing?.user_id) {
+            console.log('🔄 Bannissement de l\'utilisateur:', selectedReport.listing.user_id);
+            success = await reportsService.banUser(selectedReport.listing.user_id, moderatorNote);
+            console.log('✅ Banni:', success);
             if (success) {
               // Approuver aussi le signalement
               await reportsService.approveReport(selectedReport.id, user.id, `Utilisateur banni: ${moderatorNote}`);
             }
+          } else {
+            console.error('❌ Impossible de bannir: user_id manquant dans listing');
+            alert('Erreur: Impossible de trouver le propriétaire de l\'annonce');
+            return;
           }
           break;
       }
@@ -77,11 +88,11 @@ const AdminModerationPage: React.FC = () => {
         setModeratorNote('');
         loadReports();
       } else {
-        alert('Erreur lors de l\'action');
+        alert('Erreur lors de l\'action. Vérifiez la console.');
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      alert('Erreur lors de l\'action');
+      console.error('❌ Erreur lors de l\'action:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Action échouée'}`);
     } finally {
       setProcessing(false);
     }

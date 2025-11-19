@@ -60,7 +60,7 @@ export const reportsService = {
         .from('reports')
         .select(`
           *,
-          listing:listings(id, title, category, is_hidden),
+          listing:listings(id, title, category, is_hidden, user_id),
           reporter:users!reports_reporter_id_fkey(id, name, email),
           moderator:users!reports_moderator_id_fkey(id, name, email)
         `)
