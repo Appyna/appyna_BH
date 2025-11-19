@@ -306,6 +306,8 @@ export const listingsService = {
       bio: data.bio,
       city: data.city,
       createdAt: data.created_at,
+      is_banned: data.is_banned || false,
+      is_admin: data.is_admin || false,
     };
   },
 

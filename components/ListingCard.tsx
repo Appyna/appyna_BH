@@ -84,6 +84,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        
+        {/* Badge "Annonce supprimée" pour admin et propriétaire */}
+        {(listing as any).isHidden && (isOwnListing || user?.is_admin) && (
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10">
+            <div className="bg-red-500 text-white px-6 py-3 rounded-xl font-bold text-sm text-center shadow-2xl">
+              Annonce supprimée<br/>pour signalements
+            </div>
+          </div>
+        )}
+        
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start">
            {listing.boostedUntil && new Date(listing.boostedUntil) > new Date() && (
              <div className="flex items-center gap-1 bg-gradient-to-r from-primary-600/90 to-secondary-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-md shadow-lg">

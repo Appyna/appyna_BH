@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ListingCard } from '../components/ListingCard';
 import { BackButton } from '../components/BackButton';
 import { ProtectedAction } from '../components/ProtectedAction';
@@ -36,6 +36,7 @@ const getRelativeTime = (date: Date): string => {
 export const ProfilePage: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
     const { user: currentUser } = useAuth();
+    const navigate = useNavigate();
     const [showReportModal, setShowReportModal] = useState(false);
     const [userListings, setUserListings] = useState<Listing[]>([]);
     const [user, setUser] = useState<User | null>(null);
@@ -56,6 +57,14 @@ export const ProfilePage: React.FC = () => {
             } else {
                 // Sinon, charger les données de l'autre utilisateur depuis Supabase
                 const userData = await listingsService.getUser(userId);
+                
+                // Si l'utilisateur est banni et qu'on n'est pas admin -> bloquer
+                if (userData?.is_banned && currentUser?.is_admin !== true) {
+                    alert('Cet utilisateur a été banni.');
+                    navigate('/');
+                    return;
+                }
+                
                 setUser(userData);
             }
             
@@ -136,9 +145,16 @@ export const ProfilePage: React.FC = () => {
             <div className="container mx-auto px-4 py-12">
                 <div className="max-w-5xl mx-auto">
                     {/* Profile Header */}
-                    <div className="bg-white p-8 rounded-2xl shadow-md flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                    <div className={`bg-white rounded-2xl shadow-md flex flex-col md:flex-row items-center gap-8 relative overflow-hidden ${user?.is_banned && currentUser?.is_admin ? 'pt-12 pb-8 px-8' : 'p-8'}`}>
+                        {/* Badge "Utilisateur banni" pour admin */}
+                        {user?.is_banned && currentUser?.is_admin && (
+                          <div className="absolute top-0 left-0 right-0 bg-red-500 text-white text-center py-2 font-bold text-sm rounded-t-2xl">
+                            ⛔ Utilisateur banni pour signalements
+                          </div>
+                        )}
+                        
                         {/* Bouton Signaler - Pour profils externes (icône top-right) */}
-                        {!isOwnProfile && (
+                        {!isOwnProfile && !user?.is_banned && (
                           <button
                             onClick={() => setShowReportModal(true)}
                             className="absolute top-4 right-4 text-red-600 hover:text-red-700 transition-colors p-2"

@@ -60,11 +60,24 @@ export const ListingDetailPage: React.FC = () => {
       const data = await listingsService.getListingById(id);
       console.log('Annonce chargée depuis Supabase:', data);
       console.log('Images de l\'annonce:', data?.images);
+      
+      // Si annonce masquée et user n'est ni admin ni propriétaire -> bloquer
+      if (data && (data as any).isHidden) {
+        const isOwner = currentUser?.id === data.userId;
+        const isAdmin = currentUser?.is_admin === true;
+        
+        if (!isOwner && !isAdmin) {
+          alert('Cette annonce a été supprimée.');
+          navigate('/');
+          return;
+        }
+      }
+      
       setListing(data);
       setLoading(false);
     };
     loadListing();
-  }, [id]);
+  }, [id, currentUser, navigate]);
 
   // Vérifier si c'est l'annonce de l'utilisateur connecté
   const isOwnListing = currentUser?.id === listing?.userId;
