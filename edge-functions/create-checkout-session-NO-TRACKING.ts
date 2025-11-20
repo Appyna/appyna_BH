@@ -1,18 +1,13 @@
-// Edge Function: create-checkout-session
+// Edge Function: create-checkout-session (VERSION SANS TRACKING - pour debug)
 // À copier dans Supabase Dashboard → Functions → create-checkout-session
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@13.11.0?target=deno'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2023-10-16',
   httpClient: Stripe.createFetchHttpClient(),
 })
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const supabase = createClient(supabaseUrl, supabaseKey)
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +23,8 @@ serve(async (req) => {
   try {
     const { listingId, userId, duration = 7 } = await req.json()
 
+    console.log('Received request:', { listingId, userId, duration })
+
     if (!listingId || !userId) {
       throw new Error('listingId and userId are required')
     }
@@ -40,6 +37,8 @@ serve(async (req) => {
     }
 
     const amount = priceMap[duration] || 990
+
+    console.log('Creating Stripe session with amount:', amount)
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -68,34 +67,7 @@ serve(async (req) => {
       },
     })
 
-    // 🆕 NOUVEAU : Insérer le paiement dans la base de données avec status 'pending'
-    try {
-      const { error: insertError } = await supabase
-        .from('stripe_payments')
-        .insert({
-          stripe_session_id: session.id,
-          user_id: userId,
-          listing_id: listingId,
-          amount: amount / 100, // Convertir les agorot en ILS
-          currency: 'ils',
-          status: 'pending',
-          boost_days: duration,
-          metadata: {
-            session_url: session.url,
-            created_at: new Date().toISOString(),
-          }
-        })
-
-      if (insertError) {
-        console.error('Error inserting payment record:', insertError)
-        // Ne pas bloquer la création de session si l'insertion échoue
-      } else {
-        console.log('Payment record created successfully for session:', session.id)
-      }
-    } catch (dbError) {
-      console.error('Database error:', dbError)
-      // Ne pas bloquer la création de session
-    }
+    console.log('Session created successfully:', session.id)
 
     return new Response(
       JSON.stringify({ sessionId: session.id, url: session.url }),
@@ -105,6 +77,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error in create-checkout-session:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
