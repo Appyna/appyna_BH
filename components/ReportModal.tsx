@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { reportsService } from '../lib/reportsService';
+import { userReportsService } from '../lib/userReportsService';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -94,22 +95,34 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
         setLoading(false);
       }
     } else {
-      // Pour les users, on garde l'ancien système (console.log) pour l'instant
-      const reportData = {
-        type: 'user',
-        targetId: targetId,
-        reportedBy: user?.email,
-        reportedByUserId: user?.id,
-        reason: selectedReason,
-        description: description,
-        timestamp: new Date().toISOString()
-      };
-      
-      console.log('📧 Signalement utilisateur (à implémenter):', reportData);
-      alert('Signalement envoyé avec succès. Notre équipe examinera votre demande dans les plus brefs délais.');
-      setSelectedReason('');
-      setDescription('');
-      onClose();
+      // Pour les users, utiliser le nouveau système
+      setLoading(true);
+      try {
+        console.log('📤 Envoi du signalement utilisateur:', { reported_user_id: targetId, reason: selectedReason, reporterId: user.id });
+        
+        const result = await userReportsService.createReport({
+          reported_user_id: targetId,
+          reason: selectedReason,
+          description: description || undefined
+        }, user.id);
+
+        if (!result) {
+          console.error('❌ Échec de création du signalement utilisateur - result est null');
+          alert('Erreur : Impossible de créer le signalement. Vérifiez la console.');
+          return;
+        }
+
+        console.log('✅ Signalement utilisateur créé avec succès:', result);
+        alert('Signalement envoyé avec succès. Notre équipe examinera votre demande dans les plus brefs délais.');
+        setSelectedReason('');
+        setDescription('');
+        onClose();
+      } catch (error) {
+        console.error('❌ Erreur lors du signalement utilisateur:', error);
+        alert(`Erreur : ${error instanceof Error ? error.message : 'Impossible de créer le signalement'}`);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

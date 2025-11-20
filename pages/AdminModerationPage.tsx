@@ -2,16 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { reportsService, Report } from '../lib/reportsService';
+import { userReportsService, UserReport } from '../lib/userReportsService';
 
 const AdminModerationPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // État pour les signalements d'annonces
   const [reports, setReports] = useState<Report[]>([]);
+  
+  // État pour les signalements d'utilisateurs
+  const [userReports, setUserReports] = useState<UserReport[]>([]);
+  
+  // État commun
   const [loading, setLoading] = useState(true);
+  const [reportType, setReportType] = useState<'listings' | 'users'>('listings');
   const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'rejected'>('pending');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedUserReport, setSelectedUserReport] = useState<UserReport | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
-  const [actionType, setActionType] = useState<'approve' | 'reject' | 'ban' | null>(null);
+  const [actionType, setActionType] = useState<'approve' | 'reject' | 'ban' | 'unban' | null>(null);
   const [moderatorNote, setModeratorNote] = useState('');
   const [processing, setProcessing] = useState(false);
 
@@ -31,62 +41,93 @@ const AdminModerationPage: React.FC = () => {
 
   // Charger les signalements
   useEffect(() => {
-    loadReports();
-  }, [filter]);
+    if (reportType === 'listings') {
+      loadReports();
+    } else {
+      loadUserReports();
+    }
+  }, [filter, reportType]);
 
   const loadReports = async () => {
     setLoading(true);
     const statusFilter = filter === 'all' ? undefined : filter;
-    console.log('🔍 Chargement des signalements, filtre:', statusFilter);
-    console.log('👤 User is_admin:', user?.is_admin);
+    console.log('🔍 Chargement des signalements d\'annonces, filtre:', statusFilter);
     const data = await reportsService.getAllReports(statusFilter);
-    console.log('📋 Signalements récupérés:', data.length, data);
+    console.log('� Signalements d\'annonces récupérés:', data.length);
     setReports(data);
     setLoading(false);
   };
 
+  const loadUserReports = async () => {
+    setLoading(true);
+    const statusFilter = filter === 'all' ? undefined : filter;
+    console.log('🔍 Chargement des signalements d\'utilisateurs, filtre:', statusFilter);
+    const data = await userReportsService.getAllReports(statusFilter);
+    console.log('📋 Signalements d\'utilisateurs récupérés:', data.length);
+    setUserReports(data);
+    setLoading(false);
+  };
+
   const handleAction = async () => {
-    if (!selectedReport || !user || !actionType) return;
+    if (!user || !actionType) return;
 
     setProcessing(true);
     let success = false;
 
     try {
-      switch (actionType) {
-        case 'approve':
-          console.log('🔄 Approbation du signalement:', selectedReport.id);
-          success = await reportsService.approveReport(selectedReport.id, user.id, moderatorNote);
-          console.log('✅ Approuvé:', success);
-          break;
-        case 'reject':
-          console.log('🔄 Rejet du signalement:', selectedReport.id);
-          success = await reportsService.rejectReport(selectedReport.id, user.id, moderatorNote);
-          console.log('✅ Rejeté:', success);
-          break;
-        case 'ban':
-          // Bannir le propriétaire de l'annonce (pas le reporter!)
-          if (selectedReport.listing?.user_id) {
-            console.log('🔄 Bannissement de l\'utilisateur:', selectedReport.listing.user_id);
-            success = await reportsService.banUser(selectedReport.listing.user_id, moderatorNote);
-            console.log('✅ Banni:', success);
-            if (success) {
-              // Approuver aussi le signalement
-              await reportsService.approveReport(selectedReport.id, user.id, `Utilisateur banni: ${moderatorNote}`);
+      // Gestion des signalements d'annonces
+      if (selectedReport) {
+        switch (actionType) {
+          case 'approve':
+            console.log('🔄 Approbation du signalement d\'annonce:', selectedReport.id);
+            success = await reportsService.approveReport(selectedReport.id, user.id, moderatorNote);
+            break;
+          case 'reject':
+            console.log('🔄 Rejet du signalement d\'annonce:', selectedReport.id);
+            success = await reportsService.rejectReport(selectedReport.id, user.id, moderatorNote);
+            break;
+          case 'ban':
+            if (selectedReport.listing?.user_id) {
+              console.log('🔄 Bannissement de l\'utilisateur:', selectedReport.listing.user_id);
+              success = await reportsService.banUser(selectedReport.listing.user_id, moderatorNote);
+              if (success) {
+                await reportsService.approveReport(selectedReport.id, user.id, `Utilisateur banni: ${moderatorNote}`);
+              }
+            } else {
+              alert('Erreur: Impossible de trouver le propriétaire de l\'annonce');
+              return;
             }
-          } else {
-            console.error('❌ Impossible de bannir: user_id manquant dans listing');
-            alert('Erreur: Impossible de trouver le propriétaire de l\'annonce');
-            return;
-          }
-          break;
+            break;
+        }
+      }
+      
+      // Gestion des signalements d'utilisateurs
+      if (selectedUserReport) {
+        switch (actionType) {
+          case 'approve':
+            console.log('🔄 Approbation du signalement d\'utilisateur:', selectedUserReport.id);
+            success = await userReportsService.approveReport(selectedUserReport.id, user.id, moderatorNote);
+            break;
+          case 'reject':
+            console.log('🔄 Rejet du signalement d\'utilisateur:', selectedUserReport.id);
+            success = await userReportsService.rejectReport(selectedUserReport.id, user.id, moderatorNote);
+            break;
+          case 'unban':
+            if (selectedUserReport.reported_user_id) {
+              console.log('🔄 Débannissement de l\'utilisateur:', selectedUserReport.reported_user_id);
+              success = await userReportsService.unbanUser(selectedUserReport.reported_user_id);
+            }
+            break;
+        }
       }
 
       if (success) {
         alert('Action effectuée avec succès !');
         setShowActionModal(false);
         setSelectedReport(null);
+        setSelectedUserReport(null);
         setModeratorNote('');
-        loadReports();
+        reportType === 'listings' ? loadReports() : loadUserReports();
       } else {
         alert('Erreur lors de l\'action. Vérifiez la console.');
       }
@@ -98,8 +139,14 @@ const AdminModerationPage: React.FC = () => {
     }
   };
 
-  const openActionModal = (report: Report, type: 'approve' | 'reject' | 'ban') => {
-    setSelectedReport(report);
+  const openActionModal = (report: Report | UserReport, type: 'approve' | 'reject' | 'ban' | 'unban', isUserReport = false) => {
+    if (isUserReport) {
+      setSelectedUserReport(report as UserReport);
+      setSelectedReport(null);
+    } else {
+      setSelectedReport(report as Report);
+      setSelectedUserReport(null);
+    }
     setActionType(type);
     setShowActionModal(true);
     setModeratorNote('');
@@ -154,8 +201,32 @@ const AdminModerationPage: React.FC = () => {
           <p className="text-gray-600">Gestion des signalements</p>
         </div>
 
-        {/* Filtres */}
+        {/* Onglets Type de signalement */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex gap-2 flex-wrap mb-4 pb-4 border-b">
+            <button
+              onClick={() => setReportType('listings')}
+              className={`px-6 py-2 rounded-lg font-semibold transition ${
+                reportType === 'listings'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📋 Annonces
+            </button>
+            <button
+              onClick={() => setReportType('users')}
+              className={`px-6 py-2 rounded-lg font-semibold transition ${
+                reportType === 'users'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              👤 Utilisateurs
+            </button>
+          </div>
+
+          {/* Filtres Status */}
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setFilter('all')}
@@ -165,7 +236,7 @@ const AdminModerationPage: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Tous ({reports.length})
+              Tous ({reportType === 'listings' ? reports.length : userReports.length})
             </button>
             <button
               onClick={() => setFilter('pending')}
@@ -200,105 +271,206 @@ const AdminModerationPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Liste des signalements */}
-        {reports.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500">Aucun signalement pour ce filtre</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {reports.map((report) => (
-              <div key={report.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">
-                      {report.listing?.title || 'Annonce supprimée'}
-                    </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>{getReasonLabel(report.reason)}</span>
-                      <span>•</span>
-                      <span>Par: {report.reporter?.name || report.reporter?.email || 'Utilisateur'}</span>
-                      <span>•</span>
-                      <span>{new Date(report.created_at).toLocaleDateString('fr-FR')}</span>
+        {/* Liste des signalements d'annonces */}
+        {reportType === 'listings' && (
+          <>
+            {reports.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <p className="text-gray-500">Aucun signalement d'annonce pour ce filtre</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reports.map((report) => (
+                  <div key={report.id} className="bg-white rounded-lg shadow p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          {report.listing?.title || 'Annonce supprimée'}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span>{getReasonLabel(report.reason)}</span>
+                          <span>•</span>
+                          <span>Par: {report.reporter?.name || report.reporter?.email || 'Utilisateur'}</span>
+                          <span>•</span>
+                          <span>{new Date(report.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      </div>
+                      {getStatusBadge(report.status)}
                     </div>
-                  </div>
-                  {getStatusBadge(report.status)}
-                </div>
 
-                {report.description && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded">
-                    <p className="text-gray-700 text-sm">{report.description}</p>
-                  </div>
-                )}
+                    {report.description && (
+                      <div className="mb-4 p-3 bg-gray-50 rounded">
+                        <p className="text-gray-700 text-sm">{report.description}</p>
+                      </div>
+                    )}
 
-                {report.listing && (
-                  <div className="mb-4 p-3 bg-blue-50 rounded">
-                    <p className="text-sm text-gray-600 mb-1">
-                      <strong>Catégorie:</strong> {report.listing.category}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Statut annonce:</strong> {report.listing.is_hidden ? '❌ Masquée' : '✅ Visible'}
-                    </p>
-                  </div>
-                )}
-
-                {report.moderator_note && (
-                  <div className="mb-4 p-3 bg-purple-50 rounded">
-                    <p className="text-sm font-semibold text-purple-900 mb-1">Note du modérateur:</p>
-                    <p className="text-sm text-purple-700">{report.moderator_note}</p>
-                  </div>
-                )}
-
-                {report.status === 'pending' && (
-                  <div className="flex gap-2 flex-wrap">
-                    <button
-                      onClick={() => openActionModal(report, 'approve')}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
-                    >
-                      ✅ Approuver (masquer annonce)
-                    </button>
-                    <button
-                      onClick={() => openActionModal(report, 'reject')}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold"
-                    >
-                      ❌ Rejeter
-                    </button>
-                    <button
-                      onClick={() => openActionModal(report, 'ban')}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
-                    >
-                      🚫 Bannir utilisateur
-                    </button>
                     {report.listing && (
-                      <button
-                        onClick={() => window.open(`/listing/${report.listing_id}`, '_blank')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
-                      >
-                        👁️ Voir l'annonce
-                      </button>
+                      <div className="mb-4 p-3 bg-blue-50 rounded">
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Catégorie:</strong> {report.listing.category}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>Statut annonce:</strong> {report.listing.is_hidden ? '❌ Masquée' : '✅ Visible'}
+                        </p>
+                      </div>
+                    )}
+
+                    {report.moderator_note && (
+                      <div className="mb-4 p-3 bg-purple-50 rounded">
+                        <p className="text-sm font-semibold text-purple-900 mb-1">Note du modérateur:</p>
+                        <p className="text-sm text-purple-700">{report.moderator_note}</p>
+                      </div>
+                    )}
+
+                    {report.status === 'pending' && (
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => openActionModal(report, 'approve', false)}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+                        >
+                          ✅ Approuver (masquer annonce)
+                        </button>
+                        <button
+                          onClick={() => openActionModal(report, 'reject', false)}
+                          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold"
+                        >
+                          ❌ Rejeter
+                        </button>
+                        <button
+                          onClick={() => openActionModal(report, 'ban', false)}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                        >
+                          🚫 Bannir utilisateur
+                        </button>
+                        {report.listing && (
+                          <button
+                            onClick={() => window.open(`/listing/${report.listing_id}`, '_blank')}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                          >
+                            👁️ Voir l'annonce
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
+        )}
+
+        {/* Liste des signalements d'utilisateurs */}
+        {reportType === 'users' && (
+          <>
+            {userReports.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <p className="text-gray-500">Aucun signalement d'utilisateur pour ce filtre</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {userReports.map((report) => (
+                  <div key={report.id} className="bg-white rounded-lg shadow p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          👤 {report.reported_user?.name || report.reported_user?.email || 'Utilisateur'}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span>{getReasonLabel(report.reason)}</span>
+                          <span>•</span>
+                          <span>Par: {report.reporter?.name || report.reporter?.email || 'Utilisateur'}</span>
+                          <span>•</span>
+                          <span>{new Date(report.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      </div>
+                      {getStatusBadge(report.status)}
+                    </div>
+
+                    {report.description && (
+                      <div className="mb-4 p-3 bg-gray-50 rounded">
+                        <p className="text-gray-700 text-sm">{report.description}</p>
+                      </div>
+                    )}
+
+                    {report.reported_user && (
+                      <div className="mb-4 p-3 bg-blue-50 rounded">
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Email:</strong> {report.reported_user.email}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>Statut utilisateur:</strong> {report.reported_user.is_banned ? '🚫 Banni' : '✅ Actif'}
+                        </p>
+                      </div>
+                    )}
+
+                    {report.moderator_note && (
+                      <div className="mb-4 p-3 bg-purple-50 rounded">
+                        <p className="text-sm font-semibold text-purple-900 mb-1">Note du modérateur:</p>
+                        <p className="text-sm text-purple-700">{report.moderator_note}</p>
+                      </div>
+                    )}
+
+                    {report.status === 'pending' && (
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => openActionModal(report, 'approve', true)}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                        >
+                          🚫 Bannir utilisateur
+                        </button>
+                        <button
+                          onClick={() => openActionModal(report, 'reject', true)}
+                          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold"
+                        >
+                          ❌ Rejeter
+                        </button>
+                        {report.reported_user && (
+                          <button
+                            onClick={() => window.open(`/profile/${report.reported_user_id}`, '_blank')}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                          >
+                            👁️ Voir le profil
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {report.status === 'resolved' && report.reported_user?.is_banned && (
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => openActionModal(report, 'unban', true)}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+                        >
+                          ✅ Débannir utilisateur
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* Modal d'action */}
-        {showActionModal && selectedReport && (
+        {showActionModal && (selectedReport || selectedUserReport) && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
               <h3 className="text-xl font-bold mb-4">
-                {actionType === 'approve' && '✅ Approuver le signalement'}
+                {actionType === 'approve' && selectedReport && '✅ Approuver le signalement (masquer annonce)'}
+                {actionType === 'approve' && selectedUserReport && '🚫 Bannir l\'utilisateur'}
                 {actionType === 'reject' && '❌ Rejeter le signalement'}
                 {actionType === 'ban' && '🚫 Bannir l\'utilisateur'}
+                {actionType === 'unban' && '✅ Débannir l\'utilisateur'}
               </h3>
 
               <div className="mb-4">
                 <p className="text-gray-700 mb-2">
-                  {actionType === 'approve' && 'L\'annonce sera masquée et ne sera plus visible publiquement.'}
+                  {actionType === 'approve' && selectedReport && 'L\'annonce sera masquée et ne sera plus visible publiquement.'}
+                  {actionType === 'approve' && selectedUserReport && 'L\'utilisateur sera banni, déconnecté et toutes ses annonces seront masquées.'}
                   {actionType === 'reject' && 'Le signalement sera marqué comme rejeté.'}
                   {actionType === 'ban' && 'L\'utilisateur sera banni et toutes ses annonces seront masquées.'}
+                  {actionType === 'unban' && 'L\'utilisateur sera débanni et pourra se reconnecter.'}
                 </p>
               </div>
 
