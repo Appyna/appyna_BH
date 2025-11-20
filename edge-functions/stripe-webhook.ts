@@ -34,44 +34,71 @@ serve(async (req) => {
       const session = event.data.object as Stripe.Checkout.Session
       const { listingId, duration } = session.metadata || {}
 
+      console.log('Processing checkout.session.completed:', { listingId, duration, sessionId: session.id })
+
       if (listingId && duration) {
         const durationDays = parseInt(duration)
         const boostedUntil = new Date()
         boostedUntil.setDate(boostedUntil.getDate() + durationDays)
 
         // Mettre à jour l'annonce dans Supabase
-        const { error: listingError } = await supabase
-          .from('listings')
-          .update({ 
-            boosted_until: boostedUntil.toISOString(),
-            boosted_at: new Date().toISOString(),
-          })
-          .eq('id', listingId)
+        try {
+          const { error: listingError } = await supabase
+            .from('listings')
+            .update({ 
+              boosted_until: boostedUntil.toISOString(),
+              boosted_at: new Date().toISOString(),
+            })
+            .eq('id', listingId)
 
-        if (listingError) {
-          console.error('Error updating listing:', listingError)
-        } else {
-          console.log(`Listing ${listingId} boosted until ${boostedUntil.toISOString()}`)
+          if (listingError) {
+            console.error('Error updating listing:', JSON.stringify(listingError))
+          } else {
+            console.log(`Listing ${listingId} boosted until ${boostedUntil.toISOString()}`)
+          }
+        } catch (err: any) {
+          console.error('Exception updating listing:', err?.message || err)
         }
 
         // 🆕 NOUVEAU : Mettre à jour le statut du paiement à 'succeeded'
-        const { error: paymentError } = await supabase
-          .from('stripe_payments')
-          .update({ 
+        try {
+          const updateData: any = {
             status: 'succeeded',
-            stripe_payment_intent_id: session.payment_intent as string,
-            metadata: {
-              session_completed_at: new Date().toISOString(),
-              payment_status: session.payment_status,
-            }
-          })
-          .eq('stripe_session_id', session.id)
+          }
 
-        if (paymentError) {
-          console.error('Error updating payment status:', paymentError)
-        } else {
-          console.log(`Payment for session ${session.id} marked as succeeded`)
+          // Ajouter payment_intent_id s'il existe
+          if (session.payment_intent) {
+            updateData.stripe_payment_intent_id = session.payment_intent as string
+          }
+
+          // Merger avec les métadonnées existantes si elles existent
+          const { data: existingPayment } = await supabase
+            .from('stripe_payments')
+            .select('metadata')
+            .eq('stripe_session_id', session.id)
+            .single()
+
+          updateData.metadata = {
+            ...(existingPayment?.metadata || {}),
+            session_completed_at: new Date().toISOString(),
+            payment_status: session.payment_status,
+          }
+
+          const { error: paymentError } = await supabase
+            .from('stripe_payments')
+            .update(updateData)
+            .eq('stripe_session_id', session.id)
+
+          if (paymentError) {
+            console.error('Error updating payment status:', JSON.stringify(paymentError))
+          } else {
+            console.log(`Payment for session ${session.id} marked as succeeded`)
+          }
+        } catch (err: any) {
+          console.error('Exception updating payment:', err?.message || err)
         }
+      } else {
+        console.log('Missing listingId or duration in session metadata')
       }
     }
 
