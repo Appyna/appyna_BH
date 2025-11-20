@@ -201,6 +201,24 @@ const AdminModerationPage: React.FC = () => {
           <p className="text-gray-600">Gestion des signalements</p>
         </div>
 
+        {/* Navigation Admin */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex gap-2 flex-wrap">
+            <a
+              href="/admin/dashboard"
+              className="px-4 py-2 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+            >
+              📊 Dashboard
+            </a>
+            <a
+              href="/admin/moderation"
+              className="px-4 py-2 rounded-lg font-semibold bg-primary-600 text-white"
+            >
+              🛡️ Modération
+            </a>
+          </div>
+        </div>
+
         {/* Onglets Type de signalement */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <div className="flex gap-2 flex-wrap mb-4 pb-4 border-b">
