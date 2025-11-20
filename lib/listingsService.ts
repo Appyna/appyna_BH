@@ -129,6 +129,7 @@ export const listingsService = {
       boostedAt: data.boosted_at,
       boostedUntil: data.boosted_until,
       createdAt: data.created_at,
+      isHidden: data.is_hidden || false, // Ajouter pour vérifier si masquée
     };
   },
 

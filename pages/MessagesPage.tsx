@@ -103,18 +103,25 @@ async function enrichConversations(conversations: Conversation[], currentUserId:
         try {
           const { data, error } = await supabase
             .from('listings')
-            .select('id, title')
+            .select('id, title, is_hidden, user_id')
             .eq('id', conv.listingId)
             .single();
           
           if (!error && data) {
+            // La RLS policy bloque déjà les annonces masquées
+            // Mais on vérifie quand même côté client pour afficher un message approprié
             listing = {
               id: data.id,
-              title: data.title,
+              title: data.is_hidden ? '[Annonce supprimée]' : data.title,
             };
           }
         } catch (err) {
           console.error('Error fetching listing:', err);
+          // Si l'annonce est masquée et que l'utilisateur n'a pas le droit, mettre un placeholder
+          listing = {
+            id: conv.listingId,
+            title: '[Annonce non disponible]'
+          };
         }
       }
 
