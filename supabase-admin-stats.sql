@@ -1,5 +1,8 @@
 -- Migration: Vues et fonctions pour les statistiques admin
 
+-- 0. Supprimer la vue existante pour pouvoir changer le type de colonne
+DROP VIEW IF EXISTS admin_global_stats;
+
 -- 1. Vue pour les statistiques globales
 CREATE OR REPLACE VIEW admin_global_stats AS
 SELECT
@@ -13,7 +16,7 @@ SELECT
   (SELECT COUNT(*) FROM listings WHERE is_hidden = FALSE AND created_at >= NOW() - INTERVAL '30 days') as listings_month,
   (SELECT COUNT(*) FROM listings WHERE boosted_until IS NOT NULL AND boosted_until > NOW()) as active_boosts,
   (SELECT COUNT(*) FROM listings WHERE boosted_until IS NOT NULL) as total_boosts,
-  0 as total_revenue,
+  (SELECT COALESCE(SUM(amount), 0) FROM stripe_payments WHERE status = 'succeeded') as total_revenue,
   (SELECT COUNT(DISTINCT conversation_id) FROM messages) as total_conversations,
   (SELECT COUNT(DISTINCT conversation_id) FROM messages WHERE created_at >= NOW() - INTERVAL '1 day') as conversations_today,
   (SELECT COUNT(*) FROM reports WHERE status = 'pending') as pending_reports,
@@ -76,7 +79,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 5. Fonction pour obtenir les annonces boostées par jour
+-- 5. Fonction pour obtenir les revenus par jour (paiements Stripe)
 CREATE OR REPLACE FUNCTION get_revenue_per_day(days_count INTEGER DEFAULT 30)
 RETURNS TABLE (
   date DATE,
@@ -85,13 +88,12 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT 
-    DATE(d) as date,
-    0::NUMERIC as revenue
-  FROM generate_series(
-    NOW() - (days_count || ' days')::INTERVAL,
-    NOW(),
-    '1 day'::INTERVAL
-  ) d
+    DATE(created_at) as date,
+    COALESCE(SUM(amount), 0) as revenue
+  FROM stripe_payments
+  WHERE status = 'succeeded'
+    AND created_at >= NOW() - (days_count || ' days')::INTERVAL
+  GROUP BY DATE(created_at)
   ORDER BY date ASC;
 END;
 $$ LANGUAGE plpgsql;
