@@ -56,32 +56,15 @@ serve(async (req) => {
           } else {
             console.log(`Listing ${listingId} boosted until ${boostedUntil.toISOString()}`)
           }
-        } catch (err: any) {
-          console.error('Exception updating listing:', err?.message || err)
+        } catch (err) {
+          console.error('Exception updating listing:', err)
         }
 
         // 🆕 NOUVEAU : Mettre à jour le statut du paiement à 'succeeded'
         try {
-          const updateData: any = {
+          const updateData = {
             status: 'succeeded',
-          }
-
-          // Ajouter payment_intent_id s'il existe
-          if (session.payment_intent) {
-            updateData.stripe_payment_intent_id = session.payment_intent as string
-          }
-
-          // Merger avec les métadonnées existantes si elles existent
-          const { data: existingPayment } = await supabase
-            .from('stripe_payments')
-            .select('metadata')
-            .eq('stripe_session_id', session.id)
-            .single()
-
-          updateData.metadata = {
-            ...(existingPayment?.metadata || {}),
-            session_completed_at: new Date().toISOString(),
-            payment_status: session.payment_status,
+            stripe_payment_intent_id: session.payment_intent ? (session.payment_intent as string) : null,
           }
 
           const { error: paymentError } = await supabase
@@ -94,8 +77,8 @@ serve(async (req) => {
           } else {
             console.log(`Payment for session ${session.id} marked as succeeded`)
           }
-        } catch (err: any) {
-          console.error('Exception updating payment:', err?.message || err)
+        } catch (err) {
+          console.error('Exception updating payment:', err)
         }
       } else {
         console.log('Missing listingId or duration in session metadata')
@@ -151,9 +134,10 @@ serve(async (req) => {
       status: 200,
     })
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Webhook error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { 'Content-Type': 'application/json' },
         status: 400,
