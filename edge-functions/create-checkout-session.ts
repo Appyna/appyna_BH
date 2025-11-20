@@ -26,7 +26,9 @@ serve(async (req) => {
   }
 
   try {
+    console.log('1. Starting create-checkout-session')
     const { listingId, userId, duration = 7 } = await req.json()
+    console.log('2. Received params:', { listingId, userId, duration })
 
     if (!listingId || !userId) {
       throw new Error('listingId and userId are required')
@@ -40,6 +42,7 @@ serve(async (req) => {
     }
 
     const amount = priceMap[duration] || 990
+    console.log('3. Creating Stripe session with amount:', amount)
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -56,9 +59,7 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: ['card'],
       success_url: `${req.headers.get('origin')}/boost/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/boost/cancel`,
       metadata: {
@@ -67,36 +68,42 @@ serve(async (req) => {
         duration: duration.toString(),
       },
     })
+    console.log('4. Stripe session created:', session.id)
 
     // 🆕 NOUVEAU : Insérer le paiement dans la base de données avec status 'pending'
+    console.log('5. Attempting to insert payment record...')
     try {
+      const paymentData = {
+        stripe_session_id: session.id,
+        user_id: userId,
+        listing_id: listingId,
+        amount: amount / 100, // Convertir les agorot en ILS
+        currency: 'ils',
+        status: 'pending',
+        boost_days: duration,
+        metadata: {
+          session_url: session.url,
+          created_at: new Date().toISOString(),
+        }
+      }
+      console.log('6. Payment data to insert:', JSON.stringify(paymentData))
+      
       const { error: insertError } = await supabase
         .from('stripe_payments')
-        .insert({
-          stripe_session_id: session.id,
-          user_id: userId,
-          listing_id: listingId,
-          amount: amount / 100, // Convertir les agorot en ILS
-          currency: 'ils',
-          status: 'pending',
-          boost_days: duration,
-          metadata: {
-            session_url: session.url,
-            created_at: new Date().toISOString(),
-          }
-        })
+        .insert(paymentData)
 
       if (insertError) {
-        console.error('Error inserting payment record:', insertError)
+        console.error('7. Error inserting payment record:', JSON.stringify(insertError))
         // Ne pas bloquer la création de session si l'insertion échoue
       } else {
-        console.log('Payment record created successfully for session:', session.id)
+        console.log('7. Payment record created successfully')
       }
-    } catch (dbError) {
-      console.error('Database error:', dbError)
+    } catch (dbError: any) {
+      console.error('7. Database exception:', dbError?.message || dbError)
       // Ne pas bloquer la création de session
     }
 
+    console.log('8. Returning success response')
     return new Response(
       JSON.stringify({ sessionId: session.id, url: session.url }),
       {
@@ -104,9 +111,10 @@ serve(async (req) => {
         status: 200,
       }
     )
-  } catch (error) {
+  } catch (error: any) {
+    console.error('ERROR in create-checkout-session:', error?.message || error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
