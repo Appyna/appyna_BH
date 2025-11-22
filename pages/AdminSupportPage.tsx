@@ -36,11 +36,14 @@ export const AdminSupportPage: React.FC = () => {
   // Récupérer l'ID admin au chargement
   useEffect(() => {
     const fetchAdminId = async () => {
+      console.log('🔍 Récupération ID admin...');
       const id = await getAdminUserId();
+      console.log('✅ Admin ID récupéré:', id);
+      console.log('👤 Utilisateur connecté:', user?.id, user?.email);
       setAdminId(id);
     };
     fetchAdminId();
-  }, []);
+  }, [user]);
 
   // Scroll automatique vers le bas
   const scrollToBottom = () => {
@@ -57,19 +60,29 @@ export const AdminSupportPage: React.FC = () => {
 
     const loadConversations = async () => {
       try {
-        // Récupérer toutes les conversations où l'admin est participant
+        // Récupérer toutes les conversations de support où l'admin est participant
+        // (conversations sans listing_id, créées via le formulaire de contact)
+        console.log('🔍 Chargement conversations support pour admin:', adminId);
         const { data: convData, error: convError } = await supabase
           .from('conversations')
           .select('*')
-          .or(`participant1_id.eq.${adminId},participant2_id.eq.${adminId}`)
-          .order('last_message_at', { ascending: false });
+          .or(`user1_id.eq.${adminId},user2_id.eq.${adminId}`)
+          .is('listing_id', null)
+          .order('updated_at', { ascending: false });
+
+        console.log('📊 Conversations trouvées:', convData?.length || 0, convData);
+        if (convError) {
+          console.error('❌ Erreur chargement conversations:', convError);
+          throw convError;
+        }
 
         if (convError) throw convError;
 
         // Enrichir avec les données utilisateur et dernier message
         const enrichedConvs = await Promise.all(
           (convData || []).map(async (conv) => {
-            const otherUserId = conv.participant1_id === adminId ? conv.participant2_id : conv.participant1_id;
+            const otherUserId = conv.user1_id === adminId ? conv.user2_id : conv.user1_id;
+            console.log('👤 Enrichissement conversation:', conv.id, 'User:', otherUserId);
 
             // Récupérer l'utilisateur
             const { data: userData } = await supabase
@@ -81,35 +94,35 @@ export const AdminSupportPage: React.FC = () => {
             // Récupérer le dernier message
             const { data: lastMsg } = await supabase
               .from('messages')
-              .select('content, created_at')
+              .select('text, created_at')
               .eq('conversation_id', conv.id)
               .order('created_at', { ascending: false })
               .limit(1)
               .single();
 
-            // Compter les messages non lus (envoyés par l'utilisateur, pas par l'admin)
+            // Compter les messages de l'utilisateur (approximation des non lus)
             const { count: unreadCount } = await supabase
               .from('messages')
               .select('*', { count: 'exact', head: true })
               .eq('conversation_id', conv.id)
-              .eq('sender_id', otherUserId)
-              .eq('is_read', false);
+              .eq('sender_id', otherUserId);
 
             return {
               id: conv.id,
               userId: otherUserId,
               userName: userData?.name || 'Utilisateur inconnu',
               userAvatar: userData?.avatar_url,
-              lastMessage: lastMsg?.content || 'Aucun message',
-              lastMessageAt: lastMsg ? new Date(lastMsg.created_at) : new Date(conv.last_message_at),
+              lastMessage: lastMsg?.text || 'Aucun message',
+              lastMessageAt: lastMsg ? new Date(lastMsg.created_at) : new Date(conv.updated_at),
               unreadCount: unreadCount || 0,
             };
           })
         );
 
+        console.log('✅ Conversations enrichies:', enrichedConvs.length, enrichedConvs);
         setConversations(enrichedConvs);
       } catch (error) {
-        console.error('Error loading support conversations:', error);
+        console.error('❌ Error loading support conversations:', error);
       } finally {
         setIsLoading(false);
       }
@@ -144,20 +157,11 @@ export const AdminSupportPage: React.FC = () => {
       setMessages(
         (data || []).map((msg) => ({
           id: msg.id,
-          content: msg.content,
+          content: msg.text,
           senderId: msg.sender_id,
           createdAt: new Date(msg.created_at),
         }))
       );
-
-      // Marquer les messages comme lus
-      if (adminId) {
-        await supabase
-          .from('messages')
-          .update({ is_read: true })
-          .eq('conversation_id', conversationId)
-          .neq('sender_id', adminId);
-      }
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -179,7 +183,7 @@ export const AdminSupportPage: React.FC = () => {
       const { error } = await supabase.from('messages').insert({
         conversation_id: selectedConversation.id,
         sender_id: adminId,
-        content: newMessage.trim(),
+        text: newMessage.trim(),
       });
 
       if (error) throw error;
@@ -197,6 +201,26 @@ export const AdminSupportPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  // Vérifier que l'utilisateur connecté est bien l'admin
+  if (user && adminId && user.id !== adminId) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Accès refusé</h2>
+          <p className="text-gray-600 mb-2">
+            Vous devez être connecté avec le compte admin pour accéder à cette page.
+          </p>
+          <p className="text-sm text-gray-500">
+            Compte actuel : {user.email}
+          </p>
+          <p className="text-sm text-gray-500">
+            Compte admin requis : projet.lgsz@gmail.com
+          </p>
+        </div>
       </div>
     );
   }

@@ -44,37 +44,41 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         throw new Error('Impossible de contacter le support pour le moment');
       }
 
-      // Créer ou récupérer une conversation avec l'admin
-      const conversationId = [user.id, adminId].sort().join('_');
-      console.log('📝 Conversation ID:', conversationId);
-
-      // Vérifier si la conversation existe déjà
+      // Chercher une conversation existante entre l'utilisateur et l'admin
+      // (sans listing_id car c'est une conversation de support)
       console.log('🔍 Vérification conversation existante...');
-      const { data: existingConv, error: checkError } = await supabase
+      const { data: existingConvs, error: checkError } = await supabase
         .from('conversations')
         .select('id')
-        .eq('id', conversationId)
-        .single();
+        .or(`and(user1_id.eq.${user.id},user2_id.eq.${adminId}),and(user1_id.eq.${adminId},user2_id.eq.${user.id})`)
+        .is('listing_id', null);
 
-      console.log('Conversation existante:', existingConv, 'Error:', checkError);
+      console.log('Conversations existantes:', existingConvs, 'Error:', checkError);
+
+      let conversationId: string;
 
       // Créer la conversation si elle n'existe pas
-      if (!existingConv) {
-        console.log('📝 Création nouvelle conversation...');
-        const { error: convError } = await supabase
+      if (!existingConvs || existingConvs.length === 0) {
+        console.log('📝 Création nouvelle conversation de support...');
+        const { data: newConv, error: convError } = await supabase
           .from('conversations')
           .insert({
-            id: conversationId,
-            participant1_id: user.id < adminId ? user.id : adminId,
-            participant2_id: user.id < adminId ? adminId : user.id,
-            last_message_at: new Date().toISOString(),
-          });
+            user1_id: user.id < adminId ? user.id : adminId,
+            user2_id: user.id < adminId ? adminId : user.id,
+            listing_id: null, // Conversation de support sans annonce
+          })
+          .select('id')
+          .single();
 
-        if (convError) {
+        if (convError || !newConv) {
           console.error('❌ Erreur création conversation:', convError);
-          throw convError;
+          throw convError || new Error('Impossible de créer la conversation');
         }
-        console.log('✅ Conversation créée');
+        console.log('✅ Conversation créée:', newConv.id);
+        conversationId = newConv.id;
+      } else {
+        conversationId = existingConvs[0].id;
+        console.log('✅ Conversation existante trouvée:', conversationId);
       }
 
       // Envoyer le message
@@ -84,7 +88,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
-          content: message,
+          text: message, // La colonne s'appelle "text" pas "content"
         });
 
       if (messageError) {
