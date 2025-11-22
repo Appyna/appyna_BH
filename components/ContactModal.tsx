@@ -36,7 +36,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
     try {
       // Récupérer l'ID du compte admin
+      console.log('🔍 Récupération ID admin...');
       const adminId = await getAdminUserId();
+      console.log('✅ Admin ID:', adminId);
       
       if (!adminId) {
         throw new Error('Impossible de contacter le support pour le moment');
@@ -44,16 +46,21 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
       // Créer ou récupérer une conversation avec l'admin
       const conversationId = [user.id, adminId].sort().join('_');
+      console.log('📝 Conversation ID:', conversationId);
 
       // Vérifier si la conversation existe déjà
-      const { data: existingConv } = await supabase
+      console.log('🔍 Vérification conversation existante...');
+      const { data: existingConv, error: checkError } = await supabase
         .from('conversations')
         .select('id')
         .eq('id', conversationId)
         .single();
 
+      console.log('Conversation existante:', existingConv, 'Error:', checkError);
+
       // Créer la conversation si elle n'existe pas
       if (!existingConv) {
+        console.log('📝 Création nouvelle conversation...');
         const { error: convError } = await supabase
           .from('conversations')
           .insert({
@@ -63,10 +70,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             last_message_at: new Date().toISOString(),
           });
 
-        if (convError) throw convError;
+        if (convError) {
+          console.error('❌ Erreur création conversation:', convError);
+          throw convError;
+        }
+        console.log('✅ Conversation créée');
       }
 
       // Envoyer le message
+      console.log('📤 Envoi du message...');
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -75,14 +87,19 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
           content: message,
         });
 
-      if (messageError) throw messageError;
+      if (messageError) {
+        console.error('❌ Erreur envoi message:', messageError);
+        throw messageError;
+      }
+      console.log('✅ Message envoyé');
 
       // Rediriger vers la messagerie avec la conversation ouverte
+      console.log('🔀 Redirection vers:', `/messages/${conversationId}`);
       navigate(`/messages/${conversationId}`);
       onClose();
       setMessage('');
     } catch (err: any) {
-      console.error('Error sending contact message:', err);
+      console.error('❌ ERREUR CONTACT:', err);
       setError(err.message || 'Erreur lors de l\'envoi du message');
     } finally {
       setIsLoading(false);
