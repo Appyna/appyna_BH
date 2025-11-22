@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { Logo } from './icons/Logo';
 import { useMenu } from '../contexts/MenuContext';
 import { useAuth } from '../contexts/AuthContext';
+import { ContactModal } from './ContactModal';
 
 // Dummy component for icons - replace with actual SVGs if needed
 const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
@@ -16,7 +17,6 @@ export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [contactMessage, setContactMessage] = useState('');
 
   // Refs pour détecter les clics en dehors
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -26,15 +26,6 @@ export const Header: React.FC = () => {
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // En production: envoyer le message à l'API
-    alert('Message envoyé avec succès ! Un membre de l\'équipe Appyna vous répondra dans les plus brefs délais.');
-    setContactMessage('');
-    setShowContactModal(false);
-    setIsProfileOpen(false);
   };
 
   // Fermer les menus au clic en dehors
@@ -227,77 +218,8 @@ export const Header: React.FC = () => {
       )}
     </header>
 
-    {/* Modal de contact - en dehors du header pour meilleur positionnement */}
-    {showContactModal && (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]">
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins">Prendre contact</h2>
-              <button
-                onClick={() => setShowContactModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <p className="text-gray-600 font-montserrat mb-6 text-center text-sm sm:text-base">
-              Un membre de l'équipe Appyna vous répondra dans les plus brefs délais.
-            </p>
-
-            <form onSubmit={handleContactSubmit} className="space-y-4">
-              {/* Email (pré-rempli et non modifiable) */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2 font-montserrat">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed font-montserrat"
-                />
-              </div>
-
-              {/* Message */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2 font-montserrat">
-                  Message
-                </label>
-                <textarea
-                  value={contactMessage}
-                  onChange={(e) => setContactMessage(e.target.value)}
-                  rows={6}
-                  placeholder="Écrivez votre message..."
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300 transition font-montserrat resize-none"
-                />
-              </div>
-
-              {/* Boutons */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowContactModal(false)}
-                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-gray-300 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300 font-montserrat"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border border-transparent rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
-                >
-                  Envoyer
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    )}
+    {/* Modal de contact */}
+    <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
     </>
   );
 };
