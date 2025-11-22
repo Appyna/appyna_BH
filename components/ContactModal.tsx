@@ -78,7 +78,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
       if (messageError) throw messageError;
 
       // Rediriger vers la messagerie avec la conversation ouverte
-      navigate(`/messages?conversation=${conversationId}`);
+      navigate(`/messages/${conversationId}`);
       onClose();
       setMessage('');
     } catch (err: any) {

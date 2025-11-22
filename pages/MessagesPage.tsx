@@ -81,14 +81,16 @@ async function enrichConversations(conversations: Conversation[], currentUserId:
         try {
           const { data, error } = await supabase
             .from('users')
-            .select('id, name, avatar_url')
+            .select('id, name, avatar_url, email')
             .eq('id', otherUserId)
             .single();
           
           if (!error && data) {
+            // Si c'est le compte admin, afficher "Appyna®"
+            const isAdmin = data.email === 'projet.lgsz@gmail.com';
             otherUser = {
               id: data.id,
-              name: data.name,
+              name: isAdmin ? 'Appyna®' : data.name,
               avatarUrl: data.avatar_url,
             };
           }
