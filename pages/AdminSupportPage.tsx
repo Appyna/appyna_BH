@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getAdminUserId, ADMIN_DISPLAY_NAME } from '../lib/adminConfig';
@@ -13,6 +14,8 @@ interface SupportConversation {
   lastMessage: string;
   lastMessageAt: Date;
   unreadCount: number;
+  hasUnread: boolean;
+  archived: boolean;
 }
 
 interface Message {
@@ -24,12 +27,14 @@ interface Message {
 
 export const AdminSupportPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<SupportConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<SupportConversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
 
@@ -100,12 +105,17 @@ export const AdminSupportPage: React.FC = () => {
               .limit(1)
               .single();
 
-            // Compter les messages de l'utilisateur (approximation des non lus)
+            // Déterminer la colonne de dernière lecture pour l'admin
+            const adminReadColumn = conv.user1_id === adminId ? 'user1_last_read_at' : 'user2_last_read_at';
+            const adminLastReadAt = conv[adminReadColumn];
+
+            // Compter les messages non lus (messages créés après la dernière lecture de l'admin)
             const { count: unreadCount } = await supabase
               .from('messages')
               .select('*', { count: 'exact', head: true })
               .eq('conversation_id', conv.id)
-              .eq('sender_id', otherUserId);
+              .eq('sender_id', otherUserId)
+              .gt('created_at', adminLastReadAt || '1970-01-01');
 
             return {
               id: conv.id,
@@ -115,6 +125,8 @@ export const AdminSupportPage: React.FC = () => {
               lastMessage: lastMsg?.text || 'Aucun message',
               lastMessageAt: lastMsg ? new Date(lastMsg.created_at) : new Date(conv.updated_at),
               unreadCount: unreadCount || 0,
+              hasUnread: (unreadCount || 0) > 0,
+              archived: conv.archived || false,
             };
           })
         );
@@ -162,8 +174,68 @@ export const AdminSupportPage: React.FC = () => {
           createdAt: new Date(msg.created_at),
         }))
       );
+
+      // Marquer la conversation comme lue par l'admin
+      if (adminId) {
+        await markConversationAsRead(conversationId);
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
+    }
+  };
+
+  // Marquer une conversation comme lue
+  const markConversationAsRead = async (conversationId: string) => {
+    if (!adminId) return;
+
+    try {
+      // Déterminer quelle colonne mettre à jour
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('user1_id, user2_id')
+        .eq('id', conversationId)
+        .single();
+
+      if (!conv) return;
+
+      const readColumn = conv.user1_id === adminId ? 'user1_last_read_at' : 'user2_last_read_at';
+
+      await supabase
+        .from('conversations')
+        .update({ [readColumn]: new Date().toISOString() })
+        .eq('id', conversationId);
+
+      // Mettre à jour localement
+      setConversations(prev => 
+        prev.map(c => c.id === conversationId ? { ...c, hasUnread: false, unreadCount: 0 } : c)
+      );
+    } catch (error) {
+      console.error('Error marking conversation as read:', error);
+    }
+  };
+
+  // Archiver/désarchiver une conversation
+  const toggleArchiveConversation = async (conversationId: string, archived: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ archived: !archived })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      // Mettre à jour localement
+      setConversations(prev => 
+        prev.map(c => c.id === conversationId ? { ...c, archived: !archived } : c)
+      );
+
+      // Déselectionner si on archive la conversation active
+      if (!archived && selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Error archiving conversation:', error);
     }
   };
 
@@ -240,43 +312,109 @@ export const AdminSupportPage: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Liste des conversations */}
         <div className="w-full md:w-1/3 bg-white border-r border-gray-200 overflow-y-auto">
-          {conversations.length === 0 ? (
+          {/* Filtre archivé/actif */}
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-3 flex gap-2">
+            <button
+              onClick={() => setShowArchived(false)}
+              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                !showArchived 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Actives {conversations.filter(c => !c.archived).length > 0 && `(${conversations.filter(c => !c.archived).length})`}
+            </button>
+            <button
+              onClick={() => setShowArchived(true)}
+              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                showArchived 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Archivées {conversations.filter(c => c.archived).length > 0 && `(${conversations.filter(c => c.archived).length})`}
+            </button>
+          </div>
+
+          {conversations.filter(c => c.archived === showArchived).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
-              <p className="font-medium">Aucune demande de support</p>
+              <p className="font-medium">{showArchived ? 'Aucune conversation archivée' : 'Aucune demande de support'}</p>
               <p className="text-sm mt-2">Les conversations apparaîtront ici</p>
             </div>
           ) : (
-            conversations.map((conv) => (
-              <button
+            conversations.filter(c => c.archived === showArchived).map((conv) => (
+              <div
                 key={conv.id}
-                onClick={() => handleSelectConversation(conv)}
-                className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-left ${
+                className={`relative w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
                   selectedConversation?.id === conv.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : ''
                 }`}
               >
+                {/* Point rouge pour non lu */}
+                {conv.hasUnread && (
+                  <div className="absolute top-4 left-2 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                )}
+
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer flex-1"
+                    onClick={() => handleSelectConversation(conv)}
+                  >
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 flex items-center justify-center text-white font-semibold">
                       {conv.userName.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{conv.userName}</h3>
+                    <div className="flex-1">
+                      <h3 
+                        className="font-semibold text-gray-900 hover:text-primary-600 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/profile/${conv.userId}`);
+                        }}
+                      >
+                        {conv.userName} →
+                      </h3>
                       <p className="text-xs text-gray-500">
                         {formatDistanceToNow(conv.lastMessageAt, { addSuffix: true, locale: fr })}
                       </p>
                     </div>
                   </div>
-                  {conv.unreadCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {conv.unreadCount}
-                    </span>
-                  )}
+                  
+                  {/* Badge non lu + Bouton archiver */}
+                  <div className="flex items-center gap-2">
+                    {conv.unreadCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {conv.unreadCount}
+                      </span>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleArchiveConversation(conv.id, conv.archived);
+                      }}
+                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                      title={conv.archived ? 'Désarchiver' : 'Archiver'}
+                    >
+                      {conv.archived ? (
+                        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 truncate">{conv.lastMessage}</p>
-              </button>
+                <p 
+                  className="text-sm text-gray-600 truncate cursor-pointer"
+                  onClick={() => handleSelectConversation(conv)}
+                >
+                  {conv.lastMessage}
+                </p>
+              </div>
             ))
           )}
         </div>
@@ -287,14 +425,32 @@ export const AdminSupportPage: React.FC = () => {
             <>
               {/* Header conversation */}
               <div className="bg-white border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 flex items-center justify-center text-white font-semibold text-lg">
-                    {selectedConversation.userName.charAt(0).toUpperCase()}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 flex items-center justify-center text-white font-semibold text-lg">
+                      {selectedConversation.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 
+                        className="font-bold text-gray-900 hover:text-primary-600 cursor-pointer transition-colors"
+                        onClick={() => navigate(`/profile/${selectedConversation.userId}`)}
+                      >
+                        {selectedConversation.userName} →
+                      </h2>
+                      <p className="text-sm text-gray-500">Conversation de support</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="font-bold text-gray-900">{selectedConversation.userName}</h2>
-                    <p className="text-sm text-gray-500">Conversation de support</p>
-                  </div>
+                  
+                  {/* Bouton archiver dans le header */}
+                  <button
+                    onClick={() => toggleArchiveConversation(selectedConversation.id, selectedConversation.archived)}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    {selectedConversation.archived ? 'Désarchiver' : 'Archiver'}
+                  </button>
                 </div>
               </div>
 
