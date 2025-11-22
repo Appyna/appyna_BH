@@ -19,6 +19,7 @@ import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import AdminModerationPage from './pages/AdminModerationPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import { AdminSupportPage } from './pages/AdminSupportPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -123,6 +124,7 @@ const App: React.FC = () => {
               <Route path="/boost/cancel" element={<BoostCancelPage />} />
               <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               <Route path="/admin/moderation" element={<AdminModerationPage />} />
+              <Route path="/admin/support" element={<AdminSupportPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />
