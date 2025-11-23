@@ -44,64 +44,22 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         throw new Error('Impossible de contacter le support pour le moment');
       }
 
-      // Chercher une conversation existante entre l'utilisateur et l'admin
-      // (sans listing_id car c'est une conversation de support)
-      // On doit aussi chercher dans les conversations supprimées (soft delete)
-      console.log('🔍 Vérification conversation existante (incluant supprimées)...');
-      const { data: existingConvs, error: checkError } = await supabase
-        .from('conversations')
-        .select('id, deleted_by')
-        .or(`and(user1_id.eq.${user.id},user2_id.eq.${adminId}),and(user1_id.eq.${adminId},user2_id.eq.${user.id})`)
-        .is('listing_id', null)
-        .limit(1);
+      // Utiliser la fonction SQL pour restaurer ou créer la conversation
+      // Cette fonction bypasse les RLS pour gérer les conversations soft deleted
+      console.log('🔍 Restauration/création conversation de support...');
+      const { data: convId, error: convError } = await supabase
+        .rpc('restore_or_create_support_conversation', {
+          p_user_id: user.id,
+          p_admin_id: adminId
+        });
 
-      console.log('Conversations existantes:', existingConvs, 'Error:', checkError);
-
-      let conversationId: string;
-
-      if (existingConvs && existingConvs.length > 0) {
-        const conv = existingConvs[0];
-        conversationId = conv.id;
-        
-        // Si la conversation a été supprimée par l'utilisateur, la restaurer
-        if (conv.deleted_by && conv.deleted_by.includes(user.id)) {
-          console.log('♻️ Restauration conversation supprimée...');
-          const { error: restoreError } = await supabase
-            .from('conversations')
-            .update({
-              deleted_by: conv.deleted_by.filter((id: string) => id !== user.id)
-            })
-            .eq('id', conversationId);
-          
-          if (restoreError) {
-            console.error('⚠️ Erreur restauration conversation:', restoreError);
-          } else {
-            console.log('✅ Conversation restaurée');
-          }
-        } else {
-          console.log('✅ Conversation existante trouvée:', conversationId);
-        }
-      } else {
-        // Créer une nouvelle conversation si elle n'existe pas du tout
-        console.log('📝 Création nouvelle conversation de support...');
-        const { data: newConv, error: convError } = await supabase
-          .from('conversations')
-          .insert({
-            user1_id: user.id < adminId ? user.id : adminId,
-            user2_id: user.id < adminId ? adminId : user.id,
-            listing_id: null, // Conversation de support sans annonce
-            deleted_by: [], // Initialement non supprimée
-          })
-          .select('id')
-          .single();
-
-        if (convError || !newConv) {
-          console.error('❌ Erreur création conversation:', convError);
-          throw convError || new Error('Impossible de créer la conversation');
-        }
-        console.log('✅ Conversation créée:', newConv.id);
-        conversationId = newConv.id;
+      if (convError || !convId) {
+        console.error('❌ Erreur conversation:', convError);
+        throw convError || new Error('Impossible de créer la conversation');
       }
+
+      const conversationId = convId;
+      console.log('✅ Conversation prête:', conversationId);
 
       // Envoyer le message
       console.log('📤 Envoi du message...');
