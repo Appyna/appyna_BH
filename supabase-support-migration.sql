@@ -13,12 +13,15 @@ ALTER COLUMN listing_id DROP NOT NULL;
 -- Mettre à jour l'index unique pour permettre plusieurs conversations de support
 -- (une par utilisateur avec l'admin, sans listing)
 DROP INDEX IF EXISTS idx_conversations_unique;
-CREATE UNIQUE INDEX idx_conversations_unique_with_listing 
+DROP INDEX IF EXISTS idx_conversations_unique_with_listing;
+DROP INDEX IF EXISTS idx_conversations_unique_support;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_unique_with_listing 
   ON conversations (listing_id, LEAST(user1_id, user2_id), GREATEST(user1_id, user2_id))
   WHERE listing_id IS NOT NULL;
 
 -- Index pour les conversations de support (sans listing)
-CREATE UNIQUE INDEX idx_conversations_unique_support 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_unique_support 
   ON conversations (LEAST(user1_id, user2_id), GREATEST(user1_id, user2_id))
   WHERE listing_id IS NULL;
 
