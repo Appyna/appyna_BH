@@ -46,19 +46,43 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
       // Chercher une conversation existante entre l'utilisateur et l'admin
       // (sans listing_id car c'est une conversation de support)
-      console.log('🔍 Vérification conversation existante...');
+      // On doit aussi chercher dans les conversations supprimées (soft delete)
+      console.log('🔍 Vérification conversation existante (incluant supprimées)...');
       const { data: existingConvs, error: checkError } = await supabase
         .from('conversations')
-        .select('id')
+        .select('id, deleted_by')
         .or(`and(user1_id.eq.${user.id},user2_id.eq.${adminId}),and(user1_id.eq.${adminId},user2_id.eq.${user.id})`)
-        .is('listing_id', null);
+        .is('listing_id', null)
+        .limit(1);
 
       console.log('Conversations existantes:', existingConvs, 'Error:', checkError);
 
       let conversationId: string;
 
-      // Créer la conversation si elle n'existe pas
-      if (!existingConvs || existingConvs.length === 0) {
+      if (existingConvs && existingConvs.length > 0) {
+        const conv = existingConvs[0];
+        conversationId = conv.id;
+        
+        // Si la conversation a été supprimée par l'utilisateur, la restaurer
+        if (conv.deleted_by && conv.deleted_by.includes(user.id)) {
+          console.log('♻️ Restauration conversation supprimée...');
+          const { error: restoreError } = await supabase
+            .from('conversations')
+            .update({
+              deleted_by: conv.deleted_by.filter((id: string) => id !== user.id)
+            })
+            .eq('id', conversationId);
+          
+          if (restoreError) {
+            console.error('⚠️ Erreur restauration conversation:', restoreError);
+          } else {
+            console.log('✅ Conversation restaurée');
+          }
+        } else {
+          console.log('✅ Conversation existante trouvée:', conversationId);
+        }
+      } else {
+        // Créer une nouvelle conversation si elle n'existe pas du tout
         console.log('📝 Création nouvelle conversation de support...');
         const { data: newConv, error: convError } = await supabase
           .from('conversations')
@@ -66,6 +90,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             user1_id: user.id < adminId ? user.id : adminId,
             user2_id: user.id < adminId ? adminId : user.id,
             listing_id: null, // Conversation de support sans annonce
+            deleted_by: [], // Initialement non supprimée
           })
           .select('id')
           .single();
@@ -76,9 +101,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         }
         console.log('✅ Conversation créée:', newConv.id);
         conversationId = newConv.id;
-      } else {
-        conversationId = existingConvs[0].id;
-        console.log('✅ Conversation existante trouvée:', conversationId);
       }
 
       // Envoyer le message
