@@ -7,5 +7,5 @@ Allow: /
 # Interdire l'indexation des pages admin (si existantes)
 Disallow: /admin/
 
-# Sitemap (à créer manuellement ou via outil)
-Sitemap: https://appyna-bh.vercel.app/sitemap.xml
+# Sitemap
+Sitemap: https://appyna.com/sitemap.xml

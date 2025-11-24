@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Page d'accueil -->
   <url>
-    <loc>https://appyna-bh.vercel.app/</loc>
+    <loc>https://appyna.com/</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -10,7 +10,7 @@
   
   <!-- Créer une annonce -->
   <url>
-    <loc>https://appyna-bh.vercel.app/create</loc>
+    <loc>https://appyna.com/create</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -18,7 +18,7 @@
   
   <!-- Connexion -->
   <url>
-    <loc>https://appyna-bh.vercel.app/login</loc>
+    <loc>https://appyna.com/login</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -26,7 +26,7 @@
   
   <!-- Inscription -->
   <url>
-    <loc>https://appyna-bh.vercel.app/signup</loc>
+    <loc>https://appyna.com/signup</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -34,7 +34,7 @@
   
   <!-- CGU -->
   <url>
-    <loc>https://appyna-bh.vercel.app/terms</loc>
+    <loc>https://appyna.com/terms</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
@@ -42,7 +42,7 @@
   
   <!-- Politique de confidentialité -->
   <url>
-    <loc>https://appyna-bh.vercel.app/privacy</loc>
+    <loc>https://appyna.com/privacy</loc>
     <lastmod>2024-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
