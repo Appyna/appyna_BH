@@ -592,6 +592,9 @@ export const MessagesPage: React.FC = () => {
     const lastMessage = conversation.messages[conversation.messages.length - 1];
     setLastSeenMessageId(convId, lastMessage.id);
     
+    // Déclencher un événement pour notifier le badge Header
+    window.dispatchEvent(new Event('messagesRead'));
+    
     // Forcer un re-render léger pour mettre à jour le point bleu
     forceUpdate(prev => prev + 1);
   }, [conversations, forceUpdate]);
