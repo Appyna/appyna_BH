@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-    <header className="bg-white/95 backdrop-blur-lg shadow-lg sticky top-0 z-40 border-b border-purple-100">
+    <header className="bg-white/95 backdrop-blur-lg shadow-lg fixed md:sticky top-0 w-full z-40 border-b border-purple-100">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center md:ml-0 ml-2">
