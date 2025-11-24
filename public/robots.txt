@@ -1,0 +1,11 @@
+# robots.txt pour Appyna
+# Autoriser l'indexation complète du site
+
+User-agent: *
+Allow: /
+
+# Interdire l'indexation des pages admin (si existantes)
+Disallow: /admin/
+
+# Sitemap (à créer manuellement ou via outil)
+Sitemap: https://appyna-bh.vercel.app/sitemap.xml
