@@ -36,19 +36,22 @@ export const Header: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       // Uniquement sur mobile (< 768px)
-      if (window.innerWidth >= 768) return;
+      if (window.innerWidth >= 768) {
+        setIsHeaderVisible(true);
+        return;
+      }
       
       const currentScrollY = window.scrollY;
       
-      // Si on est tout en haut, toujours afficher
+      // Si on est tout en haut (moins de 10px), toujours afficher
       if (currentScrollY < 10) {
         setIsHeaderVisible(true);
         lastScrollY.current = currentScrollY;
         return;
       }
       
-      // Scroll vers le bas -> cacher
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+      // Scroll vers le bas -> cacher immédiatement
+      if (currentScrollY > lastScrollY.current) {
         setIsHeaderVisible(false);
       }
       // Scroll vers le haut -> afficher
