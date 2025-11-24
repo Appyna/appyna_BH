@@ -18,17 +18,50 @@ export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { count: messageCount } = useMessagesBadge();
 
   // Refs pour détecter les clics en dehors
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  // Gérer le hide/show du header au scroll (mobile uniquement)
+  useEffect(() => {
+    const handleScroll = () => {
+      // Uniquement sur mobile (< 768px)
+      if (window.innerWidth >= 768) return;
+      
+      const currentScrollY = window.scrollY;
+      
+      // Si on est tout en haut, toujours afficher
+      if (currentScrollY < 10) {
+        setIsHeaderVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+      
+      // Scroll vers le bas -> cacher
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+        setIsHeaderVisible(false);
+      }
+      // Scroll vers le haut -> afficher
+      else if (currentScrollY < lastScrollY.current) {
+        setIsHeaderVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fermer les menus au clic en dehors
   useEffect(() => {
@@ -65,7 +98,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-    <header className="bg-white/95 backdrop-blur-lg shadow-lg fixed md:sticky top-0 w-full z-40 border-b border-purple-100">
+    <header className={`bg-white/95 backdrop-blur-lg shadow-lg fixed md:sticky top-0 w-full z-40 border-b border-purple-100 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center md:ml-0 ml-2">
