@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
 
             {user ? (
               <div className="relative" ref={profileMenuRef}>
-                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center space-x-2 hover:bg-purple-50 p-2 rounded-xl transition-colors">
+                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="relative flex items-center space-x-2 hover:bg-purple-50 p-2 rounded-xl transition-colors">
                    {user.avatarUrl ? (
                      <img src={user.avatarUrl} alt={user.name} className="h-10 w-10 rounded-full object-cover ring-2 ring-purple-200" />
                    ) : (
@@ -91,6 +91,11 @@ export const Header: React.FC = () => {
                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                        </svg>
                      </div>
+                   )}
+                   {messageCount > 0 && (
+                     <span className="absolute top-1 right-1 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
+                       {messageCount}
+                     </span>
                    )}
                 </button>
                 {isProfileOpen && (
@@ -163,10 +168,15 @@ export const Header: React.FC = () => {
           </div>
           
           <div className="md:hidden flex items-center">
-             <button ref={hamburgerButtonRef} onClick={handleMenuToggle} className="text-gray-600 hover:text-primary-600 focus:outline-none p-2 rounded-lg hover:bg-purple-50 transition-colors">
+             <button ref={hamburgerButtonRef} onClick={handleMenuToggle} className="relative text-gray-600 hover:text-primary-600 focus:outline-none p-2 rounded-lg hover:bg-purple-50 transition-colors">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                 </svg>
+                {user && messageCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
+                    {messageCount}
+                  </span>
+                )}
             </button>
           </div>
         </div>

@@ -1,6 +1,9 @@
 -- Fonction SQL pour compter les conversations avec messages NON LUS
 -- Vérifie si le dernier message est reçu ET non encore vu (basé sur lastSeen localStorage)
 
+-- Supprimer l'ancienne version de la fonction (sans paramètres)
+DROP FUNCTION IF EXISTS count_conversations_with_received_messages(UUID);
+
 CREATE OR REPLACE FUNCTION count_conversations_with_received_messages(
   p_user_id UUID,
   p_last_seen_data JSONB DEFAULT '{}'::jsonb
