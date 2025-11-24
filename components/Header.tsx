@@ -93,7 +93,7 @@ export const Header: React.FC = () => {
                      </div>
                    )}
                    {messageCount > 0 && (
-                     <span className="absolute top-1 right-1 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
+                     <span className="absolute top-1 right-1 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-lg">
                        {messageCount}
                      </span>
                    )}
@@ -112,7 +112,7 @@ export const Header: React.FC = () => {
                     <NavLink to="/messages" className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>
                       <span>Messagerie</span>
                       {messageCount > 0 && (
-                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                           {messageCount}
                         </span>
                       )}
@@ -173,7 +173,7 @@ export const Header: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                 </svg>
                 {user && messageCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
+                  <span className="absolute top-0 right-0 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-lg">
                     {messageCount}
                   </span>
                 )}
@@ -192,7 +192,7 @@ export const Header: React.FC = () => {
                   <NavLink to="/messages" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">
                     <span>Messagerie</span>
                     {messageCount > 0 && (
-                      <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                         {messageCount}
                       </span>
                     )}
