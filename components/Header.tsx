@@ -4,6 +4,7 @@ import { Logo } from './icons/Logo';
 import { useMenu } from '../contexts/MenuContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ContactModal } from './ContactModal';
+import { useMessagesBadge } from '../hooks/useMessagesBadge';
 
 // Dummy component for icons - replace with actual SVGs if needed
 const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
@@ -17,6 +18,7 @@ export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const { count: messageCount } = useMessagesBadge();
 
   // Refs pour détecter les clics en dehors
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -102,7 +104,14 @@ export const Header: React.FC = () => {
                       </p>
                     </div>
                     <NavLink to={`/profile/${user.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Mon Profil</NavLink>
-                    <NavLink to="/messages" className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Messagerie</NavLink>
+                    <NavLink to="/messages" className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>
+                      <span>Messagerie</span>
+                      {messageCount > 0 && (
+                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          {messageCount}
+                        </span>
+                      )}
+                    </NavLink>
                     <NavLink to="/favorites" className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Mes favoris</NavLink>
                     
                     {/* Menu Réglages avec sous-menu */}
@@ -170,7 +179,14 @@ export const Header: React.FC = () => {
               {user ? (
                  <>
                   <NavLink to={`/profile/${user.id}`} onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">Mon Profil</NavLink>
-                  <NavLink to="/messages" onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">Messagerie</NavLink>
+                  <NavLink to="/messages" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">
+                    <span>Messagerie</span>
+                    {messageCount > 0 && (
+                      <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {messageCount}
+                      </span>
+                    )}
+                  </NavLink>
                   <NavLink to="/favorites" onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">Mes favoris</NavLink>
                   
                   {/* Menu Réglages mobile avec sous-menu */}
