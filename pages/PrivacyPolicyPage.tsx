@@ -152,6 +152,11 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <p className="font-semibold text-gray-900 mb-1">Resend (USA)</p>
                 <p className="text-sm text-gray-700">Envoi des emails transactionnels (confirmation d'inscription, réinitialisation mot de passe)</p>
               </div>
+
+              <div className="bg-gray-50 rounded p-3">
+                <p className="font-semibold text-gray-900 mb-1">Sentry (Allemagne)</p>
+                <p className="text-sm text-gray-700">Monitoring et capture automatique des erreurs techniques pour améliorer la stabilité du site</p>
+              </div>
             </div>
 
             <p className="text-gray-700 mt-4 text-sm">
