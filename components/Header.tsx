@@ -178,6 +178,12 @@ export const Header: React.FC = () => {
                           >
                             Contacter l'équipe Appyna
                           </button>
+                          {/* Bouton Admin Dashboard - Visible uniquement pour l'admin */}
+                          {user.id === '91c84b9e-376e-45c1-84f7-329476e9e5eb' && (
+                            <NavLink to="/admin/dashboard" className="block px-6 py-2.5 text-sm text-primary-600 font-semibold hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsProfileOpen(false); setIsSettingsOpen(false); }}>
+                              🔧 Admin Dashboard
+                            </NavLink>
+                          )}
                           <NavLink to="/terms" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsProfileOpen(false); setIsSettingsOpen(false); }}>
                             Conditions générales
                           </NavLink>
@@ -258,6 +264,12 @@ export const Header: React.FC = () => {
                         >
                           Contacter l'équipe Appyna
                         </button>
+                        {/* Bouton Admin Dashboard - Visible uniquement pour l'admin */}
+                        {user && user.id === '91c84b9e-376e-45c1-84f7-329476e9e5eb' && (
+                          <NavLink to="/admin/dashboard" className="block px-6 py-2.5 text-sm text-primary-600 font-semibold hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsMenuOpen(false); setIsSettingsOpen(false); }}>
+                            🔧 Admin Dashboard
+                          </NavLink>
+                        )}
                         <NavLink to="/terms" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsMenuOpen(false); setIsSettingsOpen(false); }}>
                           Conditions générales
                         </NavLink>
