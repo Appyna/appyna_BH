@@ -15,6 +15,8 @@ import { BoostHistoryPage } from './pages/BoostHistoryPage';
 import { BoostSuccessPage } from './pages/BoostSuccessPage';
 import { BoostCancelPage } from './pages/BoostCancelPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
+import { CookiePolicyPage } from './pages/CookiePolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import AdminModerationPage from './pages/AdminModerationPage';
@@ -125,7 +127,9 @@ const App: React.FC = () => {
               <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               <Route path="/admin/moderation" element={<AdminModerationPage />} />
               <Route path="/admin/support" element={<AdminSupportPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/cookies" element={<CookiePolicyPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />
               <Route path="/login" element={<LoginPage />} />

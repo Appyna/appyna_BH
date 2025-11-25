@@ -38,8 +38,9 @@ export const Footer: React.FC = () => {
           <div>
             <h3 className="text-gray-800 font-semibold tracking-wide">Légal</h3>
             <ul className="mt-4 space-y-2">
-              <li><Link to="#" className="text-gray-500 hover:text-primary-600">Conditions d'utilisation</Link></li>
-              <li><Link to="#" className="text-gray-500 hover:text-primary-600">Politique de confidentialité</Link></li>
+              <li><Link to="/terms" className="text-gray-500 hover:text-primary-600">Conditions d'utilisation</Link></li>
+              <li><Link to="/privacy" className="text-gray-500 hover:text-primary-600">Politique de confidentialité</Link></li>
+              <li><Link to="/cookies" className="text-gray-500 hover:text-primary-600">Politique de cookies</Link></li>
             </ul>
           </div>
           <div>
