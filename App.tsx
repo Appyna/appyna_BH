@@ -20,6 +20,7 @@ import { CookiePolicyPage } from './pages/CookiePolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import AdminModerationPage from './pages/AdminModerationPage';
+import { SentryTestPage } from './pages/SentryTestPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import { AdminSupportPage } from './pages/AdminSupportPage';
 import { MenuProvider } from './contexts/MenuContext';
@@ -127,6 +128,7 @@ const App: React.FC = () => {
               <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               <Route path="/admin/moderation" element={<AdminModerationPage />} />
               <Route path="/admin/support" element={<AdminSupportPage />} />
+              <Route path="/admin/sentry-test" element={<SentryTestPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/cookies" element={<CookiePolicyPage />} />
