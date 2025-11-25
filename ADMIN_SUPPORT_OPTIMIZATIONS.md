@@ -126,6 +126,6 @@ AND created_at > (user1_last_read_at OU user2_last_read_at)
 1. ✅ Code déjà poussé sur GitHub
 2. ✅ Vercel redéploiera automatiquement
 3. ⏳ **Appliquez la migration SQL sur Supabase**
-4. ✅ Testez sur https://appyna-bh.vercel.app/admin/support
+4. ✅ Testez sur https://appyna.com/admin/support
 
 Une fois la migration appliquée, toutes les fonctionnalités seront opérationnelles ! 🎉

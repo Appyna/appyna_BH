@@ -56,7 +56,7 @@ Les templates utilisent ces variables automatiques :
 ## ✅ Test des emails
 
 Pour tester :
-1. Inscris un nouveau compte sur https://appyna-bh.vercel.app/signup
+1. Inscris un nouveau compte sur https://appyna.com/signup
 2. Vérifie ta boîte email (et les spams)
 3. L'email doit avoir le design Appyna avec les dégradés violet-teal
 
