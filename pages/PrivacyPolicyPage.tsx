@@ -129,41 +129,41 @@ export const PrivacyPolicyPage: React.FC = () => {
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 mb-1">💳 Stripe (USA)</p>
+                <p className="font-semibold text-gray-900 mb-1">Stripe (USA)</p>
                 <p className="text-sm text-gray-700">Traitement sécurisé des paiements pour les boosts</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 mb-1">📊 Google Analytics (USA)</p>
+                <p className="font-semibold text-gray-900 mb-1">Google Analytics (USA)</p>
                 <p className="text-sm text-gray-700">Statistiques de fréquentation et comportement des utilisateurs</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 mb-1">📱 Google AdMob (USA)</p>
+                <p className="font-semibold text-gray-900 mb-1">Google AdMob (USA)</p>
                 <p className="text-sm text-gray-700">Diffusion de publicités ciblées (avec votre consentement)</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 mb-1">🌐 Vercel (USA)</p>
+                <p className="font-semibold text-gray-900 mb-1">Vercel (USA)</p>
                 <p className="text-sm text-gray-700">Hébergement du site web et CDN</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 mb-1">📧 Resend (USA)</p>
+                <p className="font-semibold text-gray-900 mb-1">Resend (USA)</p>
                 <p className="text-sm text-gray-700">Envoi des emails transactionnels (confirmation d'inscription, réinitialisation mot de passe)</p>
               </div>
             </div>
 
             <p className="text-gray-700 mt-4 text-sm">
-              ⚠️ <strong>Important :</strong> Nous ne vendons jamais vos données personnelles à des tiers. Les prestataires ci-dessus sont contractuellement tenus de protéger vos données et de ne les utiliser que dans le cadre des services fournis à Appyna.
+              <strong>Important :</strong> Nous ne vendons jamais vos données personnelles à des tiers. Les prestataires ci-dessus sont contractuellement tenus de protéger vos données et de ne les utiliser que dans le cadre des services fournis à Appyna.
             </p>
           </section>
 
           {/* Section 5 */}
           <section className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">5. Transferts internationaux de données</h2>
-            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
-              <p className="text-yellow-900 font-semibold mb-2">⚠️ Vos données sont transférées hors de l'Union Européenne</p>
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-3">
+              <p className="text-yellow-900 font-semibold mb-2">Vos données sont transférées hors de l'Union Européenne</p>
               <p className="text-yellow-800 text-sm">
                 La plupart de nos prestataires (Supabase, Stripe, Cloudinary, Google, Vercel, Resend) sont situés aux États-Unis. Ces transferts sont encadrés par des <strong>Clauses Contractuelles Types (CCT)</strong> approuvées par la Commission Européenne, garantissant un niveau de protection adéquat de vos données.
               </p>
@@ -255,8 +255,8 @@ export const PrivacyPolicyPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-4 mt-6">
-              <p className="font-semibold text-blue-900 mb-2">📧 Comment exercer vos droits ?</p>
+            <div className="bg-blue-50 rounded-lg p-4 mb-3">
+              <p className="font-semibold text-blue-900 mb-2">Comment exercer vos droits ?</p>
               <p className="text-blue-800 text-sm mb-2">
                 Pour exercer l'un de ces droits, envoyez un email à : <a href="mailto:appyna.contact@gmail.com" className="underline font-semibold">appyna.contact@gmail.com</a>
               </p>
@@ -292,7 +292,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               <li><strong>Accès restreint</strong> : Seuls les employés autorisés ont accès aux données, dans le cadre strict de leurs fonctions</li>
             </ul>
             <p className="text-gray-700 mt-4 text-sm">
-              ⚠️ Malgré ces mesures, aucun système n'est totalement infaillible. En cas de violation de données (data breach), nous vous en informerons dans les 72 heures conformément au RGPD.
+              Malgré ces mesures, aucun système n'est totalement infaillible. En cas de violation de données (data breach), nous vous en informerons dans les 72 heures conformément au RGPD.
             </p>
           </section>
 

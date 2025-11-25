@@ -57,7 +57,7 @@ export const TermsPage: React.FC = () => {
           <section className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Article 4 - Publication d'annonces</h2>
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-              <p className="font-bold text-red-800 mb-2">⚠️ CONTENUS STRICTEMENT INTERDITS</p>
+              <p className="font-bold text-red-800 mb-2">CONTENUS STRICTEMENT INTERDITS</p>
               <p className="text-red-700 text-sm">
                 La publication des contenus suivants est formellement interdite et entraînera la suppression immédiate de votre annonce et le bannissement de votre compte, sans préavis :
               </p>
@@ -95,7 +95,7 @@ export const TermsPage: React.FC = () => {
           <section className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Article 5 - Responsabilité des utilisateurs</h2>
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
-              <p className="font-bold text-yellow-900 mb-2">⚠️ AVERTISSEMENT IMPORTANT</p>
+              <p className="font-bold text-yellow-900 mb-2">AVERTISSEMENT IMPORTANT</p>
               <p className="text-yellow-800 text-sm mb-2">
                 <strong>Appyna n'est qu'un intermédiaire technique.</strong> Nous mettons uniquement en relation des utilisateurs. Nous ne sommes PAS partie aux transactions conclues entre utilisateurs.
               </p>
@@ -103,7 +103,7 @@ export const TermsPage: React.FC = () => {
                 <strong>Aucune vérification :</strong> Appyna ne vérifie pas l'identité des utilisateurs, la véracité des annonces, ni la qualité des biens et services proposés.
               </p>
               <p className="text-yellow-800 text-sm font-bold">
-                ⚠️ VIGILANCE : Les utilisateurs peuvent mentir, utiliser de fausses identités ou publier des annonces frauduleuses. Soyez prudent, vérifiez l'identité de vos interlocuteurs et privilégiez les rencontres dans des lieux publics.
+                VIGILANCE : Les utilisateurs peuvent mentir, utiliser de fausses identités ou publier des annonces frauduleuses. Soyez prudent, vérifiez l'identité de vos interlocuteurs et privilégiez les rencontres dans des lieux publics.
               </p>
             </div>
 

@@ -53,7 +53,7 @@ export const CookiePolicyPage: React.FC = () => {
             <div className="space-y-6">
               {/* Cookies essentiels */}
               <div className="border-l-4 border-green-500 pl-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">🔐 Cookies strictement nécessaires (essentiels)</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Cookies strictement nécessaires (essentiels)</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas être désactivés dans nos systèmes et ne nécessitent pas votre consentement selon le RGPD.
                 </p>
@@ -77,7 +77,7 @@ export const CookiePolicyPage: React.FC = () => {
 
               {/* Cookies analytiques */}
               <div className="border-l-4 border-blue-500 pl-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">📊 Cookies analytiques (statistiques)</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Cookies analytiques (statistiques)</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   Ces cookies nous permettent de mesurer l'audience du site et de comprendre comment les visiteurs utilisent nos pages. <strong>Votre consentement est requis.</strong>
                 </p>
@@ -94,7 +94,7 @@ export const CookiePolicyPage: React.FC = () => {
 
               {/* Cookies publicitaires */}
               <div className="border-l-4 border-purple-500 pl-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">📱 Cookies publicitaires</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Cookies publicitaires</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   Ces cookies sont utilisés pour afficher des publicités personnalisées en fonction de vos centres d'intérêt. <strong>Votre consentement est requis.</strong>
                 </p>
@@ -111,7 +111,7 @@ export const CookiePolicyPage: React.FC = () => {
 
               {/* Cookies de paiement */}
               <div className="border-l-4 border-yellow-500 pl-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">💳 Cookies de paiement</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Cookies de paiement</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   Ces cookies sont nécessaires au traitement sécurisé des paiements pour les boosts d'annonces.
                 </p>
@@ -144,7 +144,7 @@ export const CookiePolicyPage: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">5. Comment gérer ou refuser les cookies ?</h2>
             
             <div className="bg-blue-50 rounded-lg p-4 mb-4">
-              <p className="font-semibold text-blue-900 mb-2">📧 Contacter Appyna</p>
+              <p className="font-semibold text-blue-900 mb-2">Contacter Appyna</p>
               <p className="text-blue-800 text-sm">
                 Pour refuser les cookies non essentiels (Google Analytics, Google AdMob), envoyez un email à : <a href="mailto:appyna.contact@gmail.com" className="underline font-semibold">appyna.contact@gmail.com</a>
               </p>
@@ -157,28 +157,28 @@ export const CookiePolicyPage: React.FC = () => {
 
             <div className="space-y-3">
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 text-sm mb-1">🌐 Google Chrome</p>
+                <p className="font-semibold text-gray-900 text-sm mb-1">Google Chrome</p>
                 <p className="text-xs text-gray-700">Paramètres → Confidentialité et sécurité → Cookies et autres données de sites → Bloquer les cookies tiers</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 text-sm mb-1">🦊 Mozilla Firefox</p>
+                <p className="font-semibold text-gray-900 text-sm mb-1">Mozilla Firefox</p>
                 <p className="text-xs text-gray-700">Options → Vie privée et sécurité → Cookies et données de sites → Bloquer les cookies</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 text-sm mb-1">🧭 Safari</p>
+                <p className="font-semibold text-gray-900 text-sm mb-1">Safari</p>
                 <p className="text-xs text-gray-700">Préférences → Confidentialité → Bloquer tous les cookies</p>
               </div>
 
               <div className="bg-gray-50 rounded p-3">
-                <p className="font-semibold text-gray-900 text-sm mb-1">🌊 Microsoft Edge</p>
+                <p className="font-semibold text-gray-900 text-sm mb-1">Microsoft Edge</p>
                 <p className="text-xs text-gray-700">Paramètres → Cookies et autorisations de site → Gérer et supprimer les cookies</p>
               </div>
             </div>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
-              <p className="text-yellow-900 font-semibold mb-1">⚠️ Attention</p>
+              <p className="text-yellow-900 font-semibold mb-1">Attention</p>
               <p className="text-yellow-800 text-sm">
                 Le blocage de tous les cookies peut affecter le fonctionnement de certaines parties du site, notamment la connexion à votre compte et la sauvegarde de vos préférences.
               </p>
