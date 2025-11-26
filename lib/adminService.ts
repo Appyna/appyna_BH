@@ -55,13 +55,12 @@ export interface TopListing {
 }
 
 /**
- * Récupère les statistiques globales
+ * Récupère les statistiques globales (accessible uniquement aux admins)
  */
 export async function getGlobalStats(): Promise<GlobalStats | null> {
   try {
     const { data, error } = await supabase
-      .from('admin_global_stats')
-      .select('*')
+      .rpc('get_admin_global_stats')
       .single();
 
     if (error) {
