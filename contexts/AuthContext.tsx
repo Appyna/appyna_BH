@@ -276,7 +276,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center z-50">
         <div className="relative">
-          <h1 className="text-5xl md:text-6xl font-bold font-poppins relative overflow-hidden">
+          <h1 className="text-4xl md:text-5xl font-bold font-poppins relative overflow-hidden">
             <span className="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
               Appyna
             </span>
@@ -289,7 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             />
           </h1>
           
-          <div className="mt-5 w-40 h-1 bg-gray-200 rounded-full overflow-hidden mx-auto">
+          <div className="mt-4 w-32 h-1 bg-gray-200 rounded-full overflow-hidden mx-auto">
             <div 
               className="h-full bg-gradient-to-r from-primary-400 to-secondary-400 rounded-full"
               style={{
