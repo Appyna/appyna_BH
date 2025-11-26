@@ -300,7 +300,7 @@ export const HomePage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
               {visibleListings.map((listing, index) => (
                 <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} />
               ))}
