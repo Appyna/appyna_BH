@@ -133,7 +133,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password: userData.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        throw authError;
+      }
       if (!authData.user) return false;
 
       // 2. Créer le profil utilisateur
@@ -146,13 +149,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           bio: userData.bio || '',
         }]);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw profileError;
+      }
 
       // Ne pas charger le profil ici - l'utilisateur doit d'abord confirmer son email
       // Le profil sera chargé automatiquement après confirmation via onAuthStateChange
       return true;
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch (error: any) {
+      console.error('Registration error details:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        details: error
+      });
       return false;
     }
   };
