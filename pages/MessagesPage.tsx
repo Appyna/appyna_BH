@@ -305,7 +305,17 @@ const ChatWindow: React.FC<{
         <div className="flex flex-col h-full bg-white">
             {/* Chat Header */}
             <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
-                <div className="flex items-center">
+                {/* Bouton retour mobile */}
+                <Link
+                    to="/messages"
+                    className="md:hidden mr-3 text-gray-600 hover:text-primary-600 transition-colors"
+                    aria-label="Retour à la messagerie"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </Link>
+                <div className="flex items-center min-w-0 flex-1">
                     {otherUser.avatarUrl ? (
                       <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-10 w-10 rounded-full object-cover mr-3" />
                     ) : (
@@ -360,7 +370,7 @@ const ChatWindow: React.FC<{
             </div>
 
             {/* Messages */}
-            <div className="flex-grow p-4 overflow-y-auto">
+            <div className="flex-grow p-4 overflow-y-auto max-h-[50vh] md:max-h-none">
                 <div className="space-y-4">
                     {conversation.messages.map((message, index) => {
                         const previousMessage = index > 0 ? conversation.messages[index - 1] : undefined;
