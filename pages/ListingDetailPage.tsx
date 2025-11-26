@@ -384,9 +384,35 @@ export const ListingDetailPage: React.FC = () => {
             <div className="border-b pb-6 mb-6">
                 <span className="text-sm font-semibold bg-secondary-100 text-secondary-800 py-1 px-3 rounded-full">{listing.type}</span>
                 <h1 className="text-xl md:text-2xl font-bold mt-2 font-poppins text-gray-900 break-words">{listing.title}</h1>
-                 <p className="text-xl md:text-2xl font-bold text-primary-600 mt-3">
-                    {listing.price ? `${listing.price.toLocaleString('fr-FR')} ₪` : 'Aucun prix'}
-                </p>
+                 <div className="flex items-center justify-between mt-3">
+                   <p className="text-lg md:text-xl font-bold text-primary-600">
+                      {listing.price ? `${listing.price.toLocaleString('fr-FR')} ₪` : 'Aucun prix'}
+                  </p>
+                  
+                  {/* Bouton Partager */}
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: listing.title,
+                          text: `Découvre cette annonce sur Appyna : ${listing.title}`,
+                          url: window.location.href,
+                        }).catch(() => {});
+                      } else {
+                        // Fallback: copier le lien
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('Lien copié dans le presse-papier !');
+                      }
+                    }}
+                    className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors text-sm font-medium"
+                    title="Partager l'annonce"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span className="hidden md:inline">Partager l'annonce</span>
+                  </button>
+                 </div>
             </div>
             
             <h2 className="text-xl font-bold text-gray-800 mb-4 font-poppins">Description</h2>
