@@ -18,6 +18,12 @@ export const BackButton: React.FC = () => {
       return;
     }
     
+    // Si on est sur la page messagerie principale (/messages), retourner vers l'accueil
+    if (location.pathname === '/messages') {
+      navigate('/');
+      return;
+    }
+    
     const returnPath = sessionStorage.getItem('return_path');
     
     // Si returnPath existe, naviguer vers cette page
