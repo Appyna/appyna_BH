@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ArrowLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -9,8 +9,15 @@ const ArrowLeftIcon = () => (
 
 export const BackButton: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
+    // Si on est dans une conversation individuelle (/messages/:id), retourner vers /messages
+    if (location.pathname.startsWith('/messages/')) {
+      navigate('/messages');
+      return;
+    }
+    
     const returnPath = sessionStorage.getItem('return_path');
     
     // Si returnPath existe, naviguer vers cette page
