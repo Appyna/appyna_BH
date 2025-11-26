@@ -127,10 +127,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (userData: { name: string; email: string; password: string; bio?: string }): Promise<boolean> => {
     try {
-      // 1. Créer le compte auth
+      // 1. Créer le compte auth avec metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            bio: userData.bio || '',
+          }
+        }
       });
 
       if (authError) {
@@ -139,7 +145,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       if (!authData.user) return false;
 
-      // 2. Créer le profil utilisateur
+      // 2. Attendre un court instant pour que la session soit établie
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 3. Créer le profil utilisateur avec la session active
       const { error: profileError } = await supabase
         .from('users')
         .insert([{
