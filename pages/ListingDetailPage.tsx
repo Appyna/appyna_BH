@@ -383,7 +383,7 @@ export const ListingDetailPage: React.FC = () => {
             
             <div className="border-b pb-6 mb-6">
                 <span className="text-sm font-semibold bg-secondary-100 text-secondary-800 py-1 px-3 rounded-full">{listing.type}</span>
-                <h1 className="text-xl md:text-2xl font-bold mt-2 font-poppins text-gray-900">{listing.title}</h1>
+                <h1 className="text-xl md:text-2xl font-bold mt-2 font-poppins text-gray-900 break-words">{listing.title}</h1>
                  <p className="text-xl md:text-2xl font-bold text-primary-600 mt-3">
                     {listing.price ? `${listing.price.toLocaleString('fr-FR')} ₪` : 'Aucun prix'}
                 </p>

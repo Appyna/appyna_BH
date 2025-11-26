@@ -214,7 +214,7 @@ export const CreateListingPage: React.FC = () => {
                                     id="title" 
                                     type="text" 
                                     placeholder="Ex: Canapé d'angle design" 
-                                    maxLength={120} 
+                                    maxLength={80} 
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     required 

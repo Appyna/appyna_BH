@@ -121,7 +121,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
         </div>
       </div>
       <div className="mt-3 px-1">
-        <h3 className="text-lg font-medium text-gray-800 truncate group-hover:text-primary-600 transition-colors font-poppins">{listing.title}</h3>
+        <h3 className="text-lg font-medium text-gray-800 line-clamp-2 group-hover:text-primary-600 transition-colors font-poppins">{listing.title}</h3>
         <div className="flex items-center justify-between mt-1">
           <p className="text-sm text-gray-700 font-montserrat font-medium">{listing.city}</p>
           {getRelativeTime && (
