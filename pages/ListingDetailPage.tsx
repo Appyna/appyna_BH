@@ -287,7 +287,7 @@ export const ListingDetailPage: React.FC = () => {
           {/* Main content */}
           <div className="lg:col-span-2">
             {/* Galerie photos */}
-            <div className="relative mb-6">
+            <div className="relative mb-6 mt-6 md:mt-8">
               <div 
                 className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-gray-200 cursor-pointer group"
                 onClick={openModal}

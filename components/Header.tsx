@@ -144,9 +144,9 @@ export const Header: React.FC = () => {
                         {user.name}
                       </p>
                     </div>
-                    <NavLink to={`/profile/${user.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Mon Profil</NavLink>
+                    <NavLink to={`/profile/${user.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>Mon profil</NavLink>
                     <NavLink to="/messages" className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => setIsProfileOpen(false)}>
-                      <span>Messagerie</span>
+                      <span>Mes messages</span>
                       {messageCount > 0 && (
                         <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                           {messageCount}
@@ -230,9 +230,9 @@ export const Header: React.FC = () => {
               </Link>
               {user ? (
                  <>
-                  <NavLink to={`/profile/${user.id}`} onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">Mon Profil</NavLink>
+                  <NavLink to={`/profile/${user.id}`} onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">Mon profil</NavLink>
                   <NavLink to="/messages" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-purple-50 rounded-xl font-montserrat transition-colors">
-                    <span>Messagerie</span>
+                    <span>Mes messages</span>
                     {messageCount > 0 && (
                       <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                         {messageCount}
