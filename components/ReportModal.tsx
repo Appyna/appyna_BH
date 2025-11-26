@@ -156,7 +156,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
             {/* Email (pré-rempli et non modifiable) */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 font-montserrat">
-                Votre email
+                Votre email <span className="text-gray-500 font-normal">(N'apparaîtra pas dans le signalement)</span>
               </label>
               <input
                 type="email"

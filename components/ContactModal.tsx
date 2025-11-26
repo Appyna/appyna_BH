@@ -127,7 +127,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
           <>
             <p className="text-gray-600 mb-4 font-montserrat">
               Envoyez un message à l'équipe <span className="font-semibold">{ADMIN_DISPLAY_NAME}</span>. 
-              Nous vous répondrons directement dans votre messagerie.
+              Nous vous répondrons directement dans votre messagerie sous 48 heures.
             </p>
 
             {error && (
