@@ -125,7 +125,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
         <div className="flex items-center justify-between mt-1">
           <p className="text-sm text-gray-700 font-montserrat font-medium">{listing.city}</p>
           {getRelativeTime && (
-            <p className="text-lg font-semibold text-gray-900 font-poppins -ml-2">
+            <p className="text-base font-semibold text-gray-900 font-poppins -ml-4">
               {listing.price ? `${listing.price.toLocaleString('fr-FR')} ₪` : 'Aucun prix'}
             </p>
           )}
