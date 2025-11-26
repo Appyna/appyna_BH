@@ -108,7 +108,7 @@ export const mockListings: Listing[] = [
     description:
       'Vends Peugeot 208, année 2019, 65 000 km. Essence, boîte manuelle. Très bon état général, contrôle technique OK. Idéale pour jeune conducteur.',
     price: 45000,
-    category: Category.VEHICULES,
+    category: Category.AUTOMOBILE_VEHICULES,
     city: CITIES_ISRAEL[5], // Ashdod
     imageUrl:
       'https://images.unsplash.com/photo-1616422285855-ab0192a58b18?q=80&w=2070&auto=format&fit=crop',
@@ -199,7 +199,7 @@ export const mockListings: Listing[] = [
     description:
       'Vends vélo de course Trek Emonda SL 5, cadre carbone, groupe Shimano 105. Taille 54. Très peu roulé, état impeccable. Idéal pour cyclistes exigeants.',
     price: 6500,
-    category: Category.VEHICULES,
+    category: Category.AUTOMOBILE_VEHICULES,
     city: CITIES_ISRAEL[6], // Netanya
     imageUrl:
       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2069&auto=format&fit=crop',
