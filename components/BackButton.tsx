@@ -36,7 +36,7 @@ export const BackButton: React.FC = () => {
     // Si on est sur une page avec un retour spécifique défini
     for (const [route, destination] of Object.entries(specificRoutes)) {
       if (location.pathname === route) {
-        sessionStorage.removeItem('return_path'); // Nettoyer
+        // Ne pas nettoyer return_path ici - le ScrollManager en a besoin
         navigate(destination);
         return;
       }
@@ -46,23 +46,21 @@ export const BackButton: React.FC = () => {
     if (location.pathname.startsWith('/profile/')) {
       // Vérifier si returnPath est valide (pas la page actuelle, pas /favorites bloqué)
       if (returnPath && returnPath !== location.pathname && returnPath !== '/favorites') {
-        sessionStorage.removeItem('return_path'); // Nettoyer après usage
+        // Ne pas nettoyer - ScrollManager le fera après restauration
         navigate(returnPath);
         return;
       }
       // Sinon retour accueil par défaut
-      sessionStorage.removeItem('return_path');
       navigate('/');
       return;
     }
     
     // Si returnPath existe et est valide, naviguer vers cette page
     if (returnPath && returnPath !== location.pathname) {
-      sessionStorage.removeItem('return_path'); // Nettoyer après usage
+      // Ne pas nettoyer - ScrollManager le fera après restauration du scroll
       navigate(returnPath);
     } else {
       // Fallback : retour arrière classique
-      sessionStorage.removeItem('return_path'); // Nettoyer
       navigate(-1);
     }
   };

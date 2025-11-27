@@ -65,6 +65,7 @@ const ScrollManager: React.FC = () => {
           });
           console.log('✅ Scroll restauré à:', window.scrollY);
           sessionStorage.removeItem('scroll_position');
+          sessionStorage.removeItem('return_path'); // Nettoyer après restauration
         } else if (attempts < 10) {
           // Réessayer après un court délai (max 10 tentatives = 500ms)
           setTimeout(() => restoreScroll(attempts + 1), 50);
@@ -76,6 +77,7 @@ const ScrollManager: React.FC = () => {
           });
           console.log('⚠️ Scroll partiel restauré à:', window.scrollY, '(target:', targetPosition, ')');
           sessionStorage.removeItem('scroll_position');
+          sessionStorage.removeItem('return_path'); // Nettoyer après restauration
         }
       };
       
