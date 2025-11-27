@@ -135,7 +135,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           data: {
             name: userData.name,
             bio: userData.bio || '',
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
 

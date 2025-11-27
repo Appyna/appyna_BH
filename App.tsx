@@ -18,6 +18,7 @@ import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
 import { CookiePolicyPage } from './pages/CookiePolicyPage';
 import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
+import { EmailConfirmationRedirectPage } from './pages/EmailConfirmationRedirectPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import AdminModerationPage from './pages/AdminModerationPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -137,6 +138,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
               <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+              <Route path="/auth/confirm" element={<EmailConfirmationRedirectPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
             </Routes>
           </Layout>
