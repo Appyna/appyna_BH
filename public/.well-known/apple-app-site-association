@@ -8,9 +8,13 @@
           "/auth/confirm",
           "/auth/*",
           "/listing/*",
-          "/profile/*"
+          "/profile/*",
+          "/"
         ]
       }
     ]
+  },
+  "webcredentials": {
+    "apps": ["TEAM_ID.com.appyna.app"]
   }
 }

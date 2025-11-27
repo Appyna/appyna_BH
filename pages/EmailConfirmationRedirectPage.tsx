@@ -38,7 +38,7 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
         if (error) {
           console.error('Erreur confirmation:', error);
           setStatus('error');
-          setMessage('Erreur lors de la confirmation. Veuillez réessayer.');
+          setMessage(`Erreur: ${error.message || 'Veuillez réessayer'}`);
           return;
         }
 
@@ -47,7 +47,7 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
 
         // Si on est sur mobile, essayer d'ouvrir l'app
         if (isMobile) {
-          setMessage('Tentative d\'ouverture de l\'application...');
+          setMessage(`${platform.toUpperCase()} détecté - Tentative d'ouverture...`);
           
           // Liste des URL schemes à essayer
           const schemes = [
@@ -57,19 +57,30 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
             'appyna-app://'
           ];
 
-          // Essayer tous les schemes en parallèle
-          schemes.forEach((scheme, index) => {
+          // Essayer le premier scheme immédiatement
+          try {
+            window.location.href = schemes[0];
+            setMessage(`Essai: ${schemes[0]}`);
+          } catch (e) {
+            setMessage(`Échec ${schemes[0]}, essai suivant...`);
+          }
+
+          // Essayer les autres schemes avec délai
+          schemes.slice(1).forEach((scheme, index) => {
             setTimeout(() => {
-              const appUrl = `${scheme}`;
-              console.log(`🔗 Tentative ${index + 1}: ${appUrl}`);
-              window.location.href = appUrl;
-            }, index * 500); // Espacer de 500ms
+              try {
+                window.location.href = scheme;
+                setMessage(`Essai: ${scheme}`);
+              } catch (e) {
+                // Continuer
+              }
+            }, (index + 1) * 800); // Espacer de 800ms
           });
 
-          // Après 3 secondes, afficher le message de fallback
+          // Après 4 secondes, afficher le message de fallback
           setTimeout(() => {
-            setMessage('Si l\'application ne s\'est pas ouverte, veuillez la lancer manuellement.');
-          }, 3000);
+            setMessage('Si l\'application ne s\'est pas ouverte, cliquez sur le bouton ci-dessous.');
+          }, 4000);
 
         } else {
           // Sur desktop
@@ -160,6 +171,13 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
             </button>
           </>
         )}
+        
+        {/* Debug info pour test iPhone */}
+        <div className="mt-6 text-xs text-gray-400 border-t pt-4">
+          <p>Statut: {status}</p>
+          <p>Plateforme: {platform}</p>
+          <p>UserAgent: {window.navigator.userAgent.substring(0, 50)}...</p>
+        </div>
       </div>
     </div>
   );
