@@ -26,11 +26,43 @@ export const BackButton: React.FC = () => {
     
     const returnPath = sessionStorage.getItem('return_path');
     
-    // Si returnPath existe, naviguer vers cette page
-    if (returnPath) {
+    // Pages avec comportement spécifique de retour
+    const specificRoutes: { [key: string]: string } = {
+      '/favorites': '/',
+      '/settings': '/',
+      '/boost-history': '/',
+    };
+    
+    // Si on est sur une page avec un retour spécifique défini
+    for (const [route, destination] of Object.entries(specificRoutes)) {
+      if (location.pathname === route) {
+        sessionStorage.removeItem('return_path'); // Nettoyer
+        navigate(destination);
+        return;
+      }
+    }
+    
+    // Si on est sur un profil, retourner vers l'accueil (sauf si returnPath valide)
+    if (location.pathname.startsWith('/profile/')) {
+      // Vérifier si returnPath est valide (pas la page actuelle, pas /favorites bloqué)
+      if (returnPath && returnPath !== location.pathname && returnPath !== '/favorites') {
+        sessionStorage.removeItem('return_path'); // Nettoyer après usage
+        navigate(returnPath);
+        return;
+      }
+      // Sinon retour accueil par défaut
+      sessionStorage.removeItem('return_path');
+      navigate('/');
+      return;
+    }
+    
+    // Si returnPath existe et est valide, naviguer vers cette page
+    if (returnPath && returnPath !== location.pathname) {
+      sessionStorage.removeItem('return_path'); // Nettoyer après usage
       navigate(returnPath);
     } else {
       // Fallback : retour arrière classique
+      sessionStorage.removeItem('return_path'); // Nettoyer
       navigate(-1);
     }
   };
