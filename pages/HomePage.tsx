@@ -30,7 +30,25 @@ const getRelativeTime = (date: Date): string => {
 
 export const HomePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [displayedListings, setDisplayedListings] = useState(12);
+  
+  // Calculer le nombre initial d'annonces à charger en fonction du scroll sauvegardé
+  const getInitialDisplayCount = () => {
+    const savedPosition = sessionStorage.getItem('scroll_position');
+    const returnPath = sessionStorage.getItem('return_path');
+    const currentPath = window.location.pathname + window.location.search;
+    
+    // Si on revient sur cette page avec une position sauvegardée
+    if (savedPosition && returnPath === currentPath) {
+      const scrollY = parseInt(savedPosition);
+      // Estimer: ~400px par annonce, charger au moins assez pour couvrir la position
+      const estimatedListings = Math.ceil(scrollY / 400) + 12;
+      console.log(`🎯 Pré-chargement ${estimatedListings} annonces pour scroll ${scrollY}px`);
+      return estimatedListings;
+    }
+    return 12;
+  };
+  
+  const [displayedListings, setDisplayedListings] = useState(getInitialDisplayCount());
   const [isLoading, setIsLoading] = useState(false);
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
