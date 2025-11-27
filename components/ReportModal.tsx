@@ -146,7 +146,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
             </button>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins text-center mb-2">{title}</h2>
+          <h2 className="text-2xl sm:text-2xl font-bold text-gray-900 font-poppins text-center mb-2">{title}</h2>
 
           <p className="text-gray-600 font-montserrat mb-8 text-center text-sm sm:text-base">
             Précisez la raison de votre signalement.
@@ -156,7 +156,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
             {/* Email (pré-rempli et non modifiable) */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 font-montserrat">
-                Votre email <span className="text-gray-500 font-normal">(N'apparaîtra pas dans le signalement)</span>
+                Votre email <span className="text-gray-500 font-normal text-xs">(N'apparaîtra pas)</span>
               </label>
               <input
                 type="email"
