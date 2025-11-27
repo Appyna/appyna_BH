@@ -52,16 +52,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     }
     
     const scrollPosition = window.scrollY;
-    const existingPosition = sessionStorage.getItem('scroll_position');
     const existingPath = sessionStorage.getItem('return_path');
     
-    // Sauvegarder seulement si :
-    // 1. On a scrollé (position > 50px minimum)
-    // 2. OU il n'y a pas de position existante pour ce chemin
-    // 3. OU on change de chemin
-    const shouldSave = scrollPosition > 50 || 
-                      existingPath !== returnPath || 
-                      !existingPosition;
+    // Sauvegarder UNIQUEMENT si :
+    // 1. On est sur la même page que returnPath (on navigue depuis la liste)
+    // 2. OU il n'y a pas de returnPath existant (première navigation)
+    const isOnReturnPage = (location.pathname + location.search) === returnPath;
+    const shouldSave = !existingPath || isOnReturnPage;
     
     if (shouldSave) {
       sessionStorage.setItem('scroll_position', scrollPosition.toString());
