@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAM_ID.com.appyna.app",
+        "paths": [
+          "/auth/confirm",
+          "/auth/*",
+          "/listing/*",
+          "/profile/*"
+        ]
+      }
+    ]
+  }
+}
