@@ -45,11 +45,11 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
         // Succès !
         setStatus('success');
 
-        // Si on est sur mobile, essayer d'ouvrir l'app avec plusieurs URL schemes
+        // Si on est sur mobile, essayer d'ouvrir l'app
         if (isMobile) {
-          setMessage('Ouverture de l\'application...');
+          setMessage('Tentative d\'ouverture de l\'application...');
           
-          // Liste des URL schemes à essayer (du plus spécifique au plus générique)
+          // Liste des URL schemes à essayer
           const schemes = [
             'appyna://',
             'com.appyna.app://',
@@ -57,66 +57,23 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
             'appyna-app://'
           ];
 
-          // Essayer d'ouvrir l'app avec le premier scheme
-          let appOpened = false;
-          const tryOpenApp = (schemeIndex: number) => {
-            if (schemeIndex >= schemes.length) {
-              // Tous les schemes ont échoué, rester sur le web
-              setMessage('Email confirmé ! Veuillez rouvrir l\'application Appyna.');
-              return;
-            }
-
-            const scheme = schemes[schemeIndex];
-            const appUrl = `${scheme}auth/confirm?token=${token}`;
-            
-            console.log(`🔗 Tentative d'ouverture: ${appUrl}`);
-
-            // Créer un iframe caché pour tenter d'ouvrir l'app
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = appUrl;
-            document.body.appendChild(iframe);
-
-            // Timer pour détecter si l'app s'est ouverte
-            const startTime = Date.now();
+          // Essayer tous les schemes en parallèle
+          schemes.forEach((scheme, index) => {
             setTimeout(() => {
-              const timeElapsed = Date.now() - startTime;
-              // Si le timer s'exécute normalement (~1500ms), l'app ne s'est pas ouverte
-              if (timeElapsed < 2000 && !appOpened) {
-                document.body.removeChild(iframe);
-                tryOpenApp(schemeIndex + 1); // Essayer le prochain scheme
-              } else {
-                // L'app s'est probablement ouverte
-                appOpened = true;
-                setMessage('Redirection vers l\'application...');
-              }
-            }, 1500);
+              const appUrl = `${scheme}`;
+              console.log(`🔗 Tentative ${index + 1}: ${appUrl}`);
+              window.location.href = appUrl;
+            }, index * 500); // Espacer de 500ms
+          });
 
-            // Détecter si l'utilisateur quitte la page (= app ouverte)
-            const handleVisibilityChange = () => {
-              if (document.hidden) {
-                appOpened = true;
-                setMessage('Application ouverte avec succès !');
-              }
-            };
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            // Nettoyer après 3 secondes
-            setTimeout(() => {
-              document.removeEventListener('visibilitychange', handleVisibilityChange);
-              if (!appOpened) {
-                // Aucun scheme n'a fonctionné, afficher le message de fallback
-                setMessage('Email confirmé ! Veuillez rouvrir l\'application Appyna.');
-              }
-            }, 3000);
-          };
-
-          // Démarrer les tentatives d'ouverture après un court délai
-          setTimeout(() => tryOpenApp(0), 500);
+          // Après 3 secondes, afficher le message de fallback
+          setTimeout(() => {
+            setMessage('Si l\'application ne s\'est pas ouverte, veuillez la lancer manuellement.');
+          }, 3000);
 
         } else {
-          // Sur desktop, afficher un message pour ouvrir l'app mobile
-          setMessage('Email confirmé ! Veuillez vous connecter sur votre application mobile.');
+          // Sur desktop
+          setMessage('Email confirmé ! Ouvrez l\'application Appyna sur votre téléphone.');
         }
 
       } catch (err) {
