@@ -360,8 +360,8 @@ const ChatWindow: React.FC<{
             </div>
 
             {/* Messages */}
-            <div className="flex-grow p-4 overflow-y-auto">
-                <div className="space-y-4">
+            <div className="flex-grow p-2 md:p-4 overflow-y-auto">
+                <div className="space-y-3 md:space-y-4">
                     {conversation.messages.map((message, index) => {
                         const previousMessage = index > 0 ? conversation.messages[index - 1] : undefined;
                         const showDateSeparator = shouldShowDateSeparator(message.createdAt, previousMessage?.createdAt);
@@ -402,7 +402,7 @@ const ChatWindow: React.FC<{
             </div>
 
             {/* Message Input */}
-            <div className="flex-shrink-0 p-4 border-t bg-gray-50">
+            <div className="flex-shrink-0 p-2 md:p-4 border-t bg-gray-50">
                 <div className="flex items-end space-x-2">
                     <textarea
                         ref={textareaRef}
@@ -705,7 +705,7 @@ export const MessagesPage: React.FC = () => {
 
 
   return (
-    <div className="container mx-auto h-[calc(100vh-5rem)] py-4">
+    <div className="container mx-auto h-[calc(100vh-8rem)] md:h-[calc(100vh-5rem)] py-2 md:py-4">
       <BackButton />
       <div className="flex h-full bg-white rounded-2xl shadow-lg border overflow-hidden">
         {/* Sidebar */}
