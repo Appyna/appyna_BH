@@ -1,174 +1,81 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 
 export const EmailConfirmationRedirectPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Confirmation de votre email en cours...');
-  const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop' | 'unknown'>('unknown');
 
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Détecter la plateforme
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        const isIOS = /iphone|ipad|ipod/.test(userAgent);
-        const isAndroid = /android/.test(userAgent);
-        const isMobile = isIOS || isAndroid;
-        
-        if (isIOS) setPlatform('ios');
-        else if (isAndroid) setPlatform('android');
-        else setPlatform('desktop');
-
         // Laisser Supabase gérer la confirmation automatiquement via l'URL
-        // Il détecte automatiquement les tokens de confirmation
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
           console.error('Erreur confirmation:', error);
           setStatus('error');
-          setMessage(`Erreur: ${error.message || 'Veuillez réessayer'}`);
           return;
         }
 
-        // Succès !
+        // Succès - email confirmé
         setStatus('success');
-
-        // Si on est sur mobile, essayer d'ouvrir l'app
-        if (isMobile) {
-          setMessage(`${platform.toUpperCase()} détecté - Tentative d'ouverture...`);
-          
-          // Liste des URL schemes à essayer
-          const schemes = [
-            'appyna://',
-            'com.appyna.app://',
-            'com.appyna://',
-            'appyna-app://'
-          ];
-
-          // Essayer le premier scheme immédiatement
-          try {
-            window.location.href = schemes[0];
-            setMessage(`Essai: ${schemes[0]}`);
-          } catch (e) {
-            setMessage(`Échec ${schemes[0]}, essai suivant...`);
-          }
-
-          // Essayer les autres schemes avec délai
-          schemes.slice(1).forEach((scheme, index) => {
-            setTimeout(() => {
-              try {
-                window.location.href = scheme;
-                setMessage(`Essai: ${scheme}`);
-              } catch (e) {
-                // Continuer
-              }
-            }, (index + 1) * 800); // Espacer de 800ms
-          });
-
-          // Après 4 secondes, afficher le message de fallback
-          setTimeout(() => {
-            setMessage('Si l\'application ne s\'est pas ouverte, cliquez sur le bouton ci-dessous.');
-          }, 4000);
-
-        } else {
-          // Sur desktop
-          setMessage('Email confirmé ! Ouvrez l\'application Appyna sur votre téléphone.');
-        }
 
       } catch (err) {
         console.error('Erreur:', err);
         setStatus('error');
-        setMessage('Une erreur est survenue.');
       }
     };
 
     confirmEmail();
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-lg w-full text-center">
         {status === 'loading' && (
           <>
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Confirmation en cours</h2>
-            <p className="text-gray-600">{message}</p>
+            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-blue-600 mx-auto mb-6"></div>
+            <h2 className="text-2xl font-semibold text-gray-800">Confirmation en cours...</h2>
           </>
         )}
         
         {status === 'success' && (
           <>
-            <div className="text-green-500 text-6xl mb-4">✓</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Email confirmé !</h2>
-            <p className="text-gray-600 mb-6">{message}</p>
-            
-            {platform === 'ios' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-700">
-                  📱 <strong>iOS détecté</strong><br/>
-                  Si l'app ne s'ouvre pas automatiquement, fermez Safari et lancez l'app Appyna manuellement.
-                </p>
+            <div className="mb-8">
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            )}
+              <h1 className="text-4xl font-bold text-blue-600 mb-4">Bienvenue sur Appyna</h1>
+              <div className="h-1 w-24 bg-blue-600 mx-auto mb-8"></div>
+            </div>
             
-            {platform === 'android' && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-700">
-                  📱 <strong>Android détecté</strong><br/>
-                  Si l'app ne s'ouvre pas automatiquement, fermez le navigateur et lancez l'app Appyna manuellement.
-                </p>
-              </div>
-            )}
-            
-            {platform === 'desktop' && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-700">
-                  💻 <strong>Ordinateur détecté</strong><br/>
-                  Ouvrez l'application Appyna sur votre téléphone pour vous connecter.
-                </p>
-              </div>
-            )}
-            
-            <button
-              onClick={() => {
-                // Essayer de forcer l'ouverture de l'app une dernière fois
-                if (platform !== 'desktop') {
-                  window.location.href = 'appyna://';
-                  setTimeout(() => {
-                    alert('Si l\'application ne s\'ouvre pas, veuillez la lancer manuellement.');
-                  }, 2000);
-                }
-              }}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
-            >
-              {platform === 'desktop' ? 'Compris' : 'Ouvrir l\'application'}
-            </button>
+            <div className="space-y-4 text-gray-700">
+              <p className="text-xl font-semibold">Votre compte a été activé avec succès.</p>
+              <p className="text-lg leading-relaxed">
+                Retournez maintenant dans l'application Appyna pour vous connecter avec vos identifiants.
+              </p>
+            </div>
           </>
         )}
         
         {status === 'error' && (
           <>
-            <div className="text-red-500 text-6xl mb-4">✗</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Erreur</h2>
-            <p className="text-gray-600 mb-4">{message}</p>
-            <button
-              onClick={() => navigate('/login')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Aller à la connexion
-            </button>
+            <div className="mb-8">
+              <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">Erreur de confirmation</h1>
+              <p className="text-lg text-gray-600">
+                Une erreur est survenue lors de la confirmation de votre email. Veuillez réessayer ou contacter le support.
+              </p>
+            </div>
           </>
         )}
-        
-        {/* Debug info pour test iPhone */}
-        <div className="mt-6 text-xs text-gray-400 border-t pt-4">
-          <p>Statut: {status}</p>
-          <p>Plateforme: {platform}</p>
-          <p>UserAgent: {window.navigator.userAgent.substring(0, 50)}...</p>
-        </div>
       </div>
     </div>
   );

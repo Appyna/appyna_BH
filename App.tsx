@@ -116,32 +116,39 @@ const App: React.FC = () => {
       <MenuProvider>
         <Router>
           <ScrollManager />
-          <Layout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/listing/:id" element={<ListingDetailPage />} />
-              <Route path="/create" element={<CreateListingPage />} />
-              <Route path="/profile/:userId" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/boost-history" element={<BoostHistoryPage />} />
-              <Route path="/boost/success" element={<BoostSuccessPage />} />
-              <Route path="/boost/cancel" element={<BoostCancelPage />} />
-              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-              <Route path="/admin/moderation" element={<AdminModerationPage />} />
-              <Route path="/admin/support" element={<AdminSupportPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/cookies" element={<CookiePolicyPage />} />
-              <Route path="/messages" element={<MessagesPage />} />
-              <Route path="/messages/:conversationId" element={<MessagesPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
-              <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
-              <Route path="/auth/confirm" element={<EmailConfirmationRedirectPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-            </Routes>
-          </Layout>
+          <Routes>
+            {/* Route sans Layout (pas de Header/Footer) */}
+            <Route path="/auth/confirm" element={<EmailConfirmationRedirectPage />} />
+            
+            {/* Routes avec Layout */}
+            <Route path="/*" element={
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/listing/:id" element={<ListingDetailPage />} />
+                  <Route path="/create" element={<CreateListingPage />} />
+                  <Route path="/profile/:userId" element={<ProfilePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/boost-history" element={<BoostHistoryPage />} />
+                  <Route path="/boost/success" element={<BoostSuccessPage />} />
+                  <Route path="/boost/cancel" element={<BoostCancelPage />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                  <Route path="/admin/moderation" element={<AdminModerationPage />} />
+                  <Route path="/admin/support" element={<AdminSupportPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/cookies" element={<CookiePolicyPage />} />
+                  <Route path="/messages" element={<MessagesPage />} />
+                  <Route path="/messages/:conversationId" element={<MessagesPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                </Routes>
+              </Layout>
+            } />
+          </Routes>
         </Router>
       </MenuProvider>
     </AuthProvider>
