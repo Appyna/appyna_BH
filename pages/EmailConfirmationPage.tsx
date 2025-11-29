@@ -35,7 +35,7 @@ export const EmailConfirmationPage: React.FC = () => {
                         </p>
                         
                         <p className="text-center text-base text-gray-700 leading-relaxed px-4">
-                            Une fois votre adresse confirmée, appuyez sur le bouton ci-dessous pour accéder à Appyna.
+                            <strong>Une fois votre adresse confirmée, appuyez sur le bouton ci-dessous pour accéder à votre compte Appyna.</strong>
                         </p>
                     </div>
                     

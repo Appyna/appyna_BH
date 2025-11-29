@@ -31,7 +31,7 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-lg w-full text-center">
         {status === 'loading' && (
           <>
@@ -48,14 +48,14 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-4 font-poppins">Bienvenue sur Appyna</h1>
-              <div className="h-1 w-24 bg-gradient-to-r from-purple-600 to-pink-500 mx-auto mb-8"></div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] bg-clip-text text-transparent mb-4 font-poppins">Bienvenue sur Appyna</h1>
+              <div className="h-1 w-24 bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] mx-auto mb-8"></div>
             </div>
             
             <div className="space-y-4 text-gray-700 font-montserrat">
               <p className="text-xl font-semibold">Votre compte a été activé avec succès.</p>
               <p className="text-lg leading-relaxed">
-                Retournez maintenant dans l'application Appyna pour vous connecter avec vos identifiants.
+                Retournez maintenant sur Appyna pour accéder à votre compte.
               </p>
             </div>
           </>
