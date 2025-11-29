@@ -304,58 +304,60 @@ const ChatWindow: React.FC<{
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Chat Header */}
-            <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
-                <div className="flex items-center">
-                    {otherUser.avatarUrl ? (
-                      <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-10 w-10 rounded-full object-cover mr-3" />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                        <Link 
-                            to={`/profile/${otherUser.id}`} 
-                            className="font-bold text-gray-800 hover:text-primary-600 transition-colors block overflow-hidden text-ellipsis whitespace-nowrap"
-                            title={otherUser.name}
-                        >
-                            {otherUser.name}
-                        </Link>
-                        {listing && (
-                            <Link 
-                              to={`/listing/${listing.id}`} 
-                              className="block text-sm text-primary-600 hover:underline overflow-hidden text-ellipsis whitespace-nowrap"
-                              title={listing.title}
-                            >
-                                {listing.title}
-                            </Link>
+            <div className="flex-shrink-0 p-4 border-b">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center min-w-0 flex-1">
+                        {otherUser.avatarUrl ? (
+                          <img src={otherUser.avatarUrl} alt={otherUser.name} className="h-10 w-10 rounded-full object-cover mr-3 flex-shrink-0" />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
                         )}
+                        <div className="min-w-0 flex-1">
+                            <Link 
+                                to={`/profile/${otherUser.id}`} 
+                                className="font-bold text-gray-800 hover:text-primary-600 transition-colors block overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={otherUser.name}
+                            >
+                                {otherUser.name}
+                            </Link>
+                            {listing && (
+                                <Link 
+                                  to={`/listing/${listing.id}`} 
+                                  className="block text-sm text-primary-600 hover:underline overflow-hidden text-ellipsis whitespace-nowrap"
+                                  title={listing.title}
+                                >
+                                    {listing.title}
+                                </Link>
+                            )}
+                        </div>
                     </div>
-                </div>
-                
-                {/* Boutons actions (signalement et suppression) */}
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setShowReportModal(true)}
-                        className="text-red-600 hover:text-red-700 transition-colors p-2"
-                        title="Signaler cette personne"
-                    >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd" />
-                        </svg>
-                    </button>
                     
-                    <button
-                        onClick={() => setShowDeleteModal(true)}
-                        className="text-gray-600 hover:text-red-600 transition-colors p-2"
-                        title="Supprimer cette discussion"
-                    >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+                    {/* Boutons actions (signalement et suppression) */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                            onClick={() => setShowReportModal(true)}
+                            className="text-red-600 hover:text-red-700 transition-colors p-2"
+                            title="Signaler cette personne"
+                        >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                        
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="text-gray-600 hover:text-red-600 transition-colors p-2"
+                            title="Supprimer cette discussion"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
