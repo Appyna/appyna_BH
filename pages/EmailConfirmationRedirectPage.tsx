@@ -48,13 +48,13 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] bg-clip-text text-transparent mb-4 font-poppins">Bienvenue sur Appyna</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] bg-clip-text text-transparent mb-4 font-poppins whitespace-nowrap">Bienvenue sur Appyna</h1>
               <div className="h-1 w-24 bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] mx-auto mb-8"></div>
             </div>
             
             <div className="space-y-4 text-gray-700 font-montserrat">
               <p className="text-xl font-semibold">Votre compte a été activé avec succès.</p>
-              <p className="text-lg leading-relaxed">
+              <p className="text-lg leading-relaxed font-medium">
                 Retournez maintenant sur Appyna pour accéder à votre compte.
               </p>
             </div>

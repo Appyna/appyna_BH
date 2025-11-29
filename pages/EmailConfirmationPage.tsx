@@ -26,16 +26,12 @@ export const EmailConfirmationPage: React.FC = () => {
                     </h2>
                     
                     <div className="mt-8 space-y-5 font-montserrat">
-                        <p className="text-center text-lg text-gray-700">
-                            Votre compte a bien été créé.
+                        <p className="text-center text-base text-gray-700 leading-relaxed px-4 font-medium">
+                            Consultez votre boîte mail et cliquez sur le lien de validation pour activer votre compte.
                         </p>
                         
-                        <p className="text-center text-base text-gray-700 leading-relaxed px-4">
-                            Dernière étape : Consultez votre boîte mail et cliquez sur le lien de validation pour activer votre compte.
-                        </p>
-                        
-                        <p className="text-center text-base text-gray-700 leading-relaxed px-4">
-                            <strong>Une fois votre adresse confirmée, appuyez sur le bouton ci-dessous pour accéder à votre compte Appyna.</strong>
+                        <p className="text-center text-base text-gray-700 leading-relaxed px-4 font-medium">
+                            Une fois votre adresse confirmée, appuyez sur le bouton ci-dessous pour accéder à votre compte Appyna.
                         </p>
                     </div>
                     
