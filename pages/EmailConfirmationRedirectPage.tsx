@@ -22,17 +22,8 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
         else if (isAndroid) setPlatform('android');
         else setPlatform('desktop');
 
-        // Récupérer le token de confirmation depuis l'URL
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
-        
-        if (!token || type !== 'signup') {
-          setStatus('error');
-          setMessage('Lien de confirmation invalide');
-          return;
-        }
-
-        // Vérifier la session (Supabase gère automatiquement la confirmation via le token dans l'URL)
+        // Laisser Supabase gérer la confirmation automatiquement via l'URL
+        // Il détecte automatiquement les tokens de confirmation
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
