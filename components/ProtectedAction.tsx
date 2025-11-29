@@ -52,8 +52,8 @@ export const ProtectedAction: React.FC<ProtectedActionProps> = ({
 
   // Cloner l'élément enfant en ajoutant nos gestionnaires d'événements
   return React.cloneElement(children, {
+    ...children.props,
     onClick: handleClick,
-    onFocus: handleFocus,
-    ...children.props
+    onFocus: handleFocus
   });
 };

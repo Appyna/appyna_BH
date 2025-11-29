@@ -107,7 +107,7 @@ async function enrichConversations(conversations: Conversation[], currentUserId:
             .from('listings')
             .select('id, title, is_hidden, user_id')
             .eq('id', conv.listingId)
-            .single();
+            .maybeSingle();
           
           if (!error && data) {
             // La RLS policy bloque déjà les annonces masquées
@@ -116,9 +116,14 @@ async function enrichConversations(conversations: Conversation[], currentUserId:
               id: data.id,
               title: data.is_hidden ? '[Annonce supprimée]' : data.title,
             };
+          } else if (error) {
+            // Erreur RLS ou annonce supprimée - afficher placeholder sans log d'erreur
+            listing = {
+              id: conv.listingId,
+              title: '[Annonce non disponible]'
+            };
           }
         } catch (err) {
-          console.error('Error fetching listing:', err);
           // Si l'annonce est masquée et que l'utilisateur n'a pas le droit, mettre un placeholder
           listing = {
             id: conv.listingId,
