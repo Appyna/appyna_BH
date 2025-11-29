@@ -25,65 +25,32 @@ export const EmailConfirmationPage: React.FC = () => {
                         Inscription réussie !
                     </h2>
                     
-                    <p className="mt-4 text-center text-lg text-gray-600 font-montserrat">
-                        Votre compte a été créé avec succès.
-                    </p>
-                    
-                    <div className="mt-8 bg-primary-50 border border-primary-200 rounded-2xl p-6">
-                        <p className="text-center text-gray-700 font-montserrat mb-4">
-                            <strong>Dernière étape :</strong> Vérifiez votre boîte email
+                    <div className="mt-8 space-y-5 font-montserrat">
+                        <p className="text-center text-lg text-gray-700">
+                            Votre compte a bien été créé.
                         </p>
                         
-                        <div className="space-y-3 text-sm text-gray-600">
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 mt-0.5">
-                                    <div className="bg-primary-500 rounded-full p-1">
-                                        <CheckIcon />
-                                    </div>
-                                </div>
-                                <p className="ml-3">
-                                    Nous vous avons envoyé un email de confirmation
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 mt-0.5">
-                                    <div className="bg-primary-500 rounded-full p-1">
-                                        <CheckIcon />
-                                    </div>
-                                </div>
-                                <p className="ml-3">
-                                    Cliquez sur le lien dans l'email pour activer votre compte
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 mt-0.5">
-                                    <div className="bg-primary-500 rounded-full p-1">
-                                        <CheckIcon />
-                                    </div>
-                                </div>
-                                <p className="ml-3">
-                                    Une fois confirmé, vous pourrez vous connecter et utiliser Appyna
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                        <p className="text-sm text-yellow-800 text-center">
-                            N'oubliez pas de vérifier vos <strong>spams</strong> si vous ne voyez pas l'email
+                        <p className="text-center text-base text-gray-700 leading-relaxed px-4">
+                            Dernière étape : Consultez votre boîte mail et cliquez sur le lien de validation pour activer votre compte.
+                        </p>
+                        
+                        <p className="text-center text-base text-gray-700 leading-relaxed px-4">
+                            Une fois votre adresse confirmée, appuyez sur le bouton ci-dessous pour accéder à Appyna.
                         </p>
                     </div>
                     
                     <div className="mt-8 text-center">
                         <Link 
-                            to="/login" 
-                            className="inline-flex items-center justify-center bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            to="/" 
+                            className="inline-flex items-center justify-center bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
                         >
-                            Retour à la connexion
+                            Accéder à Appyna
                         </Link>
                     </div>
+                    
+                    <p className="mt-6 text-xs text-gray-500 text-center font-montserrat">
+                        Pensez à vérifier vos spams si l'email n'apparaît pas.
+                    </p>
                 </div>
             </div>
         </div>
