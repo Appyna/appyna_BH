@@ -48,7 +48,7 @@ export const EmailConfirmationRedirectPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] bg-clip-text text-transparent mb-3 sm:mb-4 font-poppins px-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] bg-clip-text text-transparent mb-3 sm:mb-4 font-poppins px-2 whitespace-nowrap">
                 Bienvenue sur Appyna
               </h1>
               <div className="h-1 w-20 sm:w-24 bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] mx-auto mb-6 sm:mb-8"></div>
