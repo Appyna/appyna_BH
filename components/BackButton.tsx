@@ -68,7 +68,8 @@ export const BackButton: React.FC = () => {
   return (
     <button
       onClick={handleBack}
-      className="absolute top-4 left-4 z-30 p-2 rounded-full bg-gray-500/20 hover:bg-gray-600/30 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 text-white/60 hover:text-white/80 hover:scale-105"
+      className="fixed top-24 left-6 z-30 p-2 rounded-full bg-gray-500/20 hover:bg-gray-600/30 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 text-white/60 hover:text-white/80 hover:scale-105"
+      style={{ top: 'calc(80px + env(safe-area-inset-top, 0px) + 1rem)' }}
       aria-label="Retour"
     >
       <ArrowLeftIcon />
