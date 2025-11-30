@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/icons/Logo';
-import { BackButton } from '../components/BackButton';
 import { useAuth } from '../contexts/AuthContext';
 import { listingsService } from '../lib/listingsService';
 
@@ -53,7 +52,6 @@ export const SignUpPage: React.FC = () => {
 
     return (
         <div className="min-h-full flex flex-col justify-center py-8 sm:py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-teal-50">
-            <BackButton />
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <h2 className="mt-6 sm:mt-8 text-center text-3xl sm:text-4xl font-bold font-poppins">
                     <span className="text-gray-900">Bienvenue sur </span>
