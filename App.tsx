@@ -103,7 +103,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen font-sans">
       <Header />
-      <main className="flex-grow pt-20 md:pt-0">
+      <main className="flex-grow">
         {children}
       </main>
     </div>
