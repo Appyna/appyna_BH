@@ -18,13 +18,11 @@ export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { count: messageCount } = useMessagesBadge();
 
   // Refs pour détecter les clics en dehors
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -32,39 +30,8 @@ export const Header: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Gérer le hide/show du header au scroll (mobile uniquement)
-  useEffect(() => {
-    const handleScroll = () => {
-      // Uniquement sur mobile (< 768px)
-      if (window.innerWidth >= 768) {
-        setIsHeaderVisible(true);
-        return;
-      }
-      
-      const currentScrollY = window.scrollY;
-      
-      // Si on est tout en haut (moins de 10px), toujours afficher
-      if (currentScrollY < 10) {
-        setIsHeaderVisible(true);
-        lastScrollY.current = currentScrollY;
-        return;
-      }
-      
-      // Scroll vers le bas -> cacher immédiatement
-      if (currentScrollY > lastScrollY.current) {
-        setIsHeaderVisible(false);
-      }
-      // Scroll vers le haut -> afficher
-      else if (currentScrollY < lastScrollY.current) {
-        setIsHeaderVisible(true);
-      }
-      
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Header toujours visible (pas de hide au scroll pour éviter les problèmes sur iPhone)
+  // Le code de gestion du scroll a été retiré pour une meilleure expérience mobile
 
   // Fermer les menus au clic en dehors
   useEffect(() => {
@@ -101,8 +68,8 @@ export const Header: React.FC = () => {
 
   return (
     <>
-    <header className={`bg-white/95 backdrop-blur-lg shadow-lg fixed md:sticky top-0 w-full z-40 border-b border-purple-100 transition-transform duration-300 md:translate-y-0 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-[200%] md:translate-y-0'}`}>
-      <div className="container mx-auto px-4">
+    <header className={`bg-white/95 backdrop-blur-lg shadow-lg sticky top-0 w-full z-40 border-b border-purple-100 transition-transform duration-300`} style={{ top: 'env(safe-area-inset-top, 0)' }}>
+      <div className="container mx-auto px-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 0))' }}>
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center md:ml-0 ml-2">
             <Link to="/" className="flex-shrink-0 transition-transform hover:scale-105">
