@@ -492,6 +492,13 @@ export const MessagesPage: React.FC = () => {
   // Récupérer les données passées depuis "Contacter"
   const locationState = location.state as { recipientId?: string; listingId?: string } | null;
   
+  // Réinitialiser le flag quand on change de conversation ou qu'on n'a plus de recipientId
+  useEffect(() => {
+    if (!locationState?.recipientId || conversationId) {
+      hasProcessedState.current = false;
+    }
+  }, [conversationId, locationState?.recipientId]);
+  
   // Helper: Récupérer le dernier message vu pour une conversation depuis localStorage
   const getLastSeenMessageId = (convId: string): string | null => {
     return localStorage.getItem(`lastSeen_${convId}`);
@@ -565,6 +572,12 @@ export const MessagesPage: React.FC = () => {
             locationState.recipientId!
           );
           
+          if (!conv) {
+            console.error('Failed to get or create conversation');
+            alert('Erreur lors de la création de la conversation');
+            return;
+          }
+          
           // Enrichir la conversation et l'ajouter à la liste si elle n'existe pas
           const enriched = await enrichConversations([conv], user.id);
           setConversations(prev => {
@@ -575,16 +588,18 @@ export const MessagesPage: React.FC = () => {
             return prev;
           });
           
-          navigate(`/messages/${conv.id}`, { replace: true });
+          // Naviguer vers la conversation en nettoyant le state
+          navigate(`/messages/${conv.id}`, { replace: true, state: {} });
         } catch (error) {
           console.error('Error creating conversation:', error);
           alert('Erreur lors de la création de la conversation');
+          hasProcessedState.current = false; // Réinitialiser en cas d'erreur
         }
       };
 
       handleContact();
     }
-  }, [locationState, conversationId, user?.id, navigate]);
+  }, [locationState?.recipientId, locationState?.listingId, conversationId, user?.id, navigate]);
   
   // Chercher la conversation active
   const activeConversation = conversations.find(c => c.id === conversationId);
