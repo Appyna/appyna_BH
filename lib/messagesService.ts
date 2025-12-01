@@ -135,36 +135,61 @@ export const messagesService = {
     user2Id: string
   ): Promise<Conversation | null> {
     try {
-      // Chercher une conversation existante (peu importe l'ordre des utilisateurs)
-      let query = supabase
+      // D'abord, chercher UNE conversation (même soft deleted) sans filtre RLS
+      // On utilise .from() sans restriction pour voir toutes les conversations
+      let searchQuery = supabase
         .from('conversations')
-        .select('*');
+        .select('id, listing_id, user1_id, user2_id, deleted_by');
       
       // Si listingId est fourni, chercher conversation pour cette annonce
       if (listingId) {
-        query = query
+        searchQuery = searchQuery
           .eq('listing_id', listingId)
           .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
       } else {
         // Sinon, chercher conversation sans annonce entre ces 2 utilisateurs
-        query = query
+        searchQuery = searchQuery
           .is('listing_id', null)
           .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
       }
       
-      const { data: existing, error: searchError } = await query.maybeSingle();
+      const { data: foundConversations, error: searchError } = await searchQuery;
 
-      if (searchError && searchError.code !== 'PGRST116') {
+      if (searchError) {
         logger.error('Error searching conversation:', searchError);
         return null;
       }
 
-      if (existing) {
-        // Conversation existante, récupérer les messages
-        return await messagesService.getConversationById(existing.id);
+      // Si une conversation existe (même supprimée)
+      if (foundConversations && foundConversations.length > 0) {
+        const conv = foundConversations[0];
+        
+        // Vérifier si l'utilisateur actuel (user1Id) l'a supprimée
+        const deletedBy = conv.deleted_by || [];
+        const isDeletedByCurrentUser = deletedBy.includes(user1Id);
+        
+        if (isDeletedByCurrentUser) {
+          // Réactiver la conversation en retirant user1Id du tableau deleted_by
+          const newDeletedBy = deletedBy.filter((id: string) => id !== user1Id);
+          
+          const { error: updateError } = await supabase
+            .from('conversations')
+            .update({ deleted_by: newDeletedBy })
+            .eq('id', conv.id);
+          
+          if (updateError) {
+            logger.error('Error reactivating conversation:', updateError);
+            return null;
+          }
+          
+          logger.info('Conversation reactivated:', conv.id);
+        }
+        
+        // Récupérer la conversation complète avec les messages
+        return await messagesService.getConversationById(conv.id);
       }
 
-      // Créer une nouvelle conversation
+      // Aucune conversation existante : en créer une nouvelle
       const { data: newConv, error: createError } = await supabase
         .from('conversations')
         .insert([
