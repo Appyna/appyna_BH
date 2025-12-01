@@ -127,21 +127,32 @@ export const messagesService = {
   },
 
   /**
-   * Crée ou récupère une conversation entre deux utilisateurs pour une annonce
+   * Crée ou récupère une conversation entre deux utilisateurs (avec ou sans annonce)
    */
   async getOrCreateConversation(
-    listingId: string,
+    listingId: string | null,
     user1Id: string,
     user2Id: string
   ): Promise<Conversation | null> {
     try {
       // Chercher une conversation existante (peu importe l'ordre des utilisateurs)
-      const { data: existing, error: searchError } = await supabase
+      let query = supabase
         .from('conversations')
-        .select('*')
-        .eq('listing_id', listingId)
-        .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`)
-        .maybeSingle();
+        .select('*');
+      
+      // Si listingId est fourni, chercher conversation pour cette annonce
+      if (listingId) {
+        query = query
+          .eq('listing_id', listingId)
+          .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
+      } else {
+        // Sinon, chercher conversation sans annonce entre ces 2 utilisateurs
+        query = query
+          .is('listing_id', null)
+          .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
+      }
+      
+      const { data: existing, error: searchError } = await query.maybeSingle();
 
       if (searchError && searchError.code !== 'PGRST116') {
         logger.error('Error searching conversation:', searchError);

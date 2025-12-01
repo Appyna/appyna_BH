@@ -552,13 +552,15 @@ export const MessagesPage: React.FC = () => {
   
   // Gérer la création/recherche de conversation depuis "Contacter"
   useEffect(() => {
-    if (locationState?.recipientId && locationState?.listingId && !conversationId && !hasProcessedState.current && user?.id) {
+    if (locationState?.recipientId && !conversationId && !hasProcessedState.current && user?.id) {
       hasProcessedState.current = true;
       
       const handleContact = async () => {
         try {
+          // Si listingId est fourni (contact depuis annonce), l'utiliser
+          // Sinon null (contact depuis profil)
           const conv = await messagesService.getOrCreateConversation(
-            locationState.listingId!,
+            locationState.listingId || null,
             user.id,
             locationState.recipientId!
           );
