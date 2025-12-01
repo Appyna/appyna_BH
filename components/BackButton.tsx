@@ -26,10 +26,20 @@ export const BackButton: React.FC = () => {
     
     const returnPath = sessionStorage.getItem('return_path');
     
+    // Cas spécial : Settings retourne vers le profil de l'utilisateur
+    if (location.pathname === '/settings') {
+      const userId = sessionStorage.getItem('current_user_id');
+      if (userId) {
+        navigate(`/profile/${userId}`);
+      } else {
+        navigate('/');
+      }
+      return;
+    }
+    
     // Pages avec comportement spécifique de retour
     const specificRoutes: { [key: string]: string } = {
       '/favorites': '/',
-      '/settings': '/',
       '/boost-history': '/',
     };
     

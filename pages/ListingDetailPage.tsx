@@ -503,7 +503,7 @@ export const ListingDetailPage: React.FC = () => {
                  /* Contact pour les annonces des autres */
                  <>
                    <div className="flex items-center mb-6">
-                     <Link to={`/profile/${user.id}`}>
+                     <Link to={`/profile/${user.id}`} onClick={() => sessionStorage.setItem('return_path', `/listing/${listing.id}`)}>
                         {user.avatarUrl ? (
                           <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
                         ) : (
@@ -517,6 +517,7 @@ export const ListingDetailPage: React.FC = () => {
                      <div className="flex-1 min-w-0">
                         <Link 
                           to={`/profile/${user.id}`} 
+                          onClick={() => sessionStorage.setItem('return_path', `/listing/${listing.id}`)}
                           className="font-bold text-lg text-gray-800 hover:text-primary-600 block overflow-hidden text-ellipsis whitespace-nowrap"
                           title={user.name}
                         >
@@ -535,6 +536,7 @@ export const ListingDetailPage: React.FC = () => {
                    <div className="text-center mt-6">
                      <Link 
                        to={`/profile/${user.id}`} 
+                       onClick={() => sessionStorage.setItem('return_path', `/listing/${listing.id}`)}
                        className="text-sm font-semibold text-primary-600 hover:underline inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                        title={`Voir toutes les annonces de ${user.name}`}
                      >

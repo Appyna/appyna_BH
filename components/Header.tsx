@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
                       
                       {isSettingsOpen && (
                         <div className="bg-gray-50 border-l-2 border-primary-400">
-                          <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsProfileOpen(false); setIsSettingsOpen(false); }}>
+                          <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { sessionStorage.setItem('current_user_id', user.id); setIsProfileOpen(false); setIsSettingsOpen(false); }}>
                             Modifier mon profil
                           </NavLink>
                           <button 
@@ -222,7 +222,7 @@ export const Header: React.FC = () => {
                     
                     {isSettingsOpen && (
                       <div className="bg-gray-50 rounded-xl mt-2 border-l-2 border-primary-400">
-                        <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { setIsMenuOpen(false); setIsSettingsOpen(false); }}>
+                        <NavLink to="/settings" className="block px-6 py-2.5 text-sm text-gray-600 hover:bg-purple-50 font-montserrat transition-colors" onClick={() => { sessionStorage.setItem('current_user_id', user.id); setIsMenuOpen(false); setIsSettingsOpen(false); }}>
                           Modifier mon profil
                         </NavLink>
                         <button 
