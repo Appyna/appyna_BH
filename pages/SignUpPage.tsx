@@ -8,6 +8,7 @@ export const SignUpPage: React.FC = () => {
     const navigate = useNavigate();
     const { register } = useAuth();
     const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [acceptedVeracity, setAcceptedVeracity] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -16,6 +17,10 @@ export const SignUpPage: React.FC = () => {
         e.preventDefault();
         if (!acceptedTerms) {
             setError('Veuillez accepter les conditions d\'utilisation pour continuer.');
+            return;
+        }
+        if (!acceptedVeracity) {
+            setError('Veuillez confirmer la véracité de votre profil pour continuer.');
             return;
         }
         
@@ -147,6 +152,25 @@ export const SignUpPage: React.FC = () => {
                                         conditions d'utilisation
                                     </button>
                                     {' '}du site Appyna.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start">
+                            <div className="flex items-center h-5">
+                                <input
+                                    id="veracity"
+                                    name="veracity"
+                                    type="checkbox"
+                                    checked={acceptedVeracity}
+                                    onChange={(e) => setAcceptedVeracity(e.target.checked)}
+                                    required
+                                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                />
+                            </div>
+                            <div className="ml-3 text-sm">
+                                <label htmlFor="veracity" className="text-gray-700 font-montserrat">
+                                    Je garantis la véracité de mon profil et mes annonces, et reconnais que des informations ou profils tiers peuvent être inexacts, ce dont j'assume la responsabilité.
                                 </label>
                             </div>
                         </div>
