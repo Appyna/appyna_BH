@@ -128,6 +128,7 @@ export const messagesService = {
 
   /**
    * Crée ou récupère une conversation entre deux utilisateurs (avec ou sans annonce)
+   * Utilise une fonction RPC pour bypass RLS et restaurer les conversations supprimées
    */
   async getOrCreateConversation(
     listingId: string | null,
@@ -135,84 +136,26 @@ export const messagesService = {
     user2Id: string
   ): Promise<Conversation | null> {
     try {
-      // D'abord, chercher UNE conversation (même soft deleted) sans filtre RLS
-      // On utilise .from() sans restriction pour voir toutes les conversations
-      let searchQuery = supabase
-        .from('conversations')
-        .select('id, listing_id, user1_id, user2_id, deleted_by');
-      
-      // Si listingId est fourni, chercher conversation pour cette annonce
-      if (listingId) {
-        searchQuery = searchQuery
-          .eq('listing_id', listingId)
-          .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
-      } else {
-        // Sinon, chercher conversation sans annonce entre ces 2 utilisateurs
-        searchQuery = searchQuery
-          .is('listing_id', null)
-          .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`);
-      }
-      
-      const { data: foundConversations, error: searchError } = await searchQuery;
+      // Appeler la fonction SQL qui gère la restauration et la création
+      const { data: conversationId, error: rpcError } = await supabase
+        .rpc('restore_or_create_conversation', {
+          p_listing_id: listingId,
+          p_user1_id: user1Id,
+          p_user2_id: user2Id,
+        });
 
-      if (searchError) {
-        logger.error('Error searching conversation:', searchError);
+      if (rpcError) {
+        logger.error('Error in restore_or_create_conversation:', rpcError);
         return null;
       }
 
-      // Si une conversation existe (même supprimée)
-      if (foundConversations && foundConversations.length > 0) {
-        const conv = foundConversations[0];
-        
-        // Vérifier si l'utilisateur actuel (user1Id) l'a supprimée
-        const deletedBy = conv.deleted_by || [];
-        const isDeletedByCurrentUser = deletedBy.includes(user1Id);
-        
-        if (isDeletedByCurrentUser) {
-          // Réactiver la conversation en retirant user1Id du tableau deleted_by
-          const newDeletedBy = deletedBy.filter((id: string) => id !== user1Id);
-          
-          const { error: updateError } = await supabase
-            .from('conversations')
-            .update({ deleted_by: newDeletedBy })
-            .eq('id', conv.id);
-          
-          if (updateError) {
-            logger.error('Error reactivating conversation:', updateError);
-            return null;
-          }
-          
-          logger.info('Conversation reactivated:', conv.id);
-        }
-        
-        // Récupérer la conversation complète avec les messages
-        return await messagesService.getConversationById(conv.id);
-      }
-
-      // Aucune conversation existante : en créer une nouvelle
-      const { data: newConv, error: createError } = await supabase
-        .from('conversations')
-        .insert([
-          {
-            listing_id: listingId,
-            user1_id: user1Id,
-            user2_id: user2Id,
-          },
-        ])
-        .select()
-        .single();
-
-      if (createError || !newConv) {
-        logger.error('Error creating conversation:', createError);
+      if (!conversationId) {
+        logger.error('No conversation ID returned from RPC');
         return null;
       }
 
-      return {
-        id: newConv.id,
-        listingId: newConv.listing_id,
-        participantIds: [newConv.user1_id, newConv.user2_id],
-        messages: [],
-      };
+      // Récupérer la conversation complète avec les messages
+      return await messagesService.getConversationById(conversationId);
     } catch (error) {
       logger.error('Error in getOrCreateConversation:', error);
       return null;
