@@ -170,7 +170,7 @@ export const SignUpPage: React.FC = () => {
                             </div>
                             <div className="ml-3 text-xs">
                                 <label htmlFor="veracity" className="text-gray-700 font-montserrat">
-                                    Je garantis la véracité de mon profil et mes annonces, et reconnais que des informations ou profils tiers peuvent être inexacts, ce dont j'assume la responsabilité.
+                                    Je garantis la véracité de mon profil, et reconnais que des informations ou profils tiers peuvent être inexacts, ce dont j'assume la responsabilité.
                                 </label>
                             </div>
                         </div>
