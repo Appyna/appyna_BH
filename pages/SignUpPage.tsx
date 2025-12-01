@@ -141,7 +141,7 @@ export const SignUpPage: React.FC = () => {
                                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                                 />
                             </div>
-                            <div className="ml-3 text-sm">
+                            <div className="ml-3 text-xs">
                                 <label htmlFor="terms" className="text-gray-700 font-montserrat">
                                     J'accepte les{' '}
                                     <button
@@ -168,7 +168,7 @@ export const SignUpPage: React.FC = () => {
                                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                                 />
                             </div>
-                            <div className="ml-3 text-sm">
+                            <div className="ml-3 text-xs">
                                 <label htmlFor="veracity" className="text-gray-700 font-montserrat">
                                     Je garantis la véracité de mon profil et mes annonces, et reconnais que des informations ou profils tiers peuvent être inexacts, ce dont j'assume la responsabilité.
                                 </label>
