@@ -79,52 +79,37 @@ export const ProfilePage: React.FC = () => {
         loadUserData();
     }, [userId, currentUser, isOwnProfile]);
 
-    // Restaurer la position de scroll DIRECTEMENT (même logique que HomePage)
+    // Restaurer la position via index (même logique que HomePage)
     useEffect(() => {
-        const savedPosition = sessionStorage.getItem('scroll_position');
+        if (loading) return;
+        
+        const savedIndex = sessionStorage.getItem('listing_index');
         const returnPath = sessionStorage.getItem('return_path');
         const currentPath = `/profile/${userId}`;
         
         console.log('📍 ProfilePage - Restauration:', {
             returnPath,
-            savedPosition,
+            savedIndex,
             currentPath,
             match: returnPath === currentPath
         });
         
-        if (savedPosition && returnPath === currentPath && !loading) {
-            const targetPosition = parseInt(savedPosition);
+        if (savedIndex && returnPath === currentPath) {
+            const targetIndex = parseInt(savedIndex);
             
-            const restoreScroll = (attempts = 0) => {
-                const bodyHeight = document.body.scrollHeight;
-                const windowHeight = window.innerHeight;
-                const maxScroll = bodyHeight - windowHeight;
-                const canScroll = maxScroll >= targetPosition;
-                
-                console.log(`📏 Profil - Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}`);
-                
-                if (canScroll) {
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'instant'
-                    });
-                    console.log('✅ Profil - Scroll restauré à:', window.scrollY);
-                    sessionStorage.removeItem('scroll_position');
-                    sessionStorage.removeItem('return_path');
-                } else if (attempts < 10) {
-                    setTimeout(() => restoreScroll(attempts + 1), 50);
+            // Attendre que React ait fini de render
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.listing-card');
+                console.log(`🔍 Profil - Recherche index ${targetIndex} parmi ${cards.length} cards`);
+                const targetCard = cards[targetIndex];
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
+                    console.log(`✅ Profil - Scroll restauré vers l'index ${targetIndex}`);
+                    sessionStorage.removeItem('listing_index');
                 } else {
-                    window.scrollTo({
-                        top: Math.min(targetPosition, maxScroll),
-                        behavior: 'instant'
-                    });
-                    console.log('⚠️ Profil - Scroll partiel à:', window.scrollY);
-                    sessionStorage.removeItem('scroll_position');
-                    sessionStorage.removeItem('return_path');
+                    console.log(`⚠️ Profil - Card index ${targetIndex} introuvable (total: ${cards.length})`);
                 }
-            };
-            
-            requestAnimationFrame(() => restoreScroll());
+            }, 100);
         } else {
             // Scroll to top si pas de restauration
             window.scrollTo(0, 0);
@@ -213,8 +198,14 @@ export const ProfilePage: React.FC = () => {
                         </h2>
                         {userListings.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
-                                {userListings.map(listing => (
-                                    <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} fromProfile={true} />
+                                {userListings.map((listing, index) => (
+                                    <ListingCard 
+                                        key={listing.id} 
+                                        listing={listing} 
+                                        getRelativeTime={getRelativeTime} 
+                                        fromProfile={true}
+                                        listingIndex={index}
+                                    />
                                 ))}
                             </div>
                         ) : (

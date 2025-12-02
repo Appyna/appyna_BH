@@ -281,13 +281,13 @@ export const ListingDetailPage: React.FC = () => {
       {/* Bouton retour intelligent */}
       <BackButton />
       
-      <div className="container mx-auto px-4 py-8 pt-6 md:pt-8">
+      <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main content */}
           <div className="lg:col-span-2">
             {/* Galerie photos */}
-            <div className="relative mb-6 mt-6 md:mt-8">
+            <div className="relative mb-6 mt-2">
               <div 
                 className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-gray-200 cursor-pointer group"
                 onClick={openModal}
@@ -566,7 +566,7 @@ export const ListingDetailPage: React.FC = () => {
             {/* Bouton fermer */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 text-white transition-all duration-300 hover:scale-110"
+              className="absolute top-8 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 text-white transition-all duration-300 hover:scale-110"
             >
               <CloseIcon />
             </button>

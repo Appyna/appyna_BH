@@ -49,51 +49,36 @@ export const FavoritesPage: React.FC = () => {
     loadFavorites();
   }, [user?.favorites]);
 
-  // Restaurer la position de scroll DIRECTEMENT (même logique que HomePage)
+  // Restaurer la position via index (même logique que HomePage)
   useEffect(() => {
-    const savedPosition = sessionStorage.getItem('scroll_position');
+    if (loading) return;
+    
+    const savedIndex = sessionStorage.getItem('listing_index');
     const returnPath = sessionStorage.getItem('return_path');
     
     console.log('📍 FavoritesPage - Restauration:', {
       returnPath,
-      savedPosition,
+      savedIndex,
       currentPath: '/favorites',
       match: returnPath === '/favorites'
     });
     
-    if (savedPosition && returnPath === '/favorites' && !loading) {
-      const targetPosition = parseInt(savedPosition);
+    if (savedIndex && returnPath === '/favorites') {
+      const targetIndex = parseInt(savedIndex);
       
-      const restoreScroll = (attempts = 0) => {
-        const bodyHeight = document.body.scrollHeight;
-        const windowHeight = window.innerHeight;
-        const maxScroll = bodyHeight - windowHeight;
-        const canScroll = maxScroll >= targetPosition;
-        
-        console.log(`📏 Favoris - Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}`);
-        
-        if (canScroll) {
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'instant'
-          });
-          console.log('✅ Favoris - Scroll restauré à:', window.scrollY);
-          sessionStorage.removeItem('scroll_position');
-          sessionStorage.removeItem('return_path');
-        } else if (attempts < 10) {
-          setTimeout(() => restoreScroll(attempts + 1), 50);
+      // Attendre que React ait fini de render
+      setTimeout(() => {
+        const cards = document.querySelectorAll('.listing-card');
+        console.log(`🔍 Favoris - Recherche index ${targetIndex} parmi ${cards.length} cards`);
+        const targetCard = cards[targetIndex];
+        if (targetCard) {
+          targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
+          console.log(`✅ Favoris - Scroll restauré vers l'index ${targetIndex}`);
+          sessionStorage.removeItem('listing_index');
         } else {
-          window.scrollTo({
-            top: Math.min(targetPosition, maxScroll),
-            behavior: 'instant'
-          });
-          console.log('⚠️ Favoris - Scroll partiel à:', window.scrollY);
-          sessionStorage.removeItem('scroll_position');
-          sessionStorage.removeItem('return_path');
+          console.log(`⚠️ Favoris - Card index ${targetIndex} introuvable (total: ${cards.length})`);
         }
-      };
-      
-      requestAnimationFrame(() => restoreScroll());
+      }, 100);
     } else {
       // Scroll to top si pas de restauration
       window.scrollTo(0, 0);
@@ -146,8 +131,14 @@ export const FavoritesPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favoriteListings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} fromFavorites={true} />
+            {favoriteListings.map((listing, index) => (
+              <ListingCard 
+                key={listing.id} 
+                listing={listing} 
+                getRelativeTime={getRelativeTime} 
+                fromFavorites={true}
+                listingIndex={index}
+              />
             ))}
           </div>
         )}

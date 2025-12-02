@@ -384,7 +384,7 @@ export const HomePage: React.FC = () => {
             {/* Message de fin si plus d'annonces */}
             {!hasMore && filteredListings.length > 0 && (
               <div className="text-center py-8 text-gray-500 font-montserrat">
-                Vous avez vu toutes les annonces disponibles ✨
+                Vous avez vu toutes les annonces disponibles
               </div>
             )}
           </>
