@@ -56,28 +56,24 @@ const ScrollManager: React.FC = () => {
         const maxScroll = bodyHeight - windowHeight;
         const canScroll = maxScroll >= targetPosition;
         
-        console.log(`📏 Tentative ${attempts + 1}: maxScroll=${maxScroll}, target=${targetPosition}, canScroll=${canScroll}`);
-        
         if (canScroll) {
           // Le contenu est assez grand, on peut scroller
           window.scrollTo({
             top: targetPosition,
             behavior: 'instant' // Scroll instantané
           });
-          console.log('✅ Scroll restauré à:', window.scrollY);
+          console.log('✅ Scroll restauré à:', window.scrollY, '/', targetPosition);
           // Ne PAS nettoyer le sessionStorage ici - on pourrait avoir besoin de revenir
-        } else if (attempts < 25) {
-          // Réessayer après un délai (max 25 tentatives = 2500ms)
-          // Augmenter le délai progressivement pour laisser le temps au rendu
-          const delay = attempts < 10 ? 50 : 100;
-          setTimeout(() => restoreScroll(attempts + 1), delay);
+        } else if (attempts < 20) {
+          // Réessayer après un court délai (max 20 tentatives = 1000ms)
+          setTimeout(() => restoreScroll(attempts + 1), 50);
         } else {
           // Dernière tentative : scroller au maximum possible
           window.scrollTo({
             top: Math.min(targetPosition, maxScroll),
             behavior: 'instant'
           });
-          console.log('⚠️ Scroll partiel restauré à:', window.scrollY, '(target:', targetPosition, ')');
+          console.log('⚠️ Scroll partiel:', window.scrollY, '/', targetPosition, '(max:', maxScroll, ')');
           // Ne PAS nettoyer le sessionStorage même en cas d'échec
         }
       };

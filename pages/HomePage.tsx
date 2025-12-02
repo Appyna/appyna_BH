@@ -31,31 +31,17 @@ const getRelativeTime = (date: Date): string => {
 export const HomePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Calculer le nombre initial d'annonces à charger en fonction du scroll sauvegardé
-  const getInitialDisplayCount = () => {
+  // Vérifier si on doit restaurer le scroll
+  const shouldRestoreScroll = () => {
     const savedPosition = sessionStorage.getItem('scroll_position');
     const returnPath = sessionStorage.getItem('return_path');
     const currentPath = window.location.pathname + window.location.search;
-    
-    // Si on revient sur cette page avec une position sauvegardée
-    if (savedPosition && returnPath === currentPath) {
-      const scrollY = parseInt(savedPosition);
-      // Estimer la hauteur par annonce selon la largeur d'écran
-      // Mobile (< 768px): ~500-600px par annonce (1 colonne)
-      // Tablet (768-1024px): ~350-400px par annonce (2 colonnes)
-      // Desktop (> 1024px): ~300-350px par annonce (3 colonnes)
-      const isMobile = window.innerWidth < 768;
-      const avgHeightPerListing = isMobile ? 550 : 350;
-      
-      // Charger assez d'annonces + marge de sécurité
-      const estimatedListings = Math.ceil(scrollY / avgHeightPerListing) + 24;
-      console.log(`🎯 Pré-chargement ${estimatedListings} annonces pour scroll ${scrollY}px`);
-      return estimatedListings;
-    }
-    return 12;
+    return !!(savedPosition && returnPath === currentPath);
   };
   
-  const [displayedListings, setDisplayedListings] = useState(getInitialDisplayCount());
+  // Si on doit restaurer le scroll, charger toutes les annonces d'un coup
+  // Sinon commencer avec 12
+  const [displayedListings, setDisplayedListings] = useState(shouldRestoreScroll() ? 9999 : 12);
   const [isLoading, setIsLoading] = useState(false);
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
