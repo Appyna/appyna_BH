@@ -78,7 +78,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
           </div>
         )}
         
-        <h3 className="text-[1.65rem] sm:text-3xl font-extrabold text-gray-900 font-poppins text-center mb-3">
+        <h3 className="text-[1.55rem] sm:text-3xl font-extrabold text-gray-900 font-poppins text-center mb-3">
           Booster mon annonce
         </h3>
         
