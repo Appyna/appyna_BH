@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ListingCard } from '../components/ListingCard';
+import { AdBanner } from '../components/AdBanner';
 import { CITIES_ISRAEL, Category, Listing, ListingType } from '../types';
 import { listingsService } from '../lib/listingsService';
 
@@ -354,12 +355,35 @@ export const HomePage: React.FC = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
               {filteredListings.map((listing, index) => (
-                <ListingCard 
-                  key={listing.id} 
-                  listing={listing} 
-                  getRelativeTime={getRelativeTime}
-                  listingIndex={index}
-                />
+                <React.Fragment key={listing.id}>
+                  <ListingCard 
+                    listing={listing} 
+                    getRelativeTime={getRelativeTime}
+                    listingIndex={index}
+                  />
+                  
+                  {/* Publicité Mobile: toutes les 5 annonces */}
+                  {(index + 1) % 5 === 0 && (
+                    <div className="md:hidden col-span-1">
+                      <AdBanner 
+                        format="horizontal" 
+                        adSlot={`mobile-slot-${Math.floor((index + 1) / 5)}`}
+                        className="my-6"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Publicité Desktop: toutes les 2 rangées (6 annonces) */}
+                  {(index + 1) % 6 === 0 && (
+                    <div className="hidden md:block md:col-span-3">
+                      <AdBanner 
+                        format="horizontal" 
+                        adSlot={`desktop-slot-${Math.floor((index + 1) / 6)}`}
+                        className="my-8"
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
             

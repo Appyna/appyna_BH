@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { BackButton } from '../components/BackButton';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 import { ProtectedAction } from '../components/ProtectedAction';
+import { AdBanner } from '../components/AdBanner';
 import { useAuth } from '../contexts/AuthContext';
 import { EditListingModal } from '../components/EditListingModal';
 import { ReportModal } from '../components/ReportModal';
@@ -458,11 +459,12 @@ export const ListingDetailPage: React.FC = () => {
           
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28 bg-gray-50 p-6 rounded-2xl border">
-               {isOwnListing ? (
-                 /* Boutons de gestion pour l'annonce du user */
-                 <div className="space-y-3">
-                   <h3 className="font-bold text-lg text-gray-800 mb-4 font-poppins">Gérer mon annonce</h3>
+            <div className="sticky top-28 space-y-6">
+              <div className="bg-gray-50 p-6 rounded-2xl border">
+                {isOwnListing ? (
+                  /* Boutons de gestion pour l'annonce du user */
+                  <div className="space-y-3">
+                    <h3 className="font-bold text-lg text-gray-800 mb-4 font-poppins">Gérer mon annonce</h3>
                    
                    <button
                      onClick={handleBoostClick}
@@ -492,17 +494,17 @@ export const ListingDetailPage: React.FC = () => {
                      <EditIcon /> Modifier l'annonce
                    </button>
                    
-                   <button
+                     <button
                      onClick={() => setShowDeleteModal(true)}
                      className="w-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
                    >
                      <TrashIcon /> Supprimer l'annonce
                    </button>
-                 </div>
-               ) : user ? (
-                 /* Contact pour les annonces des autres */
-                 <>
-                   <div className="flex items-center mb-6">
+                  </div>
+                ) : user ? (
+                  /* Contact pour les annonces des autres */
+                  <>
+                    <div className="flex items-center mb-6">
                      <Link to={`/profile/${user.id}`} onClick={() => sessionStorage.setItem('return_path', `/listing/${listing.id}`)}>
                         {user.avatarUrl ? (
                           <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-full object-cover mr-4" />
@@ -543,11 +545,28 @@ export const ListingDetailPage: React.FC = () => {
                         Voir toutes les annonces de {user.name}
                      </Link>
                    </div>
-                 </>
-               ) : null}
+                  </>
+                ) : null}
+              </div>
+              
+              {/* Publicité Sidebar - Desktop uniquement */}
+              <div className="hidden lg:block">
+                <AdBanner 
+                  format="square" 
+                  adSlot="sidebar-square"
+                />
+              </div>
             </div>
           </div>
           
+        </div>
+        
+        {/* Publicité Mobile - En bas de la page */}
+        <div className="lg:hidden mt-8 pb-8">
+          <AdBanner 
+            format="horizontal" 
+            adSlot="mobile-bottom"
+          />
         </div>
       </div>
 
