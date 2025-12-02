@@ -553,7 +553,7 @@ export const ListingDetailPage: React.FC = () => {
               <div className="hidden lg:block">
                 <AdBanner 
                   format="square" 
-                  adSlot="sidebar-square"
+                  adSlot="6772460317"
                 />
               </div>
             </div>
@@ -565,7 +565,7 @@ export const ListingDetailPage: React.FC = () => {
         <div className="lg:hidden mt-8 pb-8">
           <AdBanner 
             format="horizontal" 
-            adSlot="mobile-bottom"
+            adSlot="3278393270"
           />
         </div>
       </div>

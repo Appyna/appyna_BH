@@ -100,7 +100,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
             display: 'block',
             textAlign: 'center'
           }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // À REMPLACER par votre Publisher ID
+          data-ad-client="ca-pub-9696924758873501"
           data-ad-slot={adSlot}
           data-ad-format={styles.dataFormat}
           data-full-width-responsive={styles.dataFullWidth.toString()}

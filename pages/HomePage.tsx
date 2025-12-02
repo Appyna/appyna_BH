@@ -367,7 +367,7 @@ export const HomePage: React.FC = () => {
                     <div className="md:hidden col-span-1">
                       <AdBanner 
                         format="horizontal" 
-                        adSlot={`mobile-slot-${Math.floor((index + 1) / 5)}`}
+                        adSlot="4499959690"
                         className="my-6"
                       />
                     </div>
@@ -378,7 +378,7 @@ export const HomePage: React.FC = () => {
                     <div className="hidden md:block md:col-span-3">
                       <AdBanner 
                         format="horizontal" 
-                        adSlot={`desktop-slot-${Math.floor((index + 1) / 6)}`}
+                        adSlot="6640598373"
                         className="my-8"
                       />
                     </div>
