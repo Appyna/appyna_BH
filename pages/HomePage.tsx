@@ -347,17 +347,7 @@ export const HomePage: React.FC = () => {
             <div className="text-6xl text-gray-300 mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-700 font-poppins mb-2">Aucune annonce trouvée</h3>
             <p className="text-gray-500 font-montserrat">
-              Essayez de modifier vos critères de recherche ou{' '}
-              <button 
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('');
-                  setSelectedCity('');
-                }}
-                className="text-primary-600 hover:text-primary-700 font-semibold underline"
-              >
-                effacez les filtres
-              </button>
+              Essayez de modifier vos critères de recherche ou effacez les filtres.
             </p>
           </div>
         ) : (
