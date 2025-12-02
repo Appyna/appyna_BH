@@ -143,16 +143,23 @@ export const HomePage: React.FC = () => {
         setAllListings(listings);
         setCurrentPage(pagesToLoad);
         setHasMore(listings.length === pagesToLoad * itemsPerPage);
+        setLoading(false);
         
-        // Attendre le prochain frame pour scroller vers l'élément
-        requestAnimationFrame(() => {
+        // Attendre que React ait fini de render + un délai supplémentaire
+        setTimeout(() => {
           const cards = document.querySelectorAll('.listing-card');
+          console.log(`🔍 Recherche de l'élément index ${targetIndex} parmi ${cards.length} cards`);
           const targetCard = cards[targetIndex];
           if (targetCard) {
             targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
             console.log(`✅ Scroll restauré vers l'index ${targetIndex}`);
+            // Nettoyer après restauration réussie
+            sessionStorage.removeItem('listing_index');
+          } else {
+            console.log(`⚠️ Card index ${targetIndex} introuvable (total: ${cards.length})`);
           }
-        });
+        }, 100);
+        return; // Important: sortir ici pour ne pas exécuter setLoading(false) deux fois
       } else {
         // Chargement normal : première page
         const listings = await listingsService.getListings({ page: 1, limit: itemsPerPage });
