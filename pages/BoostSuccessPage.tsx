@@ -34,7 +34,7 @@ export const BoostSuccessPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
         <div className="flex justify-center mb-6">
-          <svg className="w-16 h-16 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-14 h-14 text-green-500" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
         </div>
@@ -43,15 +43,15 @@ export const BoostSuccessPage: React.FC = () => {
           Paiement réussi !
         </h1>
         
-        <p className="text-gray-600 mb-6 font-montserrat">
-          Votre annonce a été boostée avec succès ! Elle apparaît maintenant en tête des résultats avec un badge spécial.
-        </p>
-        
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
           <p className="text-sm text-green-800 font-medium">
             Votre annonce est boostée pour {duration} jour{duration > 1 ? 's' : ''}
           </p>
         </div>
+        
+        <p className="text-gray-600 mb-6 font-montserrat">
+          Votre annonce a été boostée avec succès ! Elle apparaît maintenant en tête des résultats avec un badge spécial.
+        </p>
 
         <div className="flex flex-col gap-3">
           <Link
