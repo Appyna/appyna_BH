@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const CheckIcon = () => (
   <svg className="w-16 h-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -11,6 +12,7 @@ export const BoostSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [duration, setDuration] = useState<number>(7);
+  const { user } = useAuth();
 
   useEffect(() => {
     // Récupérer la durée depuis sessionStorage
@@ -53,7 +55,7 @@ export const BoostSuccessPage: React.FC = () => {
           </Link>
           
           <Link
-            to="/profile"
+            to={user ? `/profile/${user.id}` : '/'}
             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition-all duration-300"
           >
             Voir mes annonces
