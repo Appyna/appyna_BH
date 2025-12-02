@@ -22,10 +22,10 @@ export const BoostSuccessPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Auto-redirect après 5 secondes
+    // Auto-redirect après 10 secondes
     const timer = setTimeout(() => {
       navigate('/');
-    }, 5000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
