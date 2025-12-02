@@ -40,8 +40,15 @@ export const HomePage: React.FC = () => {
     // Si on revient sur cette page avec une position sauvegardée
     if (savedPosition && returnPath === currentPath) {
       const scrollY = parseInt(savedPosition);
-      // Estimer: ~400px par annonce, charger au moins assez pour couvrir la position
-      const estimatedListings = Math.ceil(scrollY / 400) + 12;
+      // Estimer la hauteur par annonce selon la largeur d'écran
+      // Mobile (< 768px): ~500-600px par annonce (1 colonne)
+      // Tablet (768-1024px): ~350-400px par annonce (2 colonnes)
+      // Desktop (> 1024px): ~300-350px par annonce (3 colonnes)
+      const isMobile = window.innerWidth < 768;
+      const avgHeightPerListing = isMobile ? 550 : 350;
+      
+      // Charger assez d'annonces + marge de sécurité
+      const estimatedListings = Math.ceil(scrollY / avgHeightPerListing) + 24;
       console.log(`🎯 Pré-chargement ${estimatedListings} annonces pour scroll ${scrollY}px`);
       return estimatedListings;
     }

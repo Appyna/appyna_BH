@@ -65,11 +65,12 @@ const ScrollManager: React.FC = () => {
             behavior: 'instant' // Scroll instantané
           });
           console.log('✅ Scroll restauré à:', window.scrollY);
-          sessionStorage.removeItem('scroll_position');
-          sessionStorage.removeItem('return_path'); // Nettoyer après restauration
-        } else if (attempts < 10) {
-          // Réessayer après un court délai (max 10 tentatives = 500ms)
-          setTimeout(() => restoreScroll(attempts + 1), 50);
+          // Ne PAS nettoyer le sessionStorage ici - on pourrait avoir besoin de revenir
+        } else if (attempts < 25) {
+          // Réessayer après un délai (max 25 tentatives = 2500ms)
+          // Augmenter le délai progressivement pour laisser le temps au rendu
+          const delay = attempts < 10 ? 50 : 100;
+          setTimeout(() => restoreScroll(attempts + 1), delay);
         } else {
           // Dernière tentative : scroller au maximum possible
           window.scrollTo({
@@ -77,8 +78,7 @@ const ScrollManager: React.FC = () => {
             behavior: 'instant'
           });
           console.log('⚠️ Scroll partiel restauré à:', window.scrollY, '(target:', targetPosition, ')');
-          sessionStorage.removeItem('scroll_position');
-          sessionStorage.removeItem('return_path'); // Nettoyer après restauration
+          // Ne PAS nettoyer le sessionStorage même en cas d'échec
         }
       };
       
