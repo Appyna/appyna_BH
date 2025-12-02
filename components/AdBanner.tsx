@@ -73,20 +73,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({
       ref={adRef}
       className={`ad-container flex justify-center items-center my-4 ${className}`}
     >
-      <ins
-        className={`adsbygoogle ${styles.desktop} md:${styles.desktop} ${styles.mobile}`}
-        style={{ 
-          display: 'block',
-          textAlign: 'center'
-        }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // À REMPLACER par votre Publisher ID
-        data-ad-slot={adSlot}
-        data-ad-format={styles.dataFormat}
-        data-full-width-responsive={styles.dataFullWidth.toString()}
-      />
-      
-      {/* Placeholder en mode développement */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* Placeholder visible en développement */}
+      {process.env.NODE_ENV === 'development' ? (
         <div 
           className={`border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-gray-400 font-medium ${
             format === 'horizontal' 
@@ -104,6 +92,19 @@ export const AdBanner: React.FC<AdBannerProps> = ({
             <p className="text-xs">Format: {format}</p>
           </div>
         </div>
+      ) : (
+        /* Vrai bloc AdSense en production */
+        <ins
+          className={`adsbygoogle ${styles.desktop} md:${styles.desktop} ${styles.mobile}`}
+          style={{ 
+            display: 'block',
+            textAlign: 'center'
+          }}
+          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // À REMPLACER par votre Publisher ID
+          data-ad-slot={adSlot}
+          data-ad-format={styles.dataFormat}
+          data-full-width-responsive={styles.dataFullWidth.toString()}
+        />
       )}
     </div>
   );
