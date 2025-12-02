@@ -11,6 +11,7 @@ interface ListingCardProps {
   getRelativeTime?: (date: Date) => string;
   fromFavorites?: boolean; // Page favoris
   fromProfile?: boolean; // Page profil
+  listingIndex?: number; // Index de l'annonce dans la liste (pour scroll restoration)
 }
 
 const HeartIcon = ({ filled }: { filled: boolean }) => (
@@ -26,7 +27,7 @@ const ZapIcon = () => (
 );
 
 
-export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime, fromFavorites = false, fromProfile = false }) => {
+export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTime, fromFavorites = false, fromProfile = false, listingIndex }) => {
   const { user, toggleFavorite: toggleFavoriteContext } = useAuth();
   const location = useLocation();
   const isFavorite = user?.favorites.includes(listing.id) || false;
@@ -38,7 +39,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     toggleFavoriteContext(listing.id);
   };
 
-  // Sauvegarder la position de scroll avant de naviguer
+  // Sauvegarder l'index de l'annonce avant de naviguer (au lieu du scrollY)
   const handleClick = () => {
     // Utiliser le chemin actuel par défaut
     let returnPath = location.pathname + location.search;
@@ -51,7 +52,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
       returnPath = location.pathname; // Ex: /profile/user-id
     }
     
-    const scrollPosition = window.scrollY;
     const existingPath = sessionStorage.getItem('return_path');
     
     // Sauvegarder UNIQUEMENT si :
@@ -60,9 +60,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
     const isOnReturnPage = (location.pathname + location.search) === returnPath;
     const shouldSave = !existingPath || isOnReturnPage;
     
-    if (shouldSave) {
-      sessionStorage.setItem('scroll_position', scrollPosition.toString());
+    if (shouldSave && listingIndex !== undefined) {
+      // Sauvegarder l'index au lieu du scrollY (plus fiable)
+      sessionStorage.setItem('listing_index', listingIndex.toString());
       sessionStorage.setItem('return_path', returnPath);
+      console.log(`💾 Sauvegarde index ${listingIndex} pour retour vers ${returnPath}`);
     }
   };
 
@@ -73,7 +75,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
   };
 
   return (
-    <Link to={linkTo} onClick={handleClick} className="block group font-montserrat transform transition-all duration-300 hover:scale-105">
+    <Link to={linkTo} onClick={handleClick} className="listing-card block group font-montserrat transform transition-all duration-300 hover:scale-105">
       <div className="relative w-full overflow-hidden rounded-2xl aspect-[4/3] md:aspect-square bg-gray-200 shadow-lg group-hover:shadow-2xl transition-all duration-300">
         <ImageWithFallback
           key={`card-${listing.id}-${listing.images?.[0]}`}

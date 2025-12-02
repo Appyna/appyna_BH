@@ -2,13 +2,20 @@ import { supabase } from './supabaseClient';
 import { Listing } from '../types';
 
 export const listingsService = {
-  // Récupérer toutes les annonces
+  // Récupérer toutes les annonces avec pagination
   async getListings(filters?: {
     category?: string;
     city?: string;
     search?: string;
     boosted?: boolean;
+    page?: number;
+    limit?: number;
   }): Promise<Listing[]> {
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 50;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
     let query = supabase
       .from('listings')
       .select(`
@@ -33,6 +40,11 @@ export const listingsService = {
     }
     if (filters?.boosted) {
       query = query.not('boosted_at', 'is', null).order('boosted_at', { ascending: false });
+    }
+
+    // Appliquer la pagination seulement si on a des filtres de pagination
+    if (filters?.page !== undefined || filters?.limit !== undefined) {
+      query = query.range(from, to);
     }
 
     const { data, error } = await query;

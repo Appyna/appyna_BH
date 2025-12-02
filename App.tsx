@@ -26,67 +26,26 @@ import { AdminSupportPage } from './pages/AdminSupportPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
 
-// A component to handle scroll position management
+// Simple scroll to top manager (restauration gérée par HomePage via index)
 const ScrollManager: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Vérifier si on doit restaurer la position de scroll
-    const savedPosition = sessionStorage.getItem('scroll_position');
-    const returnPath = sessionStorage.getItem('return_path');
-    
-    console.log('📍 ScrollManager:', {
-      currentPath: location.pathname + location.search,
-      returnPath,
-      savedPosition,
-      match: (location.pathname + location.search) === returnPath
-    });
-    
-    if (savedPosition && returnPath && (location.pathname + location.search) === returnPath) {
-      // Restaurer la position de scroll avec délai pour laisser la page se charger
-      console.log('✅ Restauration scroll vers:', savedPosition);
+    // Pour les pages détail et autres : scroll to top
+    // La restauration pour HomePage est gérée directement dans le composant via l'index
+    if (!location.pathname.startsWith('/listing/')) {
+      const savedIndex = sessionStorage.getItem('listing_index');
+      const returnPath = sessionStorage.getItem('return_path');
       
-      const targetPosition = parseInt(savedPosition);
-      
-      // Utiliser requestAnimationFrame pour attendre que le DOM soit prêt
-      // Puis vérifier plusieurs fois que le contenu est chargé
-      const restoreScroll = (attempts = 0) => {
-        const bodyHeight = document.body.scrollHeight;
-        const windowHeight = window.innerHeight;
-        const maxScroll = bodyHeight - windowHeight;
-        const canScroll = maxScroll >= targetPosition;
-        
-        if (canScroll) {
-          // Le contenu est assez grand, on peut scroller
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'instant' // Scroll instantané
-          });
-          console.log('✅ Scroll restauré à:', window.scrollY, '/', targetPosition);
-          // Ne PAS nettoyer le sessionStorage ici - on pourrait avoir besoin de revenir
-        } else if (attempts < 20) {
-          // Réessayer après un court délai (max 20 tentatives = 1000ms)
-          setTimeout(() => restoreScroll(attempts + 1), 50);
-        } else {
-          // Dernière tentative : scroller au maximum possible
-          window.scrollTo({
-            top: Math.min(targetPosition, maxScroll),
-            behavior: 'instant'
-          });
-          console.log('⚠️ Scroll partiel:', window.scrollY, '/', targetPosition, '(max:', maxScroll, ')');
-          // Ne PAS nettoyer le sessionStorage même en cas d'échec
-        }
-      };
-      
-      // Utiliser requestAnimationFrame pour être sûr que le DOM est monté
-      requestAnimationFrame(() => restoreScroll());
-    } else if (location.pathname.startsWith('/listing/')) {
-      // Page détail : scroll to top
-      window.scrollTo(0, 0);
-    } else if (!savedPosition) {
-      // Nouvelle page : scroll to top
-      window.scrollTo(0, 0);
+      // Ne pas scroll to top si on restaure la HomePage
+      if (savedIndex && returnPath && (location.pathname + location.search) === returnPath) {
+        console.log('📍 ScrollManager: Restauration gérée par HomePage (index-based)');
+        return;
+      }
     }
+    
+    // Scroll to top pour toutes les autres navigations
+    window.scrollTo(0, 0);
   }, [location]);
 
   return null;

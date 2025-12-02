@@ -31,20 +31,13 @@ const getRelativeTime = (date: Date): string => {
 export const HomePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Vérifier si on doit restaurer le scroll
-  const shouldRestoreScroll = () => {
-    const savedPosition = sessionStorage.getItem('scroll_position');
-    const returnPath = sessionStorage.getItem('return_path');
-    const currentPath = window.location.pathname + window.location.search;
-    return !!(savedPosition && returnPath === currentPath);
-  };
-  
-  // Si on doit restaurer le scroll, charger toutes les annonces d'un coup
-  // Sinon commencer avec 12
-  const [displayedListings, setDisplayedListings] = useState(shouldRestoreScroll() ? 9999 : 12);
-  const [isLoading, setIsLoading] = useState(false);
+  // États pour pagination et chargement
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const itemsPerPage = 50;
 
   // Lire depuis l'URL ou sessionStorage (backup)
   const searchTerm = searchParams.get('search') || sessionStorage.getItem('search_filter') || '';
@@ -122,15 +115,56 @@ export const HomePage: React.FC = () => {
     setSearchParams(params);
   };
 
-  // Charger les annonces depuis Supabase
+  // Charger les annonces avec pagination
   useEffect(() => {
-    const loadListings = async () => {
+    const loadInitialListings = async () => {
       setLoading(true);
-      const listings = await listingsService.getListings();
-      setAllListings(listings);
+      
+      // Vérifier si on doit restaurer vers un index spécifique
+      const savedIndex = sessionStorage.getItem('listing_index');
+      const returnPath = sessionStorage.getItem('return_path');
+      const currentPath = window.location.pathname + window.location.search;
+      
+      if (savedIndex && returnPath === currentPath) {
+        // Mode restauration : charger jusqu'à l'index sauvegardé + marge
+        const targetIndex = parseInt(savedIndex);
+        const pagesToLoad = Math.ceil((targetIndex + 20) / itemsPerPage);
+        
+        console.log(`📦 Restauration: chargement de ${pagesToLoad} pages jusqu'à l'index ${targetIndex}`);
+        
+        // Charger toutes les pages nécessaires
+        const allPages = await Promise.all(
+          Array.from({ length: pagesToLoad }, (_, i) => 
+            listingsService.getListings({ page: i + 1, limit: itemsPerPage })
+          )
+        );
+        
+        const listings = allPages.flat();
+        setAllListings(listings);
+        setCurrentPage(pagesToLoad);
+        setHasMore(listings.length === pagesToLoad * itemsPerPage);
+        
+        // Attendre le prochain frame pour scroller vers l'élément
+        requestAnimationFrame(() => {
+          const cards = document.querySelectorAll('.listing-card');
+          const targetCard = cards[targetIndex];
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
+            console.log(`✅ Scroll restauré vers l'index ${targetIndex}`);
+          }
+        });
+      } else {
+        // Chargement normal : première page
+        const listings = await listingsService.getListings({ page: 1, limit: itemsPerPage });
+        setAllListings(listings);
+        setCurrentPage(1);
+        setHasMore(listings.length === itemsPerPage);
+      }
+      
       setLoading(false);
     };
-    loadListings();
+    
+    loadInitialListings();
   }, []);
 
   // Les annonces sont déjà triées par listingsService.getListings()
@@ -155,35 +189,35 @@ export const HomePage: React.FC = () => {
     return matchesSearch && matchesCategory && matchesCity && matchesType;
   });
   
-  // Créer un tableau pour l'affichage avec pagination simple
-  const visibleListings = filteredListings.slice(0, displayedListings);
-
-  // Fonction pour charger plus d'annonces
-  const loadMoreListings = useCallback(() => {
-    if (isLoading || visibleListings.length >= filteredListings.length) return;
-    setIsLoading(true);
-    setTimeout(() => {
-      setDisplayedListings(prev => prev + 12);
-      setIsLoading(false);
-    }, 500);
-  }, [isLoading, visibleListings.length, filteredListings.length]);
+  // Fonction pour charger la page suivante
+  const loadMoreListings = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const newListings = await listingsService.getListings({ page: nextPage, limit: itemsPerPage });
+    
+    if (newListings.length > 0) {
+      setAllListings(prev => [...prev, ...newListings]);
+      setCurrentPage(nextPage);
+      setHasMore(newListings.length === itemsPerPage);
+    } else {
+      setHasMore(false);
+    }
+    
+    setIsLoadingMore(false);
+  }, [isLoadingMore, hasMore, currentPage]);
 
   // Fonction de recherche
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setDisplayedListings(12); // Reset à 12 annonces lors d'une nouvelle recherche
+    // Les filtres sont appliqués côté client sur allListings
   };
-
-  // Reset des résultats quand les filtres changent
-  useEffect(() => {
-    setDisplayedListings(12);
-  }, [searchTerm, selectedCategory, selectedCity]);
 
   // Détection du scroll pour charger plus
   useEffect(() => {
     const handleScroll = () => {
-      // Ne pas charger plus s'il n'y a plus d'annonces à afficher
-      if (visibleListings.length >= filteredListings.length || isLoading) return;
+      if (!hasMore || isLoadingMore) return;
       
       if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
         loadMoreListings();
@@ -192,7 +226,7 @@ export const HomePage: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadMoreListings, visibleListings.length, filteredListings.length, isLoading]);
+  }, [loadMoreListings, hasMore, isLoadingMore]);
 
   return (
     <div className="bg-gradient-to-br from-purple-50 to-teal-50">
@@ -322,28 +356,28 @@ export const HomePage: React.FC = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-              {visibleListings.map((listing, index) => (
-                <ListingCard key={listing.id} listing={listing} getRelativeTime={getRelativeTime} />
+              {filteredListings.map((listing, index) => (
+                <ListingCard 
+                  key={listing.id} 
+                  listing={listing} 
+                  getRelativeTime={getRelativeTime}
+                  listingIndex={index}
+                />
               ))}
             </div>
             
             {/* Indicateur de chargement */}
-            {isLoading && (
+            {isLoadingMore && (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                 <span className="ml-3 text-gray-600 font-montserrat">Chargement...</span>
               </div>
             )}
 
-            {/* Bouton "Voir plus" si on a plus d'annonces à afficher */}
-            {!isLoading && visibleListings.length < filteredListings.length && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={loadMoreListings}
-                  className="bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 text-white font-medium py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg font-montserrat"
-                >
-                  Voir plus d'annonces ({filteredListings.length - visibleListings.length} restantes)
-                </button>
+            {/* Message de fin si plus d'annonces */}
+            {!hasMore && filteredListings.length > 0 && (
+              <div className="text-center py-8 text-gray-500 font-montserrat">
+                Vous avez vu toutes les annonces disponibles ✨
               </div>
             )}
           </>
