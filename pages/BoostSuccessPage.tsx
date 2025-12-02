@@ -32,7 +32,7 @@ export const BoostSuccessPage: React.FC = () => {
           </svg>
         </div>
         
-        <h1 className="text-3xl font-semibold text-gray-900 mb-5 font-poppins">
+        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-5 font-poppins">
           Paiement réussi !
         </h1>
         
