@@ -1,35 +1,30 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { LoadingScreen } from './components/LoadingScreen';
 import { HomePage } from './pages/HomePage';
 import { ListingDetailPage } from './pages/ListingDetailPage';
 import { CreateListingPage } from './pages/CreateListingPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { FavoritesPage } from './pages/FavoritesPage';
+import { BoostHistoryPage } from './pages/BoostHistoryPage';
+import { BoostSuccessPage } from './pages/BoostSuccessPage';
+import { BoostCancelPage } from './pages/BoostCancelPage';
 import { MessagesPage } from './pages/MessagesPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
+import { CookiePolicyPage } from './pages/CookiePolicyPage';
+import { EmailConfirmationPage } from './pages/EmailConfirmationPage';
+import { EmailConfirmationRedirectPage } from './pages/EmailConfirmationRedirectPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import AdminModerationPage from './pages/AdminModerationPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import { AdminSupportPage } from './pages/AdminSupportPage';
 import { MenuProvider } from './contexts/MenuContext';
 import { AuthProvider } from './contexts/AuthContext';
-
-// Lazy loading pages secondaires (chargées uniquement quand nécessaire)
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
-const BoostHistoryPage = lazy(() => import('./pages/BoostHistoryPage'));
-const BoostSuccessPage = lazy(() => import('./pages/BoostSuccessPage'));
-const BoostCancelPage = lazy(() => import('./pages/BoostCancelPage'));
-const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
-const TermsPage = lazy(() => import('./pages/TermsPage'));
-const CookiePolicyPage = lazy(() => import('./pages/CookiePolicyPage'));
-const EmailConfirmationPage = lazy(() => import('./pages/EmailConfirmationPage'));
-const EmailConfirmationRedirectPage = lazy(() => import('./pages/EmailConfirmationRedirectPage'));
-const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
-
-// Lazy loading pages admin (utilisées uniquement par 1 personne)
-const AdminModerationPage = lazy(() => import('./pages/AdminModerationPage'));
-const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
-const AdminSupportPage = lazy(() => import('./pages/AdminSupportPage'));
 
 // Simple scroll to top manager (restauration gérée par HomePage via index)
 const ScrollManager: React.FC = () => {
@@ -78,45 +73,34 @@ const App: React.FC = () => {
           <ScrollManager />
           <Routes>
             {/* Route sans Layout (pas de Header/Footer) */}
-            <Route path="/auth/confirm" element={
-              <Suspense fallback={<LoadingScreen />}>
-                <EmailConfirmationRedirectPage />
-              </Suspense>
-            } />
+            <Route path="/auth/confirm" element={<EmailConfirmationRedirectPage />} />
             
             {/* Routes avec Layout */}
             <Route path="/*" element={
               <Layout>
-                <Suspense fallback={<LoadingScreen />}>
-                  <Routes>
-                    {/* Pages principales (chargées immédiatement) */}
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/listing/:id" element={<ListingDetailPage />} />
-                    <Route path="/create" element={<CreateListingPage />} />
-                    <Route path="/profile/:userId" element={<ProfilePage />} />
-                    <Route path="/messages" element={<MessagesPage />} />
-                    <Route path="/messages/:conversationId" element={<MessagesPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignUpPage />} />
-                    
-                    {/* Pages secondaires (lazy loaded) */}
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/boost-history" element={<BoostHistoryPage />} />
-                    <Route path="/boost/success" element={<BoostSuccessPage />} />
-                    <Route path="/boost/cancel" element={<BoostCancelPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                    <Route path="/cookies" element={<CookiePolicyPage />} />
-                    <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
-                    <Route path="/reset-password" element={<ResetPasswordPage />} />
-                    
-                    {/* Pages admin (lazy loaded) */}
-                    <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                    <Route path="/admin/moderation" element={<AdminModerationPage />} />
-                    <Route path="/admin/support" element={<AdminSupportPage />} />
-                  </Routes>
-                </Suspense>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/listing/:id" element={<ListingDetailPage />} />
+                  <Route path="/create" element={<CreateListingPage />} />
+                  <Route path="/profile/:userId" element={<ProfilePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/boost-history" element={<BoostHistoryPage />} />
+                  <Route path="/boost/success" element={<BoostSuccessPage />} />
+                  <Route path="/boost/cancel" element={<BoostCancelPage />} />
+                  <Route path="/messages" element={<MessagesPage />} />
+                  <Route path="/messages/:conversationId" element={<MessagesPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/cookies" element={<CookiePolicyPage />} />
+                  <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                  <Route path="/admin/moderation" element={<AdminModerationPage />} />
+                  <Route path="/admin/support" element={<AdminSupportPage />} />
+                </Routes>
               </Layout>
             } />
           </Routes>
