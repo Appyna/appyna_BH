@@ -3,7 +3,7 @@
   <!-- Page d'accueil -->
   <url>
     <loc>https://appyna.com/</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,7 +11,7 @@
   <!-- Créer une annonce -->
   <url>
     <loc>https://appyna.com/create</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -19,7 +19,7 @@
   <!-- Connexion -->
   <url>
     <loc>https://appyna.com/login</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -27,7 +27,7 @@
   <!-- Inscription -->
   <url>
     <loc>https://appyna.com/signup</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -35,7 +35,7 @@
   <!-- CGU -->
   <url>
     <loc>https://appyna.com/terms</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
@@ -43,7 +43,7 @@
   <!-- Politique de confidentialité -->
   <url>
     <loc>https://appyna.com/privacy</loc>
-    <lastmod>2024-11-24</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
