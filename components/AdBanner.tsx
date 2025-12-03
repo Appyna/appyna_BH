@@ -29,13 +29,21 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Charger les pubs Google AdSense
-    try {
-      if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    // Charger les pubs Google AdSense en production uniquement
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        if (typeof window !== 'undefined') {
+          // S'assurer que le script adsbygoogle est chargé
+          const pushAd = () => {
+            ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          };
+          
+          // Délai pour s'assurer que l'élément ins est dans le DOM
+          setTimeout(pushAd, 100);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de la publicité:', error);
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement de la publicité:', error);
     }
   }, []);
 
