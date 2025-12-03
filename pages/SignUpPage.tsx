@@ -43,13 +43,13 @@ export const SignUpPage: React.FC = () => {
             return;
         }
 
-        const success = await register({ name, email, password });
+        const result = await register({ name, email, password });
         
-        if (success) {
+        if (result.success) {
             // Rediriger vers la page de confirmation email
             navigate('/email-confirmation');
         } else {
-            setError('Cet email est déjà utilisé. Vous ne pouvez pas créer 2 comptes avec le même email.');
+            setError(result.error || 'Une erreur est survenue lors de l\'inscription.');
         }
         
         setLoading(false);

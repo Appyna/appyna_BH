@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (userData: { name: string; email: string; password: string; bio?: string }) => Promise<boolean>;
+  register: (userData: { name: string; email: string; password: string; bio?: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<boolean>;
   updateProfile: (updates: { name?: string; bio?: string; avatarUrl?: string }) => Promise<void>;
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (userData: { name: string; email: string; password: string; bio?: string }): Promise<boolean> => {
+  const register = async (userData: { name: string; email: string; password: string; bio?: string }): Promise<{ success: boolean; error?: string }> => {
     try {
       // 1. Créer le compte auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -142,9 +142,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (authError) {
         console.error('Auth signup error:', authError);
-        throw authError;
+        
+        // Messages d'erreur spécifiques
+        if (authError.message?.includes('Password cannot be longer')) {
+          return { success: false, error: 'Erreur : mot de passe trop long. Veuillez le réduire.' };
+        }
+        if (authError.message?.includes('already registered') || authError.message?.includes('already exists')) {
+          return { success: false, error: 'Cet email est déjà utilisé. Vous ne pouvez pas créer 2 comptes avec le même email.' };
+        }
+        if (authError.message?.includes('Password should be')) {
+          return { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères.' };
+        }
+        if (authError.message?.includes('Invalid email')) {
+          return { success: false, error: 'L\'adresse email n\'est pas valide.' };
+        }
+        
+        return { success: false, error: authError.message || 'Une erreur est survenue lors de l\'inscription.' };
       }
-      if (!authData.user) return false;
+      if (!authData.user) return { success: false, error: 'Erreur lors de la création du compte.' };
 
       // 2. Créer le profil utilisateur via fonction SECURITY DEFINER
       // Cette fonction bypass RLS car elle s'exécute avec les privilèges du propriétaire
@@ -162,7 +177,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Ne pas charger le profil ici - l'utilisateur doit d'abord confirmer son email
       // Le profil sera chargé automatiquement après confirmation via onAuthStateChange
-      return true;
+      return { success: true };
     } catch (error: any) {
       console.error('Registration error details:', {
         message: error?.message,
@@ -170,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         status: error?.status,
         details: error
       });
-      return false;
+      return { success: false, error: 'Une erreur est survenue lors de l\'inscription.' };
     }
   };
 
