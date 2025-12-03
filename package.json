@@ -11,7 +11,7 @@
   "dependencies": {
     "@sentry/react": "^10.27.0",
     "@stripe/stripe-js": "^8.4.0",
-    "@supabase/supabase-js": "^2.80.0",
+    "@supabase/supabase-js": "^2.86.0",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "react": "^19.2.0",
