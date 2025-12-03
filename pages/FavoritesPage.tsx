@@ -56,27 +56,16 @@ export const FavoritesPage: React.FC = () => {
     const savedIndex = sessionStorage.getItem('listing_index');
     const returnPath = sessionStorage.getItem('return_path');
     
-    console.log('📍 FavoritesPage - Restauration:', {
-      returnPath,
-      savedIndex,
-      currentPath: '/favorites',
-      match: returnPath === '/favorites'
-    });
-    
     if (savedIndex && returnPath === '/favorites') {
       const targetIndex = parseInt(savedIndex);
       
       // Attendre que React ait fini de render
       setTimeout(() => {
         const cards = document.querySelectorAll('.listing-card');
-        console.log(`🔍 Favoris - Recherche index ${targetIndex} parmi ${cards.length} cards`);
         const targetCard = cards[targetIndex];
         if (targetCard) {
           targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
-          console.log(`✅ Favoris - Scroll restauré vers l'index ${targetIndex}`);
           sessionStorage.removeItem('listing_index');
-        } else {
-          console.log(`⚠️ Favoris - Card index ${targetIndex} introuvable (total: ${cards.length})`);
         }
       }, 100);
     } else {

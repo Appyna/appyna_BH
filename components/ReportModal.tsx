@@ -69,7 +69,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
       setLoading(true);
       try {
         const mappedReason = REASON_MAPPING[selectedReason] || 'other';
-        console.log('📤 Envoi du signalement:', { listing_id: targetId, reason: mappedReason, userId: user.id });
+
         
         const result = await reportsService.createReport({
           listing_id: targetId,
@@ -83,7 +83,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
           return;
         }
 
-        console.log('✅ Signalement créé avec succès:', result);
+
         alert('Signalement envoyé avec succès. Notre équipe examinera votre demande dans les plus brefs délais.');
         setSelectedReason('');
         setDescription('');
@@ -98,7 +98,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
       // Pour les users, utiliser le nouveau système
       setLoading(true);
       try {
-        console.log('📤 Envoi du signalement utilisateur:', { reported_user_id: targetId, reason: selectedReason, reporterId: user.id });
+
         
         const result = await userReportsService.createReport({
           reported_user_id: targetId,
@@ -112,7 +112,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, type,
           return;
         }
 
-        console.log('✅ Signalement utilisateur créé avec succès:', result);
+
         alert('Signalement envoyé avec succès. Notre équipe examinera votre demande dans les plus brefs délais.');
         setSelectedReason('');
         setDescription('');

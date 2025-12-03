@@ -36,9 +36,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
     try {
       // Récupérer l'ID du compte admin
-      console.log('🔍 Récupération ID admin...');
       const adminId = await getAdminUserId();
-      console.log('✅ Admin ID:', adminId);
       
       if (!adminId) {
         throw new Error('Impossible de contacter le support pour le moment');
@@ -46,7 +44,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
       // Utiliser la fonction SQL pour restaurer ou créer la conversation
       // Cette fonction bypasse les RLS pour gérer les conversations soft deleted
-      console.log('🔍 Restauration/création conversation de support...');
+
       const { data: convId, error: convError } = await supabase
         .rpc('restore_or_create_support_conversation', {
           p_user_id: user.id,
@@ -59,10 +57,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
       }
 
       const conversationId = convId;
-      console.log('✅ Conversation prête:', conversationId);
-
       // Envoyer le message
-      console.log('📤 Envoi du message...');
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -75,10 +70,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         console.error('❌ Erreur envoi message:', messageError);
         throw messageError;
       }
-      console.log('✅ Message envoyé');
-
       // Rediriger vers la messagerie avec la conversation ouverte
-      console.log('🔀 Redirection vers:', `/messages/${conversationId}`);
       navigate(`/messages/${conversationId}`);
       onClose();
       setMessage('');

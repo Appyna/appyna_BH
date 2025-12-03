@@ -79,16 +79,16 @@ const AdminModerationPage: React.FC = () => {
       if (selectedReport) {
         switch (actionType) {
           case 'approve':
-            console.log('🔄 Approbation du signalement d\'annonce:', selectedReport.id);
+
             success = await reportsService.approveReport(selectedReport.id, user.id, moderatorNote);
             break;
           case 'reject':
-            console.log('🔄 Rejet du signalement d\'annonce:', selectedReport.id);
+
             success = await reportsService.rejectReport(selectedReport.id, user.id, moderatorNote);
             break;
           case 'ban':
             if (selectedReport.listing?.user_id) {
-              console.log('🔄 Bannissement de l\'utilisateur:', selectedReport.listing.user_id);
+
               success = await reportsService.banUser(selectedReport.listing.user_id, moderatorNote);
               if (success) {
                 await reportsService.approveReport(selectedReport.id, user.id, `Utilisateur banni: ${moderatorNote}`);
@@ -105,16 +105,16 @@ const AdminModerationPage: React.FC = () => {
       if (selectedUserReport) {
         switch (actionType) {
           case 'approve':
-            console.log('🔄 Approbation du signalement d\'utilisateur:', selectedUserReport.id);
+
             success = await userReportsService.approveReport(selectedUserReport.id, user.id, moderatorNote);
             break;
           case 'reject':
-            console.log('🔄 Rejet du signalement d\'utilisateur:', selectedUserReport.id);
+
             success = await userReportsService.rejectReport(selectedUserReport.id, user.id, moderatorNote);
             break;
           case 'unban':
             if (selectedUserReport.reported_user_id) {
-              console.log('🔄 Débannissement de l\'utilisateur:', selectedUserReport.reported_user_id);
+
               success = await userReportsService.unbanUser(selectedUserReport.reported_user_id);
             }
             break;

@@ -41,10 +41,7 @@ export const AdminSupportPage: React.FC = () => {
   // Récupérer l'ID admin au chargement
   useEffect(() => {
     const fetchAdminId = async () => {
-      console.log('🔍 Récupération ID admin...');
       const id = await getAdminUserId();
-      console.log('✅ Admin ID récupéré:', id);
-      console.log('👤 Utilisateur connecté:', user?.id, user?.email);
       setAdminId(id);
     };
     fetchAdminId();
@@ -67,7 +64,7 @@ export const AdminSupportPage: React.FC = () => {
       try {
         // Récupérer toutes les conversations de support où l'admin est participant
         // (conversations sans listing_id, créées via le formulaire de contact)
-        console.log('🔍 Chargement conversations support pour admin:', adminId);
+
         const { data: convData, error: convError } = await supabase
           .from('conversations')
           .select('*')
@@ -75,7 +72,7 @@ export const AdminSupportPage: React.FC = () => {
           .is('listing_id', null)
           .order('updated_at', { ascending: false });
 
-        console.log('📊 Conversations trouvées:', convData?.length || 0, convData);
+
         if (convError) {
           console.error('❌ Erreur chargement conversations:', convError);
           throw convError;
@@ -87,7 +84,7 @@ export const AdminSupportPage: React.FC = () => {
         const enrichedConvs = await Promise.all(
           (convData || []).map(async (conv) => {
             const otherUserId = conv.user1_id === adminId ? conv.user2_id : conv.user1_id;
-            console.log('👤 Enrichissement conversation:', conv.id, 'User:', otherUserId);
+
 
             // Récupérer l'utilisateur
             const { data: userData } = await supabase
@@ -131,7 +128,7 @@ export const AdminSupportPage: React.FC = () => {
           })
         );
 
-        console.log('✅ Conversations enrichies:', enrichedConvs.length, enrichedConvs);
+
         setConversations(enrichedConvs);
       } catch (error) {
         console.error('❌ Error loading support conversations:', error);

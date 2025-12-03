@@ -76,7 +76,7 @@ export const CreateListingPage: React.FC = () => {
                 console.log('Nouvelle image ajoutée:', file.name, url);
                 return url;
             });
-            console.log('Images avant:', images.length, 'Nouvelles:', newImages.length);
+
             setImages(prevImages => {
                 const updated = [...prevImages, ...newImages];
                 console.log('Images après:', updated);
@@ -143,7 +143,7 @@ export const CreateListingPage: React.FC = () => {
                         setUploadProgress(`Upload des images... ${current}/${total}`);
                     }
                 );
-                console.log('Images uploadées sur Cloudinary:', cloudinaryUrls);
+
             }
 
             setUploadProgress('Création de l\'annonce...');
@@ -160,7 +160,7 @@ export const CreateListingPage: React.FC = () => {
             });
 
             if (listing) {
-                console.log('✅ Annonce créée, redirection vers:', `/listing/${listing.id}?showBoost=true`);
+
                 navigate(`/listing/${listing.id}?showBoost=true`);
             } else {
                 setError('Erreur lors de la création de l\'annonce');

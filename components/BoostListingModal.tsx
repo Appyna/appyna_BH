@@ -22,7 +22,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
-  console.log('🎨 BoostListingModal rendered with showSuccessMessage:', showSuccessMessage);
+
 
   if (!isOpen) return null;
 

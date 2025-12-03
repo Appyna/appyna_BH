@@ -131,7 +131,7 @@ export const HomePage: React.FC = () => {
         const targetIndex = parseInt(savedIndex);
         const pagesToLoad = Math.ceil((targetIndex + 20) / itemsPerPage);
         
-        console.log(`📦 Restauration: chargement de ${pagesToLoad} pages jusqu'à l'index ${targetIndex}`);
+
         
         // Charger toutes les pages nécessaires
         const allPages = await Promise.all(
@@ -149,7 +149,7 @@ export const HomePage: React.FC = () => {
         // Attendre que React ait fini de render + un délai supplémentaire
         setTimeout(() => {
           const cards = document.querySelectorAll('.listing-card');
-          console.log(`🔍 Recherche de l'élément index ${targetIndex} parmi ${cards.length} cards`);
+
           const targetCard = cards[targetIndex];
           if (targetCard) {
             targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });

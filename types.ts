@@ -98,6 +98,7 @@ export interface Listing {
   boostedAt?: string | null;
   boostedUntil?: string | null;
   isBoosted?: boolean;
+  isHidden?: boolean;
   createdAt: string;
 }
 

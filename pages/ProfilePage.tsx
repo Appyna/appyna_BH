@@ -87,27 +87,16 @@ export const ProfilePage: React.FC = () => {
         const returnPath = sessionStorage.getItem('return_path');
         const currentPath = `/profile/${userId}`;
         
-        console.log('📍 ProfilePage - Restauration:', {
-            returnPath,
-            savedIndex,
-            currentPath,
-            match: returnPath === currentPath
-        });
-        
         if (savedIndex && returnPath === currentPath) {
             const targetIndex = parseInt(savedIndex);
             
             // Attendre que React ait fini de render
             setTimeout(() => {
                 const cards = document.querySelectorAll('.listing-card');
-                console.log(`🔍 Profil - Recherche index ${targetIndex} parmi ${cards.length} cards`);
                 const targetCard = cards[targetIndex];
                 if (targetCard) {
                     targetCard.scrollIntoView({ behavior: 'instant', block: 'start' });
-                    console.log(`✅ Profil - Scroll restauré vers l'index ${targetIndex}`);
                     sessionStorage.removeItem('listing_index');
-                } else {
-                    console.log(`⚠️ Profil - Card index ${targetIndex} introuvable (total: ${cards.length})`);
                 }
             }, 100);
         } else {

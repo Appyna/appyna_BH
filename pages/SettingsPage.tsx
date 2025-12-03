@@ -84,7 +84,7 @@ export const SettingsPage: React.FC = () => {
             // Upload de l'avatar vers Cloudinary si un nouveau fichier a été sélectionné
             if (avatarFile && hasCustomAvatar) {
                 finalAvatarUrl = await uploadService.uploadImage(avatarFile, 'avatars');
-                console.log('Avatar uploadé sur Cloudinary:', finalAvatarUrl);
+
             }
 
             // Mise à jour du profil via l'AuthContext

@@ -94,7 +94,7 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
             setUploadProgress(`Upload des nouvelles images... ${current}/${total}`);
           }
         );
-        console.log('Nouvelles images uploadées:', newCloudinaryUrls);
+
       }
 
       // Combiner images existantes + nouvelles images

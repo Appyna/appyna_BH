@@ -59,8 +59,7 @@ export const ListingDetailPage: React.FC = () => {
       if (!id) return;
       setLoading(true);
       const data = await listingsService.getListingById(id);
-      console.log('Annonce chargée depuis Supabase:', data);
-      console.log('Images de l\'annonce:', data?.images);
+
       
       // Si annonce masquée et user n'est ni admin ni propriétaire -> bloquer
       if (data && (data as any).isHidden) {
@@ -86,20 +85,9 @@ export const ListingDetailPage: React.FC = () => {
   // Ouvrir automatiquement le modal de boost après création d'annonce
   useEffect(() => {
     const shouldShowBoost = searchParams.get('showBoost') === 'true';
-    console.log('🚀 Boost check:', { 
-      shouldShowBoost, 
-      isOwnListing, 
-      hasListing: !!listing, 
-      loading,
-      currentUserId: currentUser?.id,
-      listingUserId: listing?.userId
-    });
-    
     if (shouldShowBoost && isOwnListing && listing && !loading) {
-      console.log('✅ Opening boost modal automatically with success message');
       setShowBoostModal(true);
       setIsAutoBoostModal(true);
-      console.log('🎯 isAutoBoostModal set to:', true);
       // Définir le retour vers l'accueil pour le bouton retour
       sessionStorage.setItem('return_path', '/');
       // Supprimer le paramètre de l'URL après ouverture
@@ -143,10 +131,7 @@ export const ListingDetailPage: React.FC = () => {
   // Debug: afficher les URLs des images
   useEffect(() => {
     if (images && images.length > 0) {
-      console.log('🖼️ Images affichées dans la galerie:', images);
-      images.forEach((img, idx) => {
-        console.log(`Image ${idx + 1}:`, img);
-      });
+
     }
   }, [listing]);
 
@@ -225,7 +210,7 @@ export const ListingDetailPage: React.FC = () => {
     if (!listing) return;
 
     try {
-      console.log('Updating listing:', listing.id, updatedListing);
+
       const success = await listingsService.updateListing(listing.id, updatedListing);
       
       if (success) {

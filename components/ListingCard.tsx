@@ -64,7 +64,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, getRelativeTi
       // Sauvegarder l'index au lieu du scrollY (plus fiable)
       sessionStorage.setItem('listing_index', listingIndex.toString());
       sessionStorage.setItem('return_path', returnPath);
-      console.log(`💾 Sauvegarde index ${listingIndex} pour retour vers ${returnPath}`);
+
     }
   };
 

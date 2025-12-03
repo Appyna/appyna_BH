@@ -156,7 +156,7 @@ export const listingsService = {
     type: string;
     userId: string;
   }): Promise<Listing | null> {
-    console.log('Images reçues dans createListing:', listing.images);
+
     
     const { data, error } = await supabase
       .from('listings')
@@ -174,7 +174,7 @@ export const listingsService = {
       .single();
     
     if (data) {
-      console.log('Images sauvegardées dans Supabase:', data.images);
+
     }
 
     if (error) {
@@ -227,7 +227,7 @@ export const listingsService = {
     if (listing && listing.images && listing.images.length > 0) {
       // Supprimer les images de Cloudinary
       const { uploadService } = await import('./uploadService');
-      console.log('Suppression des images de l\'annonce:', listing.images);
+
       await uploadService.deleteMultipleImages(listing.images);
     }
 
