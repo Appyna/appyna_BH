@@ -385,6 +385,7 @@ export const HomePage: React.FC = () => {
                       />
                     </div>
                   )}
+                  */}
                 </React.Fragment>
               ))}
             </div>
