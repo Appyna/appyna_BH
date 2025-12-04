@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Category, CITIES_ISRAEL, ListingType, Listing } from '../types';
+import { CATEGORIES_SORTED, Category, CITIES_ISRAEL, ListingType, Listing } from '../types';
 import { uploadService } from '../lib/uploadService';
 
 interface EditListingModalProps {
@@ -174,7 +174,7 @@ export const EditListingModal: React.FC<EditListingModalProps> = ({ listing, onC
               onChange={(e) => setFormData({ ...formData, category: e.target.value as Category })}
               required
             >
-              {Object.values(Category).map(cat => (
+              {CATEGORIES_SORTED.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </Select>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ListingCard } from '../components/ListingCard';
-import { AdBanner } from '../components/AdBanner';
-import { CITIES_ISRAEL, Category, Listing, ListingType } from '../types';
+// import { AdBanner } from '../components/AdBanner'; // TEMPORAIREMENT DÉSACTIVÉ - En attente approbation Google AdSense
+import { CITIES_ISRAEL, CATEGORIES_SORTED, Category, Listing, ListingType } from '../types';
 import { listingsService } from '../lib/listingsService';
 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
@@ -293,7 +293,7 @@ export const HomePage: React.FC = () => {
                className="w-full lg:w-80 pl-12 lg:pl-4 pr-10 py-3 text-base border-transparent rounded-2xl focus:ring-0 focus:outline-none bg-transparent appearance-none text-gray-700 font-montserrat"
              >
                 <option value="">Toutes les catégories</option>
-                {Object.values(Category).map(category => <option key={category} value={category}>{category}</option>)}
+                {CATEGORIES_SORTED.map(category => <option key={category} value={category}>{category}</option>)}
              </select>
           </div>
           <button 
@@ -362,7 +362,9 @@ export const HomePage: React.FC = () => {
                     listingIndex={index}
                   />
                   
-                  {/* Publicité Mobile: toutes les 5 annonces */}
+                  {/* PUBLICITÉS TEMPORAIREMENT DÉSACTIVÉES - En attente approbation Google AdSense
+                  
+                  Publicité Mobile: toutes les 5 annonces
                   {(index + 1) % 5 === 0 && (
                     <div className="md:hidden col-span-1">
                       <AdBanner 
@@ -373,7 +375,7 @@ export const HomePage: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* Publicité Desktop: toutes les 2 rangées (6 annonces) */}
+                  Publicité Desktop: toutes les 2 rangées (6 annonces)
                   {(index + 1) % 6 === 0 && (
                     <div className="hidden md:block md:col-span-3">
                       <AdBanner 

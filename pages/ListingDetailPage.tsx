@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { BackButton } from '../components/BackButton';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 import { ProtectedAction } from '../components/ProtectedAction';
-import { AdBanner } from '../components/AdBanner';
+// import { AdBanner } from '../components/AdBanner'; // TEMPORAIREMENT DÉSACTIVÉ - En attente approbation Google AdSense
 import { useAuth } from '../contexts/AuthContext';
 import { EditListingModal } from '../components/EditListingModal';
 import { ReportModal } from '../components/ReportModal';
@@ -534,25 +534,31 @@ export const ListingDetailPage: React.FC = () => {
                 ) : null}
               </div>
               
-              {/* Publicité Sidebar - Desktop uniquement */}
+              {/* PUBLICITÉ TEMPORAIREMENT DÉSACTIVÉE - En attente approbation Google AdSense
+              
+              Publicité Sidebar - Desktop uniquement
               <div className="hidden lg:block">
                 <AdBanner 
                   format="square" 
                   adSlot="6772460317"
                 />
               </div>
+              */}
             </div>
           </div>
           
         </div>
         
-        {/* Publicité Mobile - En bas de la page */}
+        {/* PUBLICITÉ TEMPORAIREMENT DÉSACTIVÉE - En attente approbation Google AdSense
+        
+        Publicité Mobile - En bas de la page
         <div className="lg:hidden mt-8 pb-8">
           <AdBanner 
             format="horizontal" 
             adSlot="3278393270"
           />
         </div>
+        */}
       </div>
 
       {/* Modal pour agrandir les images */}
