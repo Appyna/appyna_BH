@@ -9,6 +9,7 @@ export const getStripe = () => {
       console.error('VITE_STRIPE_PUBLISHABLE_KEY is not defined');
       return Promise.resolve(null);
     }
+    console.log('Stripe key loaded:', key?.substring(0, 12)); // Debug log
     stripePromise = loadStripe(key);
   }
   return stripePromise;

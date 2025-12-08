@@ -24,31 +24,23 @@ serve(async (req) => {
       throw new Error('listingId and userId are required')
     }
 
-    // Prix en centimes d'euro (conversion depuis shekels)
-    // 9.90₪ ≈ 2.79€ | 24.90₪ ≈ 6.79€ | 39.90₪ ≈ 10.99€
+    // Prix en agorot (centimes de shekels) - 100 agorot = 1 ₪
+    // 9.90₪ = 990 agorot | 24.90₪ = 2490 agorot | 39.90₪ = 3990 agorot
     const priceMap: Record<number, number> = {
-      1: 279,   // 2.79€
-      3: 679,   // 6.79€
-      7: 1099,  // 10.99€
+      1: 990,   // 9.90₪
+      3: 2490,  // 24.90₪
+      7: 3990,  // 39.90₪
     }
 
-    const amount = priceMap[duration] || 279
-
-    // Affichage du prix en shekels pour le client
-    const shekelPrices: Record<number, string> = {
-      1: '9.90₪',
-      3: '24.90₪',
-      7: '39.90₪',
-    }
-    const shekelPrice = shekelPrices[duration] || '9.90₪'
+    const amount = priceMap[duration] || 990
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           price_data: {
-            currency: 'eur',
+            currency: 'ils',
             product_data: {
-              name: `Boost d'annonce ${shekelPrice} - ${duration} jour${duration > 1 ? 's' : ''}`,
+              name: `Boost d'annonce - ${duration} jour${duration > 1 ? 's' : ''}`,
               description: 'Mise en avant de votre annonce',
             },
             unit_amount: amount,

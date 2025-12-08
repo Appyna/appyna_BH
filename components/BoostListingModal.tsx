@@ -101,7 +101,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
               <input type="radio" name="boost" checked={selectedDuration === 1} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
               <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 1 jour</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">9.90 <span className="text-base font-medium text-gray-500">₪</span> <span className="text-sm font-normal text-gray-500">(≈ 2,79 €)</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">9.90 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
 
           {/* 3 jours */}
@@ -118,7 +118,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
               <input type="radio" name="boost" checked={selectedDuration === 3} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
               <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 3 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">24.90 <span className="text-base font-medium text-gray-500">₪</span> <span className="text-sm font-normal text-gray-500">(≈ 6,79 €)</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">24.90 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
 
           {/* 7 jours */}
@@ -134,7 +134,7 @@ export const BoostListingModal: React.FC<BoostListingModalProps> = ({
               <input type="radio" name="boost" checked={selectedDuration === 7} readOnly className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-1 flex-shrink-0" />
               <span className="ml-3 text-sm font-bold text-gray-800 leading-tight">Annonce boostée pendant 7 jours</span>
             </div>
-            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">39.90 <span className="text-base font-medium text-gray-500">₪</span> <span className="text-sm font-normal text-gray-500">(≈ 10,99 €)</span></p>
+            <p className="text-center text-2xl font-extrabold text-gray-900 mt-2">39.90 <span className="text-base font-medium text-gray-500">₪</span></p>
           </div>
         </div>
 
