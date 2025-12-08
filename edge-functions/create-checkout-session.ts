@@ -49,7 +49,7 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      payment_method_types: ['card'],
+      // Ne pas spécifier payment_method_types pour accepter TOUS les types de cartes automatiquement
       success_url: `${req.headers.get('origin')}/boost/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/boost/cancel`,
       metadata: {
