@@ -23,22 +23,32 @@ serve(async (req) => {
       throw new Error('listingId and userId are required')
     }
 
+    // Prix en centimes d'euro (conversion depuis shekels)
+    // 9.90₪ ≈ 2.79€ | 24.90₪ ≈ 6.79€ | 39.90₪ ≈ 10.99€
     const priceMap: Record<number, number> = {
-      1: 990,
-      3: 2490,
-      7: 3990,
+      1: 279,   // 2.79€
+      3: 679,   // 6.79€
+      7: 1099,  // 10.99€
     }
 
-    const amount = priceMap[duration] || 990
+    const amount = priceMap[duration] || 279
+
+    // Affichage du prix en shekels pour le client
+    const shekelPrices: Record<number, string> = {
+      1: '9.90₪',
+      3: '24.90₪',
+      7: '39.90₪',
+    }
+    const shekelPrice = shekelPrices[duration] || '9.90₪'
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           price_data: {
-            currency: 'ils',
+            currency: 'eur',
             product_data: {
-              name: `Boost d'annonce - ${duration} jour${duration > 1 ? 's' : ''}`,
-              description: 'Mettez votre annonce en avant',
+              name: `Boost d'annonce ${shekelPrice} - ${duration} jour${duration > 1 ? 's' : ''}`,
+              description: 'Mise en avant de votre annonce',
             },
             unit_amount: amount,
           },
