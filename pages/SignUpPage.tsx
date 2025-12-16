@@ -206,11 +206,147 @@ export const SignUpPage: React.FC = () => {
                             </button>
                         </div>
                         <div className="px-8 py-6 overflow-y-auto max-h-[calc(85vh-88px)]">
-                            <div className="prose prose-sm max-w-none font-montserrat text-gray-700">
-                                <p className="text-center text-gray-500 italic">
-                                    Le contenu des conditions d'utilisation sera ajouté ici prochainement.
+                            <div className="prose prose-sm max-w-none font-montserrat text-gray-700 space-y-6">
+                                <p className="text-sm text-gray-600 mb-8">Dernière mise à jour : 25 novembre 2025</p>
+
+                                {/* Article 1 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 1 - Objet et champ d'application</h2>
+                                    <p className="text-sm mb-2">
+                                        Les présentes Conditions Générales d'Utilisation (ci-après "CGU") régissent l'accès et l'utilisation de la plateforme Appyna, accessible à l'adresse <a href="https://appyna.com" className="text-primary-600 hover:underline">https://appyna.com</a> (ci-après "la Plateforme").
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        Appyna est une plateforme en ligne permettant aux utilisateurs de publier des annonces de biens et services, de consulter les annonces d'autres utilisateurs, et de communiquer entre eux via un système de messagerie intégré.
+                                    </p>
+                                    <p className="text-sm">
+                                        L'utilisation de la Plateforme implique l'acceptation pleine et entière des présentes CGU. Si vous n'acceptez pas ces conditions, vous devez vous abstenir d'utiliser la Plateforme.
+                                    </p>
+                                </section>
+
+                                {/* Article 2 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 2 - Accès à la plateforme</h2>
+                                    <p className="text-sm mb-2">
+                                        <strong>Âge minimum :</strong> L'accès à la Plateforme est réservé aux personnes âgées d'au moins 18 ans. En vous inscrivant, vous déclarez et garantissez avoir au moins 18 ans.
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        <strong>Inscription obligatoire :</strong> La création d'un compte utilisateur est nécessaire pour publier des annonces, envoyer des messages et accéder à certaines fonctionnalités de la Plateforme.
+                                    </p>
+                                    <p className="text-sm">
+                                        <strong>Vérification email :</strong> Lors de votre inscription, un email de confirmation vous sera envoyé. Vous devez cliquer sur le lien de validation pour activer votre compte.
+                                    </p>
+                                </section>
+
+                                {/* Article 3 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 3 - Création et gestion de compte</h2>
+                                    <p className="text-sm mb-2">
+                                        <strong>Informations exactes :</strong> Vous vous engagez à fournir des informations exactes, complètes et à jour lors de votre inscription. Toute fausse information peut entraîner la suspension ou la suppression de votre compte.
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        <strong>Sécurité du compte :</strong> Vous êtes seul responsable de la confidentialité de votre mot de passe et de toute activité effectuée sous votre compte. En cas d'utilisation non autorisée de votre compte, vous devez immédiatement nous en informer à l'adresse <a href="mailto:appyna.contact@gmail.com" className="text-primary-600 hover:underline">appyna.contact@gmail.com</a>.
+                                    </p>
+                                    <p className="text-sm">
+                                        <strong>Compte unique :</strong> Chaque utilisateur ne peut créer qu'un seul compte. La création de comptes multiples dans le but d'abuser du système est strictement interdite et peut entraîner le bannissement définitif de tous vos comptes.
+                                    </p>
+                                </section>
+
+                                {/* Article 4 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 4 - Publication d'annonces</h2>
+                                    <div className="bg-red-50 border-l-4 border-red-500 p-3 mb-3">
+                                        <p className="font-bold text-red-800 mb-1 text-sm">CONTENUS STRICTEMENT INTERDITS</p>
+                                        <p className="text-red-700 text-xs mb-2">
+                                            La publication des contenus suivants est formellement interdite et entraînera la suppression immédiate de votre annonce et le bannissement de votre compte, sans préavis :
+                                        </p>
+                                        <ul className="list-disc ml-4 text-red-700 text-xs space-y-1">
+                                            <li>Armes, munitions, explosifs ou matériel militaire</li>
+                                            <li>Drogues, stupéfiants ou substances illicites</li>
+                                            <li>Contrefaçons ou produits piratés</li>
+                                            <li>Contenus à caractère pornographique, pédopornographique ou sexuellement explicites</li>
+                                            <li>Animaux protégés ou issus du trafic</li>
+                                            <li>Services illégaux (piratage, blanchiment, prostitution, etc.)</li>
+                                            <li>Documents officiels falsifiés</li>
+                                            <li>Contenus incitant à la haine, au racisme ou à la discrimination</li>
+                                        </ul>
+                                    </div>
+                                    <p className="text-sm mb-2">
+                                        <strong>Obligation de véracité :</strong> Vous vous engagez à publier des annonces véridiques, exactes et non trompeuses.
+                                    </p>
+                                    <p className="text-sm">
+                                        <strong>Limites techniques :</strong> Chaque annonce peut contenir un maximum de 6 images. Vous ne pouvez publier plus de 15 annonces par jour.
+                                    </p>
+                                </section>
+
+                                {/* Article 5 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 5 - Responsabilité des utilisateurs</h2>
+                                    <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 mb-3">
+                                        <p className="font-bold text-yellow-900 mb-1 text-sm">AVERTISSEMENT IMPORTANT</p>
+                                        <p className="text-yellow-800 text-xs mb-2">
+                                            <strong>Appyna n'est qu'un intermédiaire technique.</strong> Nous ne vérifions pas l'identité des utilisateurs ni la véracité des annonces.
+                                        </p>
+                                        <p className="text-yellow-800 text-xs font-bold">
+                                            VIGILANCE : Soyez prudent, vérifiez l'identité de vos interlocuteurs et privilégiez les rencontres dans des lieux publics.
+                                        </p>
+                                    </div>
+                                    <p className="text-sm mb-2">
+                                        <strong>Responsabilité exclusive :</strong> Vous êtes seul responsable de vos annonces, de vos messages et de toute transaction conclue avec d'autres utilisateurs.
+                                    </p>
+                                </section>
+
+                                {/* Article 6 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 6 - Modération et signalement</h2>
+                                    <p className="text-sm mb-2">
+                                        <strong>Droit de modération :</strong> Appyna se réserve le droit, sans préavis ni justification, de supprimer ou masquer toute annonce, message ou contenu qui contreviendrait aux présentes CGU.
+                                    </p>
+                                    <p className="text-sm">
+                                        <strong>Bannissement :</strong> En cas de violation grave ou répétée des CGU, Appyna peut suspendre ou supprimer définitivement votre compte.
+                                    </p>
+                                </section>
+
+                                {/* Article 7 */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Article 7 - Service de boost payant</h2>
+                                    <p className="text-sm mb-2">
+                                        <strong>Tarifs :</strong> Boost 1 jour : 9,90 ₪ | Boost 3 jours : 24,90 ₪ | Boost 7 jours : 39,90 ₪
+                                    </p>
+                                    <div className="bg-red-50 border-l-4 border-red-500 p-3 mb-2">
+                                        <p className="font-bold text-red-800 text-xs">❌ Les boosts sont strictement non remboursables.</p>
+                                    </div>
+                                </section>
+
+                                {/* Articles restants résumés */}
+                                <section>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-3">Articles complémentaires</h2>
+                                    <p className="text-sm mb-2">
+                                        <strong>Messagerie (Art. 8) :</strong> Limite de 5 000 caractères par message. Interdiction de spam et contenus illégaux.
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        <strong>Données personnelles (Art. 10) :</strong> Consultez notre Politique de Confidentialité pour plus d'informations.
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        <strong>Limitation de responsabilité (Art. 11) :</strong> Appyna ne garantit pas la disponibilité 24/7 ni la véracité des annonces.
+                                    </p>
+                                    <p className="text-sm mb-2">
+                                        <strong>Litiges (Art. 13) :</strong> Loi applicable : droit israélien. Tribunaux compétents : Jérusalem, Israël.
+                                    </p>
+                                </section>
+
+                                {/* Contact */}
+                                <section className="bg-primary-50 rounded-lg p-4 mt-4">
+                                    <h2 className="text-lg font-bold text-gray-900 mb-2">Contact</h2>
+                                    <p className="text-sm text-gray-700">
+                                        <strong>Appyna</strong><br/>
+                                        Siège social : Jérusalem, Israël<br/>
+                                        Email : <a href="mailto:appyna.contact@gmail.com" className="text-primary-600 hover:underline">appyna.contact@gmail.com</a>
+                                    </p>
+                                </section>
+
+                                <p className="text-xs text-gray-500 text-center mt-6">
+                                    Pour lire l'intégralité des CGU, rendez-vous sur la page dédiée après votre inscription.
                                 </p>
-                                {/* Le contenu sera ajouté ici */}
                             </div>
                         </div>
                     </div>
