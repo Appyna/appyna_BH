@@ -42,18 +42,11 @@ export const listingsService = {
       query = query.not('boosted_at', 'is', null);
     }
 
-    // TRI CÔTÉ SUPABASE (avant pagination) - CRITIQUE pour éviter les bugs
-    // 1. Par boosted_until DESC NULLS LAST : Les boosts actifs (date future) en premier
-    // 2. Par boosted_at DESC NULLS LAST : Parmi les boostés, les plus récents d'abord  
-    // 3. Par created_at DESC : Pour les non-boostés, les plus récents d'abord
-    // Note : boosted_until DESC met automatiquement les dates futures (boosts actifs) avant
-    //        les dates passées (boosts expirés) avant les NULL (jamais boosté)
-    query = query
-      .order('boosted_until', { ascending: false, nullsFirst: false })
-      .order('boosted_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+    // Tri par created_at DESC pour récupérer les annonces les plus récentes d'abord
+    // Le tri final (boosts actifs en premier) sera fait côté client
+    query = query.order('created_at', { ascending: false });
 
-    // Appliquer la pagination APRÈS le tri
+    // Appliquer la pagination APRÈS le tri par created_at
     if (filters?.page !== undefined || filters?.limit !== undefined) {
       query = query.range(from, to);
     }
@@ -65,8 +58,8 @@ export const listingsService = {
       return [];
     }
 
-    // Mapper les données - Le tri est déjà fait côté Supabase
-    return data.map((listing: any) => ({
+    // Mapper les données
+    const listings = data.map((listing: any) => ({
       id: listing.id,
       title: listing.title,
       description: listing.description,
@@ -86,6 +79,28 @@ export const listingsService = {
       boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
     }));
+
+    // Tri final : boosts actifs en premier, puis par date de création
+    return listings.sort((a, b) => {
+      const now = new Date();
+      const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
+      const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
+      
+      // 1. Les annonces boostées actives d'abord
+      if (aBoostActive && !bBoostActive) return -1;
+      if (!aBoostActive && bBoostActive) return 1;
+      
+      // 2. Si les deux sont boostées actives, tri par date de boost (plus récent d'abord)
+      if (aBoostActive && bBoostActive) {
+        const aBoostDate = new Date(a.boostedAt || a.createdAt).getTime();
+        const bBoostDate = new Date(b.boostedAt || b.createdAt).getTime();
+        return bBoostDate - aBoostDate;
+      }
+      
+      // 3. Pour tout le reste (non-boostés + boosts expirés), déjà triés par created_at DESC
+      // On garde l'ordre existant (qui vient de Supabase)
+      return 0;
+    });
   },
 
   // Récupérer une annonce par ID
