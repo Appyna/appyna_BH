@@ -206,7 +206,29 @@ export const HomePage: React.FC = () => {
     const newListings = await listingsService.getListings({ page: nextPage, limit: itemsPerPage });
     
     if (newListings.length > 0) {
-      setAllListings(prev => [...prev, ...newListings]);
+      setAllListings(prev => {
+        const combined = [...prev, ...newListings];
+        // Re-trier tout le tableau pour garantir l'ordre correct
+        return combined.sort((a, b) => {
+          const now = new Date();
+          const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
+          const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
+          
+          // 1. Les annonces boostées actives d'abord
+          if (aBoostActive && !bBoostActive) return -1;
+          if (!aBoostActive && bBoostActive) return 1;
+          
+          // 2. Si les deux sont boostées, tri par date de boost (plus récent d'abord)
+          if (aBoostActive && bBoostActive) {
+            const aBoostDate = new Date(a.boostedAt || a.createdAt).getTime();
+            const bBoostDate = new Date(b.boostedAt || b.createdAt).getTime();
+            return bBoostDate - aBoostDate;
+          }
+          
+          // 3. Si aucune n'est boostée, tri par date de création (plus récent d'abord)
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+      });
       setCurrentPage(nextPage);
       setHasMore(newListings.length === itemsPerPage);
     } else {
