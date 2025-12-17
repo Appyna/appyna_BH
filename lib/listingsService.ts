@@ -39,10 +39,19 @@ export const listingsService = {
       query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
     }
     if (filters?.boosted) {
-      query = query.not('boosted_at', 'is', null).order('boosted_at', { ascending: false });
+      query = query.not('boosted_at', 'is', null);
     }
 
-    // Appliquer la pagination seulement si on a des filtres de pagination
+    // TRI CÔTÉ SUPABASE (avant pagination) - CRITIQUE pour éviter les bugs
+    // 1. Annonces boostées actives d'abord (is_boost_active calculé en SQL)
+    // 2. Puis par date de boost (plus récent en premier)
+    // 3. Puis par date de création (plus récent en premier)
+    query = query
+      .order('is_boost_active', { ascending: false, nullsFirst: false })
+      .order('boosted_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+
+    // Appliquer la pagination APRÈS le tri
     if (filters?.page !== undefined || filters?.limit !== undefined) {
       query = query.range(from, to);
     }
@@ -54,7 +63,8 @@ export const listingsService = {
       return [];
     }
 
-    const listings = data.map((listing: any) => ({
+    // Mapper les données - Le tri est déjà fait côté Supabase
+    return data.map((listing: any) => ({
       id: listing.id,
       title: listing.title,
       description: listing.description,
@@ -74,27 +84,6 @@ export const listingsService = {
       boostedUntil: listing.boosted_until,
       createdAt: listing.created_at,
     }));
-
-    // Tri manuel : annonces boostées actives en premier
-    return listings.sort((a, b) => {
-      const now = new Date();
-      const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
-      const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
-      
-      // 1. Les annonces boostées actives d'abord
-      if (aBoostActive && !bBoostActive) return -1;
-      if (!aBoostActive && bBoostActive) return 1;
-      
-      // 2. Si les deux sont boostées, tri par date de boost (plus récent d'abord)
-      if (aBoostActive && bBoostActive) {
-        const aBoostDate = a.boostedAt ? new Date(a.boostedAt).getTime() : new Date(a.createdAt).getTime();
-        const bBoostDate = b.boostedAt ? new Date(b.boostedAt).getTime() : new Date(b.createdAt).getTime();
-        return bBoostDate - aBoostDate;
-      }
-      
-      // 3. Si aucune n'est boostée, tri par date de création
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
   },
 
   // Récupérer une annonce par ID

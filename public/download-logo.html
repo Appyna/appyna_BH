@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger le logo Appyna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        #logoCanvas {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            background: white;
+        }
+        button {
+            background: linear-gradient(to right, #7C3AED, #2DD4BF);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Logo Appyna</h1>
+        <p>Cliquez sur le bouton pour télécharger le logo en PNG</p>
+        <canvas id="logoCanvas" width="800" height="180"></canvas>
+        <div>
+            <button onclick="downloadLogo(1)">Télécharger PNG (800x180)</button>
+            <button onclick="downloadLogo(2)">Télécharger PNG HD (1600x360)</button>
+            <button onclick="downloadLogo(4)">Télécharger PNG 4K (3200x720)</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('logoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawLogo(scale = 1) {
+            const baseWidth = 800;
+            const baseHeight = 180;
+            
+            canvas.width = baseWidth * scale;
+            canvas.height = baseHeight * scale;
+            
+            ctx.scale(scale, scale);
+            
+            // Créer le dégradé
+            const gradient = ctx.createLinearGradient(0, 0, 800, 0);
+            gradient.addColorStop(0, '#7C3AED');
+            gradient.addColorStop(1, '#2DD4BF');
+            
+            // Dessiner le texte
+            ctx.fillStyle = gradient;
+            ctx.font = 'bold 140px Poppins, Arial, sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Appyna', 50, 90);
+            
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        // Dessiner le logo au chargement
+        drawLogo(1);
+
+        function downloadLogo(scale) {
+            drawLogo(scale);
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const size = scale === 1 ? '' : scale === 2 ? '-HD' : '-4K';
+                link.download = `logo-appyna${size}.png`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                // Redessiner à la taille normale pour l'aperçu
+                setTimeout(() => drawLogo(1), 100);
+            });
+        }
+    </script>
+</body>
+</html>
