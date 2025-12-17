@@ -3,49 +3,50 @@
 -- Fix l'ordre d'affichage : boostées en premier, puis chronologique
 -- ====================================
 
--- Étape 1 : Ajouter une colonne calculée pour savoir si le boost est actif
--- Cette colonne se met à jour automatiquement
-ALTER TABLE public.listings 
-ADD COLUMN IF NOT EXISTS is_boost_active BOOLEAN 
-GENERATED ALWAYS AS (
-  boosted_until IS NOT NULL AND boosted_until > NOW()
-) STORED;
-
--- Étape 2 : Créer un index composite pour optimiser le tri
--- Cet index permet de trier rapidement par : boost actif → date de boost → date de création
+-- Étape 1 : Créer un index composite pour optimiser le tri
+-- Cet index permet de trier rapidement par : date d'expiration boost → date de boost → date de création
 DROP INDEX IF EXISTS idx_listings_sort_order;
 CREATE INDEX idx_listings_sort_order ON public.listings (
-  is_boost_active DESC NULLS LAST,
+  boosted_until DESC NULLS LAST,
   boosted_at DESC NULLS LAST,
   created_at DESC
 ) WHERE is_hidden = false;
 
--- Étape 3 : Vérifier que la colonne fonctionne correctement
+-- Note : On n'utilise pas de colonne calculée car NOW() n'est pas immutable
+-- Le tri se fait directement dans les requêtes avec boosted_until
+
+-- Étape 2 : Vérifier que le tri fonctionne correctement
 -- Cette requête montre les 10 premières annonces dans le bon ordre
 SELECT 
   id,
   title,
-  is_boost_active,
   boosted_at,
   boosted_until,
   created_at,
   CASE 
-    WHEN is_boost_active THEN 'Boosté actif'
+    WHEN boosted_until IS NOT NULL AND boosted_until > NOW() THEN 'Boosté actif'
     WHEN boosted_until IS NOT NULL AND boosted_until < NOW() THEN 'Boost expiré'
     ELSE 'Non boosté'
   END as status
 FROM public.listings
 WHERE is_hidden = false
 ORDER BY 
-  is_boost_active DESC NULLS LAST,
+  boosted_until DESC NULLS LAST,
   boosted_at DESC NULLS LAST,
   created_at DESC
 LIMIT 10;
 
 -- ====================================
 -- RÉSULTAT ATTENDU :
--- 1. Toutes les annonces avec boost actif (is_boost_active = true)
---    Triées par date de boost (plus récent en premier)
--- 2. Puis toutes les annonces non boostées
+-- 1. Annonces avec boost actif (boosted_until > NOW()) en premier
+--    Triées par boosted_until DESC puis boosted_at DESC
+-- 2. Puis annonces avec boost expiré
+-- 3. Puis annonces non boostées (boosted_until IS NULL)
 --    Triées par date de création (plus récent en premier)
+-- 
+-- Le tri par boosted_until DESC avec NULLS LAST garantit que :
+-- - Les boosts actifs avec date future sont en haut
+-- - Triés du plus loin (plus récemment boosté) au plus proche
+-- - Les boosts expirés sont au milieu
+-- - Les non-boostés (NULL) sont à la fin
 -- ====================================

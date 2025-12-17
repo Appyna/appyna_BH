@@ -43,11 +43,13 @@ export const listingsService = {
     }
 
     // TRI CÔTÉ SUPABASE (avant pagination) - CRITIQUE pour éviter les bugs
-    // 1. Annonces boostées actives d'abord (is_boost_active calculé en SQL)
-    // 2. Puis par date de boost (plus récent en premier)
-    // 3. Puis par date de création (plus récent en premier)
+    // 1. Par boosted_until DESC NULLS LAST : Les boosts actifs (date future) en premier
+    // 2. Par boosted_at DESC NULLS LAST : Parmi les boostés, les plus récents d'abord  
+    // 3. Par created_at DESC : Pour les non-boostés, les plus récents d'abord
+    // Note : boosted_until DESC met automatiquement les dates futures (boosts actifs) avant
+    //        les dates passées (boosts expirés) avant les NULL (jamais boosté)
     query = query
-      .order('is_boost_active', { ascending: false, nullsFirst: false })
+      .order('boosted_until', { ascending: false, nullsFirst: false })
       .order('boosted_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
