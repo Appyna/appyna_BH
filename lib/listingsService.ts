@@ -99,12 +99,7 @@ export const listingsService = {
       return bCreatedDate - aCreatedDate;
     });
 
-    // Appliquer la pagination après le tri
-    const limit = filters?.limit || 50;
-    const page = filters?.page || 0;
-    const from = page * limit;
-    const to = from + limit;
-
+    // Appliquer la pagination après le tri (utilise les variables from/to déclarées en haut)
     return sortedListings.slice(from, to);
   },
 
