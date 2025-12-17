@@ -42,16 +42,12 @@ export const listingsService = {
       query = query.not('boosted_at', 'is', null);
     }
 
-    // Tri par created_at DESC pour récupérer les annonces les plus récentes d'abord
-    // Le tri final (boosts actifs en premier) sera fait côté client
+    // Tri par created_at pour récupérer les annonces (le tri final se fait après)
     query = query.order('created_at', { ascending: false });
 
-    // Appliquer la pagination APRÈS le tri par created_at
-    if (filters?.page !== undefined || filters?.limit !== undefined) {
-      query = query.range(from, to);
-    }
-
-    const { data, error } = await query;
+    // NE PAS paginer ici - on doit trier TOUTES les annonces d'abord
+    // Récupérer toutes les annonces (max 1000 pour la sécurité)
+    const { data, error } = await query.limit(1000);
 
     if (error) {
       console.error('Error fetching listings:', error);
@@ -81,7 +77,7 @@ export const listingsService = {
     }));
 
     // Tri final : boosts actifs en premier, puis par date de création
-    return listings.sort((a, b) => {
+    const sortedListings = listings.sort((a, b) => {
       const now = new Date();
       const aBoostActive = a.boostedUntil && new Date(a.boostedUntil) > now;
       const bBoostActive = b.boostedUntil && new Date(b.boostedUntil) > now;
@@ -97,10 +93,19 @@ export const listingsService = {
         return bBoostDate - aBoostDate;
       }
       
-      // 3. Pour tout le reste (non-boostés + boosts expirés), déjà triés par created_at DESC
-      // On garde l'ordre existant (qui vient de Supabase)
-      return 0;
+      // 3. Pour tout le reste (non-boostés + boosts expirés), tri par date de création
+      const aCreatedDate = new Date(a.createdAt).getTime();
+      const bCreatedDate = new Date(b.createdAt).getTime();
+      return bCreatedDate - aCreatedDate;
     });
+
+    // Appliquer la pagination après le tri
+    const limit = filters?.limit || 50;
+    const page = filters?.page || 0;
+    const from = page * limit;
+    const to = from + limit;
+
+    return sortedListings.slice(from, to);
   },
 
   // Récupérer une annonce par ID

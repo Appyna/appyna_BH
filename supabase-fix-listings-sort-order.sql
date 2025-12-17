@@ -33,8 +33,9 @@ WHERE is_hidden = false
 ORDER BY 
   -- 1. Boosts actifs d'abord (1 = actif, 0 = expiré ou pas de boost)
   CASE WHEN boosted_until > NOW() THEN 1 ELSE 0 END DESC,
-  -- 2. Parmi les boosts actifs, les plus récemment boostés en premier
-  boosted_at DESC NULLS LAST,
+  -- 2. Parmi les boosts actifs UNIQUEMENT, les plus récemment boostés en premier
+  --    Pour les autres (expirés + jamais boostés), renvoie NULL pour être ignoré
+  CASE WHEN boosted_until > NOW() THEN boosted_at ELSE NULL END DESC NULLS LAST,
   -- 3. Pour tout le reste (non-boostés + boosts expirés), tri par date de création
   created_at DESC
 LIMIT 20;
